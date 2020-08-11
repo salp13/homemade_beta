@@ -1,0 +1,41 @@
+{
+  "dummyFridgeItems": [
+    {
+      "title": "cauliflower", 
+      "daysToExp": 6, 
+      "imageIndex": 0, 
+      "selected": false
+    },
+    {
+      "title": "chicken", 
+      "daysToExp": 1, 
+      "imageIndex": 1, 
+      "selected": false
+    },
+    {
+      "title": "kale", 
+      "daysToExp": 10, 
+      "imageIndex": 0, 
+      "selected": false
+    },
+    {
+      "title": "bell pepper", 
+      "daysToExp": 5, 
+      "imageIndex": 0, 
+      "selected": false
+    },
+    {
+      "title": "oat milk", 
+      "daysToExp": 11, 
+      "imageIndex": 2, 
+      "selected": false
+    }
+  ],
+  "dummyAllFoods": [
+    {"title": "tomato paste"},
+    {"title": "tomato"},
+    {"title": "pasta"},
+    {"title": "jalepeno pepper"},
+    {"title": "bell pepper"}
+  ]
+}
