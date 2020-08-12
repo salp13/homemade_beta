@@ -3,12 +3,16 @@ import { StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { Text, View, Image } from './Themed';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 interface Props {
   imageIndex: number
   title: string
-  daysToExp: number
+  daysToExp: number | undefined
   selected: boolean
+  index: number
+  modalUpdateFunc: Function
+  onPressItemFunc: Function | null
 }
 
 const images = [
@@ -20,21 +24,38 @@ const images = [
 ]
 
 export default class FridgeItem extends React.Component<Props> {
+
+
+  updateModalVisible = () => {
+    this.props.modalUpdateFunc(this.props.index)
+  }
+
+  onPressItem = () => {
+    if (this.props.onPressItemFunc !== null) this.props.onPressItemFunc(this.props.index)
+  }
+
+
   render() {
     let secondaryText = ''
     if (this.props.daysToExp && this.props.daysToExp === 1) secondaryText = 'this expires today'
     else if (this.props.daysToExp) secondaryText = `this expires in ${this.props.daysToExp} days`
 
     return (
-      <View style={styles.container}>
-        <View style={this.props.selected ? styles.imageContainerBorder : styles.imageContainerNoBorder} >
-          <Image style={styles.image} source={this.props.imageIndex !== -1 ? images[this.props.imageIndex] : images[4]}/>
+      <TouchableWithoutFeedback onPress={this.onPressItem}>
+        <View style={styles.container}>
+          <View style={this.props.selected ? styles.imageContainerBorder : styles.imageContainerNoBorder} >
+            <Image style={styles.image} source={this.props.imageIndex !== -1 ? images[this.props.imageIndex] : images[4]}/>
+          </View>
+          <Text style={styles.itemName}>{this.props.title + "\n"}
+            <Text style={styles.secondary} lightColor="#ccc" darkColor="#ccc">{secondaryText}</Text>
+          </Text>
+          <View style={styles.menuIcon}>
+            <TouchableWithoutFeedback onPress={this.updateModalVisible}>
+              <MaterialCommunityIcons name="dots-horizontal" size={25}/>
+            </TouchableWithoutFeedback>
+          </View>
         </View>
-        <Text style={styles.itemName}>{this.props.title + "\n"}
-          <Text style={styles.secondary} lightColor="#ccc" darkColor="#ccc">{secondaryText}</Text>
-        </Text>
-        <MaterialCommunityIcons name="dots-horizontal" size={25} style={styles.icon} />
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 }
@@ -42,7 +63,7 @@ export default class FridgeItem extends React.Component<Props> {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     marginTop: 10,
     marginBottom: 15,
     flexDirection: "row",
@@ -83,9 +104,8 @@ const styles = StyleSheet.create({
   fontSize: 12,
   fontWeight: "normal"
   },
-  icon:{
+  menuIcon:{
     marginTop: 5,
-    justifyContent: 'flex-end',
-    marginLeft: 'auto'
+    marginLeft: 'auto',
   }
 });
