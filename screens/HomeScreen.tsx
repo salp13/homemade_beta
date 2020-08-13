@@ -23,6 +23,7 @@ interface State {
     modalVisible: boolean,
     index: number | undefined
   }
+  swipingAction: boolean
 }
 
 export default class HomeScreen extends React.Component<Props, State> {
@@ -45,15 +46,15 @@ export default class HomeScreen extends React.Component<Props, State> {
         modalVisible: false, 
         index: undefined
       },
+      swipingAction: false,
     };
 
     this.OnChangeSearch = this.OnChangeSearch.bind(this)
     this.OnClearSearch = this.OnClearSearch.bind(this)
-    this.OnPressFridge = this.OnPressFridge.bind(this)
-    this.FridgeItemModalUpdate = this.FridgeItemModalUpdate.bind(this)
-    this.IngredientItemModalUpdate = this.IngredientItemModalUpdate.bind(this)
-    this.FridgeModalResult = this.FridgeModalResult.bind(this)
-    this.IngredientModalResult = this.IngredientModalResult.bind(this)
+    this.OnSwipeNoScroll = this.OnSwipeNoScroll.bind(this)
+    this.OnSwipeScroll = this.OnSwipeScroll.bind(this)
+    this.modalUpdate = this.modalUpdate.bind(this)
+    this.modalResult = this.modalResult.bind(this)
     this.FridgeToIngredient = this.FridgeToIngredient.bind(this)
     this.IngredientRemove = this.IngredientRemove.bind(this)
     this.FridgeDismiss = this.FridgeDismiss.bind(this)
@@ -109,45 +110,46 @@ export default class HomeScreen extends React.Component<Props, State> {
     });
   }
 
-  OnPressFridge(index: number) {
-    this.FridgeToIngredient(index)
-  }
-
-  FridgeItemModalUpdate(index: number) {
+  OnSwipeNoScroll() {
     this.setState({
-      modalFridge: {
-        modalVisible: true, 
-        index: index
-      }
+      swipingAction: true,
     })
   }
 
-  IngredientItemModalUpdate(index: number) {
+  OnSwipeScroll() {
     this.setState({
-      modalIngredient: {
-        modalVisible: true, 
-        index: index
-      }
+      swipingAction: false,
     })
   }
 
-  FridgeModalResult(index: number, action?: string) {
-    if (action === "add") this.FridgeToIngredient(index)
-    else if (action === "dismiss") this.FridgeDismiss(index)
-    else {
+  modalUpdate(index: number, selected: boolean) {
+    if (selected) {
+      this.setState({
+        modalIngredient: {
+          modalVisible: true, 
+          index: index
+        }
+      })
+    } else {
       this.setState({
         modalFridge: {
-          modalVisible: false,
-          index: undefined
+          modalVisible: true, 
+          index: index
         }
       })
     }
   }
 
-  IngredientModalResult(index: number, action?: string) {
-    if (action === "remove") this.IngredientRemove(index)
+  modalResult(index: number, action?: string) {
+    if (action === "add") this.FridgeToIngredient(index)
+    else if (action === "dismiss") this.FridgeDismiss(index)
+    else if (action === "remove") this.IngredientRemove(index)
     else {
       this.setState({
+        modalFridge: {
+          modalVisible: false,
+          index: undefined
+        },
         modalIngredient: {
           modalVisible: false,
           index: undefined
@@ -158,6 +160,7 @@ export default class HomeScreen extends React.Component<Props, State> {
 
   FridgeToIngredient(index: number) {
     let item = this.state.fridgeItems[index]
+    console.log(item)
     item.selected = true
     let replaceFridgeItems = this.state.fridgeItems
     replaceFridgeItems.splice(index,1)
@@ -225,33 +228,34 @@ export default class HomeScreen extends React.Component<Props, State> {
           inputStyle={styles.searchBarTextStyle}
         />
         <SectionList
+          scrollEnabled={!this.state.swipingAction}
           sections={[
             {title: "ingredients", data: this.state.ingredients},
             {title: "fridgeItems", data: this.state.fridgeItems}
           ]}
           renderItem={({item, index}) => (
             <FridgeItem
-              title={item.title} 
-              imageIndex={item.imageIndex} 
-              daysToExp={item.daysToExp} 
-              selected={item.selected} 
+              item={item}
               index={index}
-              modalUpdateFunc={
-                item.selected === true ? 
-                this.IngredientItemModalUpdate : 
-                this.FridgeItemModalUpdate}
-              onPressItemFunc={
-                item.selected === true ? 
-                null : 
+              modalUpdateFunc={this.modalUpdate}
+              swipeLeftFunc={
+                item.selected ?
+                this.IngredientRemove :
+                this.FridgeDismiss}
+              swipeRightFunc={
+                item.selected ? 
+                (index: number) => { return index } :
                 this.FridgeToIngredient}
+              swipeStart={this.OnSwipeNoScroll}
+              swipeEnd={this.OnSwipeScroll}
             />
           )}
           renderSectionHeader={() => (
             <View style={{marginTop: 10}}/>
           )}
         /> 
-        <HomeFridgeModal modalProperties={this.state.modalFridge} ModalResultFunc={this.FridgeModalResult}/>
-        <HomeIngredientModal modalProperties={this.state.modalIngredient} ModalResultFunc={this.IngredientModalResult}/>
+        <HomeFridgeModal modalProperties={this.state.modalFridge} ModalResultFunc={this.modalResult}/>
+        <HomeIngredientModal modalProperties={this.state.modalIngredient} ModalResultFunc={this.modalResult}/>
       </View>
     );
   }
@@ -294,12 +298,12 @@ const styles = StyleSheet.create({
     - tap off search bar to cancel 
     FEATURES
     - if ingredients is not empty, option to proceed
-    - swipe capabilities
     DESIGN
     - change highlight border color
     - make image background lighter, 
     - make secondary text color darker
     - modal options design (add icon and fix layout)
+    - swipe icons
     FUNCTIONALITY
     - resort after returning to fridge from ingredient list
 */
