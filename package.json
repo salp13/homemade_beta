@@ -34,8 +34,6 @@
     "react-native-modals": "0.19.9",
     "react-native-safe-area-context": "~3.0.7",
     "react-native-screens": "~2.9.0",
-    "react-native-swipe-gestures": "^1.0.5",
-    "react-native-swipe-list-view": "^3.2.3",
     "react-native-swipeable": "^0.6.0",
     "react-native-vector-icons": "7.0.0",
     "react-native-web": "~0.11.7"
