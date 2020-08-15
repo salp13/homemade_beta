@@ -4,38 +4,195 @@
       "title": "cauliflower", 
       "daysToExp": 6, 
       "imageIndex": 0, 
-      "selected": false
+      "selected": false,
+      "viewable": true
     },
     {
       "title": "chicken", 
       "daysToExp": 1, 
       "imageIndex": 1, 
-      "selected": false
+      "selected": false,
+      "viewable": true
     },
     {
       "title": "kale", 
       "daysToExp": 10, 
       "imageIndex": 0, 
-      "selected": false
+      "selected": false,
+      "viewable": true
     },
     {
       "title": "bell pepper", 
       "daysToExp": 5, 
       "imageIndex": 0, 
-      "selected": false
+      "selected": false,
+      "viewable": true
     },
     {
       "title": "oat milk", 
       "daysToExp": 11, 
       "imageIndex": 2, 
-      "selected": false
+      "selected": false,
+      "viewable": true
     }
   ],
   "dummyAllFoods": [
-    {"title": "tomato paste"},
-    {"title": "tomato"},
-    {"title": "pasta"},
-    {"title": "jalepeno pepper"},
-    {"title": "bell pepper"}
+    {
+      "title": "tomato paste",
+      "defaultDaysToExp": 100,
+      "imageIndex": 3
+    },
+    {
+      "title": "tomato",
+      "defaultDaysToExp": 10,
+      "imageIndex": 0
+    },
+    {
+      "title": "pasta",
+      "defaultDaysToExp": 100,
+      "imageIndex": 4
+    },
+    {
+      "title": "jalepeno pepper",
+      "defaultDaysToExp": 14,
+      "imageIndex": 0
+    },
+    {
+      "title": "bell pepper",
+      "defaultDaysToExp": 10,
+      "imageIndex": 0
+    }
+  ],
+  "dummyRecipeOverviews": [
+    {
+      "id": "1",
+      "title": "Curry Ground Turkey",
+      "imageIndex": 0,
+      "dietaryPreference": [
+        "vegan",
+        "sustainable"
+      ],
+      "saved": false,
+      "cuisine": "indian",
+      "mealType": "dinner"
+    },
+    {
+      "id": "2",
+      "title": "Turkey Empanada",
+      "imageIndex": 1,
+      "dietaryPreference": [
+        "vegan",
+        "sustainable"
+      ],
+      "saved": false,
+      "cuisine": "mexican",
+      "mealType": "dinner"
+    },
+    {
+      "id": "3",
+      "title": "Ground Turkey Pasta",
+      "imageIndex": 2,
+      "dietaryPreference": [
+        "vegan",
+        "sustainable"
+      ],
+      "saved": false,
+      "cuisine": "italian",
+      "mealType": "dinner"
+    },
+    {
+      "id": "4",
+      "title": "Turkey Broccoli Pasta",
+      "imageIndex": 3,
+      "dietaryPreference": [
+        "vegan",
+        "sustainable"
+      ],
+      "saved": false,
+      "cuisine": "italian",
+      "mealType": "dinner"
+    },
+    {
+      "id": "5",
+      "title": "Turkey Sloppy Joes",
+      "imageIndex": 4,
+      "dietaryPreference": [
+        "vegan",
+        "sustainable"
+      ],
+      "saved": false,
+      "cuisine": "american",
+      "mealType": "dinner"
+    },
+    {
+      "id": "6",
+      "title": "Turkey Stroganoff",
+      "imageIndex": 5,
+      "dietaryPreference": [
+        "vegan",
+        "sustainable"
+      ],
+      "saved": false,
+      "cuisine": "german",
+      "mealType": "dinner"
+    },
+    {
+      "id": "7",
+      "title": "Turkey Taco Zoodles",
+      "imageIndex": 6,
+      "dietaryPreference": [
+        "vegan",
+        "sustainable"
+      ],
+      "saved": false,
+      "cuisine": "mexican",
+      "mealType": "dinner"
+    },
+    {
+      "id": "8",
+      "title": "Curry Ground Turkey",
+      "imageIndex": 0,
+      "dietaryPreference": [
+        "vegan",
+        "sustainable"
+      ],
+      "saved": false,
+      "cuisine": "indian",
+      "mealType": "dinner"
+    },
+    {
+      "id": "9",
+      "title": "Curry Ground Turkey",
+      "imageIndex": 0,
+      "dietaryPreference": [
+        "vegan",
+        "sustainable"
+      ],
+      "saved": false,
+      "cuisine": "indian",
+      "mealType": "dinner"
+    }
+  ],
+  "dummyRecipes": [
+    {
+      "id": "1",
+      "title":"recipe1",
+      "imageIndex": 0,
+      "dietaryPreferences": [
+        "vegan",
+        "sustainable"
+      ],
+      "servingSize": 2,
+      "saved": false,
+      "ingredients": [
+        "flour",
+        "butter",
+        "sugar"
+      ],
+      "directions": [
+        "combine ingredients in a bowl",
+        "bake ingredients"
+      ]
+    }
   ]
 }

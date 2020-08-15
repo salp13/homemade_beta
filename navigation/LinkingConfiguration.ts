@@ -9,6 +9,7 @@ export default {
           Home: {
             screens: {
               HomeScreen: 'home',
+              HomeResultScreen: 'homeResults',
             },
           },
           Search: {
@@ -29,11 +30,6 @@ export default {
           Profile: {
             screens: {
               ProfileScreen: 'profile',
-            },
-          },
-          TabTwo: {
-            screens: {
-              TabTwoScreen: 'two',
             },
           },
         },

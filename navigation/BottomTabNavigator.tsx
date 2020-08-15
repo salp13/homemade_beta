@@ -11,8 +11,15 @@ import SearchScreen from '../screens/SearchScreen';
 import FridgeScreen from '../screens/FridgeScreen';
 import ShoppingListScreen from '../screens/ShoppingListScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
-import { BottomTabParamList, HomeParamList, SearchParamList, FridgeParamList, ShoppingListParamList, ProfileParamList, TabTwoParamList } from '../types';
+import HomeResultScreen from '../screens/HomeResultScreen';
+import { 
+  BottomTabParamList, 
+  HomeParamList, 
+  SearchParamList, 
+  FridgeParamList, 
+  ShoppingListParamList, 
+  ProfileParamList, 
+  HomeResultParamList } from '../types';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -58,13 +65,6 @@ export default function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="person" color={color} />,
         }}
       />
-      {/* <BottomTab.Screen
-        name="TabTwo"
-        component={TabTwoNavigator}
-        options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
-        }}
-      /> */}
     </BottomTab.Navigator>
   );
 }
@@ -82,6 +82,11 @@ function TabBarIcon(props: { name: string; color: string }) {
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
 
 const HomeStack = createStackNavigator<HomeParamList>();
+const SearchStack = createStackNavigator<SearchParamList>();
+const FridgeStack = createStackNavigator<FridgeParamList>();
+const ShoppingListStack = createStackNavigator<ShoppingListParamList>();
+const ProfileStack = createStackNavigator<ProfileParamList>();
+const HomeResultStack = createStackNavigator<HomeResultParamList>();
 
 function HomeNavigator() {
   return (
@@ -94,11 +99,14 @@ function HomeNavigator() {
         name="HomeScreen"
         component={HomeScreen}
       />
+      <HomeResultStack.Screen
+        name="HomeResultScreen"
+        component={HomeResultScreen}
+        initialParams={{ specifiedItems: ['avocado'] }}
+      />
     </HomeStack.Navigator>
   );
 }
-
-const SearchStack = createStackNavigator<SearchParamList>();
 
 function SearchNavigator() {
   return (
@@ -115,8 +123,6 @@ function SearchNavigator() {
   );
 }
 
-const FridgeStack = createStackNavigator<FridgeParamList>();
-
 function FridgeNavigator() {
   return (
     <FridgeStack.Navigator>
@@ -128,8 +134,6 @@ function FridgeNavigator() {
     </FridgeStack.Navigator>
   );
 }
-
-const ShoppingListStack = createStackNavigator<ShoppingListParamList>();
 
 function ShoppingListNavigator() {
   return (
@@ -143,8 +147,6 @@ function ShoppingListNavigator() {
   );
 }
 
-const ProfileStack = createStackNavigator<ProfileParamList>();
-
 function ProfileNavigator() {
   return (
     <ProfileStack.Navigator>
@@ -157,16 +159,17 @@ function ProfileNavigator() {
   );
 }
 
-const TabTwoStack = createStackNavigator<TabTwoParamList>();
-
-function TabTwoNavigator() {
+function HomeResultNavigator() {
   return (
-    <TabTwoStack.Navigator>
-      <TabTwoStack.Screen
-        name="TabTwoScreen"
-        component={TabTwoScreen}
-        options={{ headerTitle: 'Tab Two Title' }}
+    <HomeResultStack.Navigator
+      screenOptions={{
+        headerShown: false
+      }}
+    >
+      <HomeResultStack.Screen
+        name="HomeResultScreen"
+        component={HomeResultScreen}
       />
-    </TabTwoStack.Navigator>
+    </HomeResultStack.Navigator>
   );
 }

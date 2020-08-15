@@ -167,3 +167,9 @@ const styles = StyleSheet.create({
     paddingLeft: 20
   },
 });
+
+
+/*
+  BE-TODO
+    - get images to render from backend
+*/

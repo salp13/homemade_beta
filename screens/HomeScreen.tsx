@@ -1,13 +1,24 @@
 import * as React from 'react';
-import { StyleSheet, ActivityIndicator, Platform, SectionList} from 'react-native';
+import { StyleSheet, ActivityIndicator, Platform, SectionList, FlatList, TouchableWithoutFeedback } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
 
 import { Text, View, SearchBar } from '../components/Themed';
 import dummyData from "../dummyData.json";
 import FridgeItem from '../components/FridgeItem'
 import HomeFridgeModal from '../components/HomeFridgeModal'
 import HomeIngredientModal from '../components/HomeIngredientModal'
+import { SearchBar as SearchBarElement } from 'react-native-elements';
+import { HomeParamList } from '../types'
 
-interface Props {}
+type HomeResultScreenNavigationProp = StackNavigationProp<HomeParamList, 'HomeResultScreen'>;
+type HomeResultScreenRouteProp = RouteProp<HomeParamList, 'HomeResultScreen'>;
+
+interface Props {
+  navigation: HomeResultScreenNavigationProp,
+  route: HomeResultScreenRouteProp
+}
 
 interface State {
   isLoading: boolean
@@ -27,7 +38,17 @@ interface State {
 }
 
 export default class HomeScreen extends React.Component<Props, State> {
-  arrayholder: Array<any> = [];
+  private searchRef = React.createRef<SearchBarElement>();
+  private searchBarProps = {
+    placeholder: "Find an ingredient to use...",
+    autoCorrect: false,
+    showCancel: true,
+    containerStyle: styles.searchBarContainerStyle,
+    inputContainerStyle: styles.searchBarInputContainerStyle,
+    inputStyle: styles.searchBarTextStyle,
+    cancelButtonProps: {buttonTextStyle: {fontSize: 15}},
+    reference: this.searchRef,
+  }
 
   constructor(props: Props) {
     super(props);
@@ -51,6 +72,7 @@ export default class HomeScreen extends React.Component<Props, State> {
 
     this.OnChangeSearch = this.OnChangeSearch.bind(this)
     this.OnClearSearch = this.OnClearSearch.bind(this)
+    this.OnPressSearch = this.OnPressSearch.bind(this)
     this.OnSwipeNoScroll = this.OnSwipeNoScroll.bind(this)
     this.OnSwipeScroll = this.OnSwipeScroll.bind(this)
     this.modalUpdate = this.modalUpdate.bind(this)
@@ -66,7 +88,6 @@ export default class HomeScreen extends React.Component<Props, State> {
       fridgeItems: dummyData.dummyFridgeItems
     })
 
-    // BE-TODO: query for user's fridge items
     // return fetch('https://jsonplaceholder.typicode.com/posts')
     //   .then(response => response.json())
     //   .then(data => {
@@ -83,12 +104,21 @@ export default class HomeScreen extends React.Component<Props, State> {
   }
 
   OnChangeSearch(text: string) {
+    const lowerCaseText = text.toLowerCase()
+    const newFood = dummyData.dummyAllFoods
+    .filter((food) => {
+      return food.title.includes(lowerCaseText)
+    }).filter((food) => {
+      return !this.state.ingredients
+      .find((ingredient) => {
+        return ingredient.title === food.title})
+      })
+    
     this.setState({
-      allFood: dummyData.dummyAllFoods,
+      allFood: newFood,
       search: text
     });
-    
-    // BE-TODO: query all foods
+
     // return fetch('https://jsonplaceholder.typicode.com/posts', {body: JSON.stringify(text)})
     //   .then(response => response.json())
     //   .then(data => {
@@ -108,6 +138,43 @@ export default class HomeScreen extends React.Component<Props, State> {
       allFood: [],
       search: '',
     });
+  }
+
+  OnPressSearch(index: number) {    
+    const replaceFridgeItems = this.state.fridgeItems
+    const fridgeIndex = replaceFridgeItems.findIndex((fridgeItem) => {return fridgeItem.title === this.state.allFood[index].title})
+    let item = {
+      title: this.state.allFood[index].title,
+      imageIndex: this.state.allFood[index].imageIndex,
+      daysToExp: undefined,
+      selected: true,
+      viewable: true
+    } 
+    if (fridgeIndex !== -1) {
+      item = {
+        title: this.state.fridgeItems[fridgeIndex].title,
+        imageIndex: this.state.fridgeItems[fridgeIndex].imageIndex,
+        daysToExp: this.state.fridgeItems[fridgeIndex].daysToExp,
+        selected: true,
+        viewable: true
+      } 
+      replaceFridgeItems[fridgeIndex].viewable = false
+    } else {
+      item = {
+        title: this.state.allFood[index].title,
+        imageIndex: this.state.allFood[index].imageIndex,
+        daysToExp: undefined,
+        selected: true,
+        viewable: true
+      } 
+    }
+    this.setState({
+      allFood: [],
+      search: '',
+      ingredients: this.state.ingredients.concat([item]),
+      fridgeItems: replaceFridgeItems
+    })
+    if (this.searchRef.current?.cancel) this.searchRef.current.cancel()
   }
 
   OnSwipeNoScroll() {
@@ -159,11 +226,15 @@ export default class HomeScreen extends React.Component<Props, State> {
   }
 
   FridgeToIngredient(index: number) {
-    let item = this.state.fridgeItems[index]
-    console.log(item)
-    item.selected = true
-    let replaceFridgeItems = this.state.fridgeItems
-    replaceFridgeItems.splice(index,1)
+    const item = {
+      title: this.state.fridgeItems[index].title,
+      daysToExp: this.state.fridgeItems[index].daysToExp,
+      imageIndex: this.state.fridgeItems[index].imageIndex,
+      selected: true,
+      viewable: true
+    }
+    const replaceFridgeItems = this.state.fridgeItems
+    replaceFridgeItems[index].viewable = false
     this.setState({
       fridgeItems: replaceFridgeItems,
       ingredients: this.state.ingredients.concat([item]),
@@ -175,13 +246,14 @@ export default class HomeScreen extends React.Component<Props, State> {
   }
 
   IngredientRemove(index: number) {
-    let item = this.state.ingredients[index]
-    item.selected = false
-    const updateFridgeItems = item.daysToExp ? this.state.fridgeItems.concat([item]) : this.state.fridgeItems
-    let ingredientRemoved = this.state.ingredients
+    const item = this.state.ingredients[index]
+    const replaceFridgeItems = this.state.fridgeItems
+    const fridgeIndex = replaceFridgeItems.findIndex((fridgeItem) => {return fridgeItem.title === item.title})
+    if (fridgeIndex !== -1) replaceFridgeItems[fridgeIndex].viewable = true
+    const ingredientRemoved = this.state.ingredients
     ingredientRemoved.splice(index,1)
     this.setState({
-      fridgeItems: updateFridgeItems,
+      fridgeItems: replaceFridgeItems,
       ingredients: ingredientRemoved,
       modalIngredient: {
         modalVisible: false, 
@@ -192,12 +264,12 @@ export default class HomeScreen extends React.Component<Props, State> {
 
   FridgeDismiss(index: number) {
     const replaceFridgeItems = this.state.fridgeItems
-    replaceFridgeItems.splice(index,1)
+    replaceFridgeItems[index].viewable = false
     this.setState({
       fridgeItems: replaceFridgeItems,
       modalFridge: {
         modalVisible: false, 
-        index: undefined
+        index: undefined 
       },
     })
   }
@@ -214,52 +286,62 @@ export default class HomeScreen extends React.Component<Props, State> {
       <View style={styles.container}>
         <Text style={styles.title}>Hello!</Text>
         <Text style={styles.title}>Which ingredients would you like to use today?</Text>
+        <TouchableWithoutFeedback 
+          onPress={() => this.props.navigation.navigate('HomeResultScreen', {specifiedItems: this.state.ingredients})} 
+          disabled={this.state.ingredients.length < 1}
+          >
+          {this.state.ingredients.length < 1 ? 
+            (<Text></Text>) : 
+            (<Ionicons 
+              name="ios-arrow-round-forward" size={75} color="black" 
+              style={{marginTop: -50, left: 300, marginBottom:0, height: '8%'}}/>)}
+        </TouchableWithoutFeedback>
         <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
         <SearchBar
           onChangeText={text => this.OnChangeSearch(text)}
           onClear={this.OnClearSearch}
           value={this.state.search}
-          placeholder="Find an ingredient to use..."
-          autoCorrect={false}
-          platform={Platform.OS === "android" || Platform.OS === "ios" ? Platform.OS : "default"}
-          showCancel
-          containerStyle={styles.searchBarContainerStyle}
-          inputContainerStyle={styles.searchBarInputContainerStyle}
-          inputStyle={styles.searchBarTextStyle}
+          platform={(Platform.OS === "android" || Platform.OS === "ios") ? Platform.OS : "default"}
+          {...this.searchBarProps}
         />
-        <SectionList
-          scrollEnabled={!this.state.swipingAction}
-          sections={[
-            {title: "ingredients", data: this.state.ingredients},
-            {title: "fridgeItems", data: this.state.fridgeItems}
-          ]}
+        {this.state.search !== '' ? 
+        (<FlatList
+          data={this.state.allFood}
           renderItem={({item, index}) => (
-            <FridgeItem
-              item={item}
-              index={index}
-              modalUpdateFunc={this.modalUpdate}
-              swipeLeftFunc={
-                item.selected ?
-                this.IngredientRemove :
-                this.FridgeDismiss}
-              swipeRightFunc={
-                item.selected ? 
-                (index: number) => { return index } :
-                this.FridgeToIngredient}
-              swipeStart={this.OnSwipeNoScroll}
-              swipeEnd={this.OnSwipeScroll}
-            />
+            <TouchableWithoutFeedback onPress={() => this.OnPressSearch(index)}>
+              <Text style={styles.searchResultText}>{item.title}</Text>
+            </TouchableWithoutFeedback>
           )}
-          renderSectionHeader={() => (
-            <View style={{marginTop: 10}}/>
-          )}
-        /> 
+          keyExtractor={(item, index) => item}
+        />) :
+        (
+          <SectionList
+            scrollEnabled={!this.state.swipingAction}
+            sections={[ {data: this.state.ingredients}, {data: this.state.fridgeItems} ]}
+            renderItem={({item, index}) => {
+              if (!item.viewable) return (<Text style={{marginTop: -20}}></Text>)
+              return (
+              <FridgeItem
+                item={item} 
+                index={index} 
+                modalUpdateFunc={this.modalUpdate}
+                swipeStart={this.OnSwipeNoScroll}
+                swipeEnd={this.OnSwipeScroll}
+                swipeLeftFunc={item.selected ? this.IngredientRemove : this.FridgeDismiss}
+                swipeRightFunc={item.selected ? (index: number) => { return index } : this.FridgeToIngredient}
+              />
+            )}}
+            renderSectionHeader={() => ( <View style={{marginTop: 10}}/> )}
+            /> 
+        )}
         <HomeFridgeModal modalProperties={this.state.modalFridge} ModalResultFunc={this.modalResult}/>
         <HomeIngredientModal modalProperties={this.state.modalIngredient} ModalResultFunc={this.modalResult}/>
       </View>
     );
   }
 }
+
+
 
 
 const styles = StyleSheet.create({
@@ -288,24 +370,23 @@ const styles = StyleSheet.create({
   searchBarTextStyle: {
     fontSize: 15,
   },
+  searchResultText: {
+    marginLeft: 20,
+    marginTop: 15,
+    fontSize: 15,
+  },
 });
 
 
 /*
   FE-TODO
-    SEARCH
-    - display search recommendations
-    - tap off search bar to cancel 
-    FEATURES
-    - if ingredients is not empty, option to proceed
     DESIGN
     - change highlight border color
     - make image background lighter, 
     - make secondary text color darker
     - modal options design (add icon and fix layout)
     - swipe icons
-    FUNCTIONALITY
-    - resort after returning to fridge from ingredient list
+    - better continue arrow
 */
 
 /*
@@ -320,4 +401,6 @@ const styles = StyleSheet.create({
     SEARCH
     - best way to search database of all food 
       - load everything and filter through it? fetch on every change? 
+    - specify exact object types for state and props
+    - style sheet for entire project
 */

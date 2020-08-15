@@ -9,11 +9,13 @@ export type BottomTabParamList = {
   Fridge: undefined;
   ShoppingList: undefined;
   Profile: undefined;
-  TabTwo: undefined;
 };
 
 export type HomeParamList = {
   HomeScreen: undefined;
+  HomeResultScreen: {
+    specifiedItems: Array<any>
+  }
 };
 
 export type SearchParamList = {
@@ -32,6 +34,8 @@ export type ProfileParamList = {
   ProfileScreen: undefined;
 };
 
-export type TabTwoParamList = {
-  TabTwoScreen: undefined;
+export type HomeResultParamList = {
+  HomeResultScreen: {
+    specifiedItems: Array<any>
+  }
 };

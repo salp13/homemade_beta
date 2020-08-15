@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Text as DefaultText, View as DefaultView, Image as DefaultImage } from 'react-native';
-import {SearchBar as DefaultSearchBar} from 'react-native-elements';
+import { SearchBar as DefaultSearchBar } from 'react-native-elements';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
@@ -42,10 +42,14 @@ type ThemeProps = {
   darkColor?: string;
 };
 
+type RefProps = {
+  reference?: React.RefObject<DefaultSearchBar>
+}
+
 export type TextProps = ThemeProps & DefaultText['props'];
 export type ViewProps = ThemeProps & DefaultView['props'];
 export type ImageProps = ThemeProps & DefaultImage['props'];
-export type SearchBarProps = DefaultSearchBar['props'];
+export type SearchBarProps = ThemeProps & DefaultSearchBar['props'] & RefProps;
 
 export function Text(props: TextProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
@@ -69,13 +73,14 @@ export function Image(props: ImageProps) {
 }
 
 export function SearchBar(props: SearchBarProps) {
-  const {containerStyle, inputContainerStyle, inputStyle, ...otherProps} = props
+  const {containerStyle, inputContainerStyle, inputStyle, reference, ...otherProps} = props
   const { lightMode, outerBackgroundColor, inputBackgroundColor, textColor } = useThemeColorSearch()
   return <DefaultSearchBar 
     lightTheme={ lightMode } 
     containerStyle={[{ backgroundColor: outerBackgroundColor }, containerStyle]} 
     inputContainerStyle={[{ backgroundColor: inputBackgroundColor}, inputContainerStyle]} 
     inputStyle={[{ color: textColor}, inputStyle]}
+    ref={reference}
     {...otherProps} 
-  />
+  />;
 } 
