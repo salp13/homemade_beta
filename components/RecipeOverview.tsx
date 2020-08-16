@@ -47,13 +47,13 @@ export default class RecipeOverview extends React.Component<Props, State> {
       saved: this.props.saved
     }
 
-    this.OnPressDismiss = this.OnPressNavigate.bind(this)
+    this.OnPressNavigate = this.OnPressNavigate.bind(this)
     this.OnPressSave = this.OnPressSave.bind(this)
     this.OnPressDismiss = this.OnPressDismiss.bind(this)
   }
 
   componentDidUpdate() {
-    if (this.state.id !== this.props.id) {
+    if (this.state.id !== this.props.id || this.state.saved !== this.props.saved) {
       this.setState({
           id: this.props.id,
           title: this.props.title,
@@ -90,20 +90,18 @@ export default class RecipeOverview extends React.Component<Props, State> {
           <View>
             <Text style={{fontWeight: 'bold', marginBottom: 4}}>{this.state.title}</Text>
             <Text style={{marginBottom: 4}}>{dietaryPrefs}</Text>
+          </View>
+        </TouchableWithoutFeedback>
             <View style={{flexDirection: 'row', left: 125}}> 
               <View style={{left: -20}}>
                 <TouchableWithoutFeedback onPress={this.OnPressDismiss}>
                   <MaterialIcons name="clear" size={24} color="black"/>
                 </TouchableWithoutFeedback>
               </View>
-              
               <TouchableWithoutFeedback onPress={this.OnPressSave}>
                 <Fontisto name={this.state.saved ? "bookmark-alt" : "bookmark"} size={24} color="black" />
               </TouchableWithoutFeedback>
             </View>
-            
-          </View>
-        </TouchableWithoutFeedback>
       </View>
     );
   }

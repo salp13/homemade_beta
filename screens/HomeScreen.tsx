@@ -382,11 +382,10 @@ const styles = StyleSheet.create({
   FE-TODO
     DESIGN
     - change highlight border color
-    - make image background lighter, 
+    - make image background lighter
     - make secondary text color darker
     - modal options design (add icon and fix layout)
-    - swipe icons
-    - better continue arrow
+    - swipe icons (red needs dismiss and green needs add)
 */
 
 /*

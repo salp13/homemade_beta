@@ -1,10 +1,8 @@
 import React from 'react';
-import { TouchableWithoutFeedback, StyleSheet, SectionList, SectionListData } from 'react-native';
-import {BottomModal, ModalContent} from 'react-native-modals';
+import { Modal, TouchableWithoutFeedback, StyleSheet, SectionList, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 
 import { Text, View } from './Themed'
-import { ScrollView } from 'react-native-gesture-handler';
 
 interface Props {
   modalVisible: boolean,
@@ -14,6 +12,7 @@ interface Props {
     cuisine: Array<string>
   }
   modalResults: Function
+  modalVisibility: Function
 }
 
 interface State {
@@ -27,8 +26,9 @@ interface State {
     mealType: boolean
     dietaryPreferences: boolean
     cuisine: boolean
-  }
+  },
 }
+
 
 const filterOptions = {
   mealType: [
@@ -59,25 +59,37 @@ const filterOptions = {
 }
 
 export default class HomeFridgeModal extends React.Component<Props, State> {
+  
 
   constructor(props: Props) {
+    console.log( `rendering ${props.modalVisible}`)
     super(props)
     this.state = {
-      modalVisible: this.props.modalVisible,
+      modalVisible: false,
       filters: this.props.filters,
       showAll: {
         mealType: false,
         dietaryPreferences: false,
         cuisine: false
-      }
+      },
     }
 
     this.modalResults = this.modalResults.bind(this)
     this.filterClear = this.filterClear.bind(this)
-    this.filterExit = this.filterExit.bind(this)
     this.markFilter = this.markFilter.bind(this)
     this.showAllOptions = this.showAllOptions.bind(this)
     this.showFewerOptions = this.showFewerOptions.bind(this)
+  }
+
+  componentDidMount() {
+    this.setState({
+      modalVisible: false,
+      showAll: {
+        mealType: false,
+        dietaryPreferences: false,
+        cuisine: false
+      }
+    })
   }
 
   componentDidUpdate() {
@@ -85,11 +97,23 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
       this.setState({
         modalVisible: this.props.modalVisible,
         filters: this.props.filters,
+        showAll: {
+          mealType: false,
+          dietaryPreferences: false,
+          cuisine: false
+        },
       })
     }
   }
 
   modalResults() {
+    this.setState({
+      showAll: {
+        mealType: false,
+        dietaryPreferences: false,
+        cuisine: false
+      }
+    })
     this.props.modalResults(this.state.filters)
   }
 
@@ -99,21 +123,18 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
         mealType: [],
         dietaryPreference: [],
         cuisine: [],
+      },
+      showAll: {
+        mealType: false,
+        dietaryPreferences: false,
+        cuisine: false
       }
     })
-    this.modalResults()
-  }
-
-  filterExit() {
-    this.setState({
-      filters: this.props.filters
-    })
-    this.modalResults()
+    this.props.modalResults({mealType: [], dietaryPreference: [], cuisine: []})
   }
 
   markFilter(filterType: string, item: string) {
     const filters = this.state.filters
-    console.log(filters)
     const filterIndex = filters[filterType].findIndex((filter) => {return filter === item})
     if (filterIndex === -1) filters[filterType].push(item)
     else filters[filterType].splice(filterIndex, 1)
@@ -139,95 +160,96 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   render() {
+
     return (
-      <View>
-        <BottomModal
-          visible={this.state.modalVisible}
-          scrollable
-          rounded
-          swipeDirection='down'
-          onSwipeOut={() => {this.filterExit()}}
-          onTouchOutside={() => (this.filterExit())}
-          swipeThreshold={50}
-          opacity={.7}
+      <View> 
+        <Modal  
+          transparent = {false}
+          animationType = {"slide"}
+          visible = {this.state.modalVisible}
+          presentationStyle = "pageSheet"
           >
-          <View style={styles.bar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)"/>
-          <Text style={{alignSelf: 'center', fontSize: 15, fontWeight: 'bold', marginTop: 15}}>Filters</Text>
-          <ModalContent style={styles.container} >
-            <ScrollView>
-              <SectionList 
-                scrollEnabled={true}
-                sections={[
-                  {title: 'mealType', data: filterOptions.mealType}, 
-                  {title: 'dietaryPreference', data: filterOptions.dietaryPreference}, 
-                  {title: 'cuisine', data: filterOptions.cuisine}]}
-                renderItem={({item, index, section}) => {
-                  if (index < 3 || this.state.showAll[section.title]) {
-                    return (   
-                      <View style={{flexDirection: 'row', marginBottom: 15}}>
-                        <Text>{item}</Text>
-                        <View style={{marginLeft: 'auto', marginTop: -5}}>
-                          <TouchableWithoutFeedback onPress={() => this.markFilter(section.title, item)}>
-                            {(this.state.filters.mealType.find((filter) => {return filter === item})) || 
-                            (this.state.filters.dietaryPreference.find((filter) => {return filter === item})) || 
-                            (this.state.filters.cuisine.find((filter) => {return filter === item})) ? 
-                            <MaterialCommunityIcons name="checkbox-marked-outline" size={24} color="black" /> : 
-                            <MaterialCommunityIcons name="checkbox-blank-outline" size={24} color="black" /> }
-                          </TouchableWithoutFeedback>
-                        </View>
-                      </View> 
-                  )}
-                  else { return ( <Text></Text> ) }
-                }}
-                renderSectionHeader={({section}) => {
-                  let sectionHeader = 'Meal Types'
-                  if (section.title === 'dietaryPreferences') sectionHeader = 'Dietary Preferences'
-                  else if (section.title === 'cuisine') sectionHeader = 'Cuisines'
-                  return ( 
-                    <View style={{marginTop: 10, marginBottom: 15}}>
-                      <Text style={{fontSize: 20, fontWeight: 'bold'}}>{sectionHeader}</Text>
-                    </View> 
-                )}}
-                renderSectionFooter={({section}) => {
-                  if (!this.state.showAll[section.title]) {
-                    return (
-                      <View style={{marginTop: -20}}>
-                        <TouchableWithoutFeedback onPress={() => {this.showAllOptions(section.title)}}>
-                          <Text style={{textDecorationLine: 'underline'}}>Show all options</Text>
-                        </TouchableWithoutFeedback>
-                        <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-                      </View>
-                    )
-                  } else {
-                    return (
-                      <View>
-                        <TouchableWithoutFeedback onPress={() => {this.showFewerOptions(section.title)}}>
-                          <Text>Show fewer options</Text>
-                        </TouchableWithoutFeedback>
-                        <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-                      </View>
-                  )}}}
-              />
-            </ScrollView>
-            
-            <View style={{flexDirection: 'row', marginTop: -10}}> 
-              <TouchableWithoutFeedback onPress={this.filterClear}>
-                <Text>Clear All</Text>
-              </TouchableWithoutFeedback>
-              <TouchableWithoutFeedback onPress={this.modalResults}>
-                <Text style={{marginLeft: 'auto'}}>Show Results</Text>
-              </TouchableWithoutFeedback>
+            <View>
+              <View style={styles.bar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+              <Text style={{alignSelf: 'center', fontSize: 15, fontWeight: 'bold', marginTop: 15}}>Filters</Text>
+              <View style={styles.container} >
+                <ScrollView>
+                  <SectionList 
+                    sections={[
+                      {title: 'mealType', data: filterOptions.mealType}, 
+                      {title: 'dietaryPreference', data: filterOptions.dietaryPreference}, 
+                      {title: 'cuisine', data: filterOptions.cuisine}]}
+                    renderItem={({item, index, section}) => {
+                      if (index < 3 || this.state.showAll[section.title]) {
+                        return (   
+                          <View style={{flexDirection: 'row', marginBottom: 15}}>
+                            <Text>{item}</Text>
+                            <View style={{marginLeft: 'auto', marginTop: -5}}>
+                              <TouchableWithoutFeedback onPress={() => this.markFilter(section.title, item)}>
+                                {(this.state.filters.mealType.find((filter) => {return filter === item})) || 
+                                (this.state.filters.dietaryPreference.find((filter) => {return filter === item})) || 
+                                (this.state.filters.cuisine.find((filter) => {return filter === item})) ? 
+                                <MaterialCommunityIcons name="checkbox-marked-outline" size={24} color="black" /> : 
+                                <MaterialCommunityIcons name="checkbox-blank-outline" size={24} color="black" /> }
+                              </TouchableWithoutFeedback>
+                            </View>
+                          </View> 
+                      )}
+                      else { return ( <Text style={{marginTop: -20}}></Text> ) }
+                    }}
+                    renderSectionHeader={({section}) => {
+                      let sectionHeader = 'Meal Types'
+                      if (section.title === 'dietaryPreference') sectionHeader = 'Dietary Preferences'
+                      else if (section.title === 'cuisine') sectionHeader = 'Cuisines'
+                      return ( 
+                        <View style={{marginTop: 10, marginBottom: 15}}>
+                          <Text style={{fontSize: 20, fontWeight: 'bold'}}>{sectionHeader}</Text>
+                        </View> 
+                    )}}
+                    renderSectionFooter={({section}) => {
+                      if (!this.state.showAll[section.title]) {
+                        return (
+                          <View>
+                            <TouchableWithoutFeedback onPress={() => {this.showAllOptions(section.title)}}>
+                              <Text style={{textDecorationLine: 'underline'}}>Show all options</Text>
+                            </TouchableWithoutFeedback>
+                            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+                          </View>
+                        )
+                      } else {
+                        return (
+                          <View>
+                            <TouchableWithoutFeedback onPress={() => {this.showFewerOptions(section.title)}}>
+                              <Text style={{textDecorationLine: 'underline'}}>Show fewer options</Text>
+                            </TouchableWithoutFeedback>
+                            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+                          </View>
+                      )}}}
+                  />
+                </ScrollView>
+                
+                <View style={{flexDirection: 'row', marginTop: 30}}> 
+                  <TouchableWithoutFeedback onPress={this.filterClear}>
+                    <Text>Clear All</Text>
+                  </TouchableWithoutFeedback>
+                  <TouchableWithoutFeedback onPress={this.modalResults}>
+                    <Text style={{marginLeft: 'auto'}}>Show Results</Text>
+                  </TouchableWithoutFeedback>
+                </View>
+              </View>
             </View>
-            
-          </ModalContent>
-        </BottomModal>
+        </Modal>
       </View>
-    );
+    )
   }
 }
 
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    marginTop: 300,
+    height: 300,
+  },
   bar: {
     marginTop: 15,
     height: 3, 
@@ -236,10 +258,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center'
   },
   container: {
-    marginTop: -10,
     margin: 20,
     height: 700,
-    overflow: 'scroll'
+    overflow: 'scroll',
   },
   option: {
     marginTop: 5,

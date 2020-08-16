@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, SectionList, TouchableWithoutFeedback, FlatList } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 
@@ -56,6 +57,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     this.navigateRecipe = this.navigateRecipe.bind(this)
     this.saveRecipe = this.saveRecipe.bind(this)
     this.dismissRecipe = this.dismissRecipe.bind(this)
+    this.modalVisibility = this.modalVisibility.bind(this)
   }
 
   componentDidMount() {
@@ -78,11 +80,16 @@ export default class HomeResultScreen extends React.Component<Props, State> {
 
   onPressFilter() {
     this.setState({
-      filterModalViewable: true,
+      filterModalViewable: false,
     })
+
+    setTimeout(() => this.setState({
+      filterModalViewable: true,
+    }), 10)
   }
 
   filterModalResults(filters: any) {
+    console.log(filters)
     this.setState({
       filterModalViewable: false,
       filters: filters
@@ -109,6 +116,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   saveRecipe(recipeId: string) {
+    console.log("saveRecipe")
     const replaceRecipes = this.state.recipes
     const recipeIndex = replaceRecipes.findIndex((recipe) => {return recipe.id === recipeId})
     if (recipeIndex !== -1) {
@@ -120,6 +128,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   dismissRecipe(recipeId: string) {
+    console.log("dismissRecipe")
     const replaceRecipes = this.state.recipes
     const recipeIndex = replaceRecipes.findIndex((recipe) => {return recipe.id === recipeId})
     if (recipeIndex !== -1) {
@@ -130,23 +139,37 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     })
   }
 
+  modalVisibility(visible: boolean) {
+    this.setState({
+      filterModalViewable: visible
+    })
+  }
+
   render() {
     return (
       <View style={styles.container}>
-        <View style={{flexDirection:'row'}}>
+        <View style={{flexDirection:'row', marginLeft: 5, marginRight: 25}}>
+          <TouchableWithoutFeedback onPress={this.props.navigation.goBack}>
+            <Ionicons name="ios-arrow-back" size={24} color="black" style={{marginTop: -5}}/>
+          </TouchableWithoutFeedback>
+          {(this.state.filters.mealType.length || 
+            this.state.filters.dietaryPreference.length || 
+            this.state.filters.cuisine.length) ? 
+            <Text style={{ marginLeft: 15, fontWeight: 'bold'}}>Filters:</Text> : 
+            <Text></Text>}
           <SectionList
             horizontal
-            contentContainerStyle={{marginRight: 50}}
+            contentContainerStyle={{marginRight: 50, marginLeft: 10}}
             sections={[ 
               {data: this.state.filters.mealType}, 
               {data: this.state.filters.dietaryPreference}, 
               {data: this.state.filters.cuisine} ]}
             renderItem={({ item }) => (<Text>{item + "   "}</Text>)}
           />
-            <TouchableWithoutFeedback onPress={this.onPressFilter}>
-              <MaterialIcons name="filter-list" size={24} color="black" 
-                style={{marginLeft: 'auto', marginBottom: 10, marginTop: -5}} />
-            </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={this.onPressFilter}>
+            <MaterialIcons name="filter-list" size={24} color="black" 
+              style={{marginLeft: 'auto', marginBottom: 10, marginTop: -5}} />
+          </TouchableWithoutFeedback>
         </View>
         <FlatList
           horizontal={false}
@@ -170,6 +193,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
           modalVisible={this.state.filterModalViewable} 
           filters={this.state.filters} 
           modalResults={this.filterModalResults}
+          modalVisibility={this.modalVisibility}
           />
       </View>
     );
@@ -189,13 +213,8 @@ const styles = StyleSheet.create({
 
 /*
   FE-TODO
-    FEATURE
-      - back button and slide back 
-    FUNCTIONALITY
-      - list filters at top (scroll horizontally if too many to display) 
-      - fix filtering
     DESIGN
-      - filter display
+      - filter display on top
 */
 
 /*
