@@ -45,7 +45,7 @@ export default class FridgeItem extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
-    if (this.props.item.title !== this.state.title) {
+    if (this.props.item.title !== this.state.title || this.props.item.daysToExp !== this.state.daysToExp) {
       this.setState({
         imageIndex: this.props.item.imageIndex,
         title: this.props.item.title,

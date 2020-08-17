@@ -79,6 +79,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   onPressFilter() {
+    console.log(this.state.filters)
     this.setState({
       filterModalViewable: false,
     })
@@ -89,7 +90,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   filterModalResults(filters: any) {
-    console.log(filters)
+    console.log("filterModalResults called")
     this.setState({
       filterModalViewable: false,
       filters: filters

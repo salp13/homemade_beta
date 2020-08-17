@@ -83,9 +83,10 @@ export default class HomeScreen extends React.Component<Props, State> {
   }
 
   componentDidMount() {
+    const fridgeItemsDeepCopy = JSON.parse(JSON.stringify(dummyData.dummyFridgeItems));
     this.setState({
       isLoading: false,
-      fridgeItems: dummyData.dummyFridgeItems
+      fridgeItems: fridgeItemsDeepCopy
     })
 
     // return fetch('https://jsonplaceholder.typicode.com/posts')
@@ -306,6 +307,7 @@ export default class HomeScreen extends React.Component<Props, State> {
         />
         {this.state.search !== '' ? 
         (<FlatList
+          keyboardShouldPersistTaps='always'
           data={this.state.allFood}
           renderItem={({item, index}) => (
             <TouchableWithoutFeedback onPress={() => this.OnPressSearch(index)}>

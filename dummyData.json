@@ -38,26 +38,31 @@
   ],
   "dummyAllFoods": [
     {
+      "id": "1",
       "title": "tomato paste",
       "defaultDaysToExp": 100,
       "imageIndex": 3
     },
     {
+      "id": "2",
       "title": "tomato",
       "defaultDaysToExp": 10,
       "imageIndex": 0
     },
     {
+      "id": "3",
       "title": "pasta",
       "defaultDaysToExp": 100,
       "imageIndex": 4
     },
     {
+      "id": "4",
       "title": "jalepeno pepper",
       "defaultDaysToExp": 14,
       "imageIndex": 0
     },
     {
+      "id": "5",
       "title": "bell pepper",
       "defaultDaysToExp": 10,
       "imageIndex": 0

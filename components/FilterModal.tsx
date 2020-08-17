@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, TouchableWithoutFeedback, StyleSheet, SectionList, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { Modal, TouchableWithoutFeedback, StyleSheet, SectionList, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 
 import { Text, View } from './Themed'
@@ -62,11 +62,14 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   
 
   constructor(props: Props) {
-    console.log( `rendering ${props.modalVisible}`)
     super(props)
     this.state = {
       modalVisible: false,
-      filters: this.props.filters,
+      filters: {
+        mealType: [],
+        dietaryPreference: [],
+        cuisine: []
+      },
       showAll: {
         mealType: false,
         dietaryPreferences: false,
@@ -81,22 +84,25 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     this.showFewerOptions = this.showFewerOptions.bind(this)
   }
 
-  componentDidMount() {
-    this.setState({
-      modalVisible: false,
-      showAll: {
-        mealType: false,
-        dietaryPreferences: false,
-        cuisine: false
-      }
-    })
-  }
+  // componentDidMount() {
+  //   this.setState({
+  //     modalVisible: false,
+  //     showAll: {
+  //       mealType: false,
+  //       dietaryPreferences: false,
+  //       cuisine: false
+  //     }
+  //   })
+  // }
 
-  componentDidUpdate() {
+  // mark filter and then rerenders and calls componentdidupdate. when update is called props is new ? but why? 
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.props.modalVisible !== this.state.modalVisible) {
+      const filterDeepCopy = JSON.parse(JSON.stringify(this.props.filters));
       this.setState({
         modalVisible: this.props.modalVisible,
-        filters: this.props.filters,
+        filters: filterDeepCopy,
         showAll: {
           mealType: false,
           dietaryPreferences: false,
@@ -134,28 +140,28 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   markFilter(filterType: string, item: string) {
-    const filters = this.state.filters
-    const filterIndex = filters[filterType].findIndex((filter) => {return filter === item})
-    if (filterIndex === -1) filters[filterType].push(item)
-    else filters[filterType].splice(filterIndex, 1)
+    const filterDeepCopy = JSON.parse(JSON.stringify(this.state.filters));
+    const filterIndex = filterDeepCopy[filterType].findIndex((filter) => {return filter === item})
+    if (filterIndex === -1) filterDeepCopy[filterType].push(item)
+    else filterDeepCopy[filterType].splice(filterIndex, 1)
     this.setState({
-      filters: filters
+      filters: filterDeepCopy
     })
   }
 
   showAllOptions(filterType: string) {
-    const shown = this.state.showAll
-    shown[filterType] = true
+    const showAllDeepCopy = JSON.parse(JSON.stringify(this.state.showAll));
+    showAllDeepCopy[filterType] = true
     this.setState({
-      showAll: shown
+      showAll: showAllDeepCopy
     })
   }
 
   showFewerOptions(filterType: string) {
-    const shown = this.state.showAll
-    shown[filterType] = false
+    const showAllDeepCopy = JSON.parse(JSON.stringify(this.state.showAll));
+    showAllDeepCopy[filterType] = false
     this.setState({
-      showAll: shown
+      showAll: showAllDeepCopy
     })
   }
 
@@ -283,9 +289,3 @@ const styles = StyleSheet.create({
     height: 1,
   },
 })
-
-
-/*
-FE-TODO
-  - scroll capabilities
-*/

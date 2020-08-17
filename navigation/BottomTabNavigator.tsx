@@ -12,6 +12,7 @@ import FridgeScreen from '../screens/FridgeScreen';
 import ShoppingListScreen from '../screens/ShoppingListScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import HomeResultScreen from '../screens/HomeResultScreen';
+import AddFridgeItemScreen from '../screens/AddFridgeItemScreen';
 import { 
   BottomTabParamList, 
   HomeParamList, 
@@ -19,7 +20,8 @@ import {
   FridgeParamList, 
   ShoppingListParamList, 
   ProfileParamList, 
-  HomeResultParamList } from '../types';
+  HomeResultParamList, 
+  AddFridgeItemParamList} from '../types';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -87,6 +89,7 @@ const FridgeStack = createStackNavigator<FridgeParamList>();
 const ShoppingListStack = createStackNavigator<ShoppingListParamList>();
 const ProfileStack = createStackNavigator<ProfileParamList>();
 const HomeResultStack = createStackNavigator<HomeResultParamList>();
+const AddFridgeItemStack = createStackNavigator<AddFridgeItemParamList>();
 
 function HomeNavigator() {
   return (
@@ -131,6 +134,11 @@ function FridgeNavigator() {
         component={FridgeScreen}
         options={{ headerTitle: 'your fridge' }}
       />
+      <AddFridgeItemStack.Screen
+        name="AddFridgeItemScreen"
+        component={AddFridgeItemScreen}
+        options={{headerShown: false}}
+      />
     </FridgeStack.Navigator>
   );
 }
@@ -171,5 +179,24 @@ function HomeResultNavigator() {
         component={HomeResultScreen}
       />
     </HomeResultStack.Navigator>
+  );
+}
+
+function AddFridgeItemNavigator() {
+  return (
+    <AddFridgeItemStack.Navigator
+      screenOptions={{
+        headerShown: false
+      }}
+    >
+      <AddFridgeItemStack.Screen
+        name="AddFridgeItemScreen"
+        component={AddFridgeItemScreen}
+      />
+      <FridgeStack.Screen
+        name="FridgeScreen"
+        component={FridgeScreen}
+      />
+    </AddFridgeItemStack.Navigator>
   );
 }
