@@ -13,6 +13,7 @@ import ShoppingListScreen from '../screens/ShoppingListScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import HomeResultScreen from '../screens/HomeResultScreen';
 import AddFridgeItemScreen from '../screens/AddFridgeItemScreen';
+import AddShoppingListItemScreen from '../screens/AddShoppingListItemScreen'
 import { 
   BottomTabParamList, 
   HomeParamList, 
@@ -21,7 +22,8 @@ import {
   ShoppingListParamList, 
   ProfileParamList, 
   HomeResultParamList, 
-  AddFridgeItemParamList} from '../types';
+  AddFridgeItemParamList,
+  AddShoppingListItemParamList} from '../types';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -90,6 +92,7 @@ const ShoppingListStack = createStackNavigator<ShoppingListParamList>();
 const ProfileStack = createStackNavigator<ProfileParamList>();
 const HomeResultStack = createStackNavigator<HomeResultParamList>();
 const AddFridgeItemStack = createStackNavigator<AddFridgeItemParamList>();
+const AddShoppingListItemStack = createStackNavigator<AddShoppingListItemParamList>();
 
 function HomeNavigator() {
   return (
@@ -150,7 +153,12 @@ function ShoppingListNavigator() {
         name="ShoppingListScreen"
         component={ShoppingListScreen}
         options={{ headerTitle: 'shopping list' }}
-      />
+        />
+      <AddShoppingListItemStack.Screen
+        name="AddShoppingListItemScreen"
+        component={AddShoppingListItemScreen}
+        options={{ headerShown: false }}
+        />
     </ShoppingListStack.Navigator>
   );
 }
@@ -198,5 +206,24 @@ function AddFridgeItemNavigator() {
         component={FridgeScreen}
       />
     </AddFridgeItemStack.Navigator>
+  );
+}
+
+function AddShoppingListItemNavigator() {
+  return (
+    <AddShoppingListItemStack.Navigator
+      screenOptions={{
+        headerShown: false
+      }}
+    >
+      <AddShoppingListItemStack.Screen
+        name="AddShoppingListItemScreen"
+        component={AddShoppingListItemScreen}
+      />
+      <ShoppingListStack.Screen
+        name="ShoppingListScreen"
+        component={ShoppingListScreen}
+      />
+    </AddShoppingListItemStack.Navigator>
   );
 }

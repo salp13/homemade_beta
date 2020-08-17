@@ -84,19 +84,6 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     this.showFewerOptions = this.showFewerOptions.bind(this)
   }
 
-  // componentDidMount() {
-  //   this.setState({
-  //     modalVisible: false,
-  //     showAll: {
-  //       mealType: false,
-  //       dietaryPreferences: false,
-  //       cuisine: false
-  //     }
-  //   })
-  // }
-
-  // mark filter and then rerenders and calls componentdidupdate. when update is called props is new ? but why? 
-
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.props.modalVisible !== this.state.modalVisible) {
       const filterDeepCopy = JSON.parse(JSON.stringify(this.props.filters));

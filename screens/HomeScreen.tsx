@@ -388,16 +388,12 @@ const styles = StyleSheet.create({
     - make secondary text color darker
     - modal options design (add icon and fix layout)
     - swipe icons (red needs dismiss and green needs add)
-*/
 
-/*
   BE-TODO
-    QUERIES
-    - query for user's fridge items
-    - query for specific food items based on search text
-*/
+    REQUESTS
+    - GET: all user's fridge items
+    - GET: specific food items based on search text
 
-/*
   FS-TODO
     SEARCH
     - best way to search database of all food 

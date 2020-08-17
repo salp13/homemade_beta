@@ -29,6 +29,7 @@ export type FridgeParamList = {
 
 export type ShoppingListParamList = {
   ShoppingListScreen: undefined;
+  AddShoppingListItemScreen: undefined
 };
 
 export type ProfileParamList = {
@@ -44,4 +45,9 @@ export type HomeResultParamList = {
 export type AddFridgeItemParamList = {
   AddFridgeItemScreen: undefined
   FridgeScreen: undefined
+}
+
+export type AddShoppingListItemParamList = {
+  AddShoppingListItemScreen: undefined
+  ShoppingListScreen: undefined
 }

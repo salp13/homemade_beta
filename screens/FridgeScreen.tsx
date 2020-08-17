@@ -46,7 +46,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     reference: this.searchRef,
   }
 
-  constructor(props?: any) {
+  constructor(props: Props) {
     super(props);
     
     this.state = { 
@@ -97,7 +97,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   modalUpdate(index: number) {
-
     this.setState({
       modal: {
         visible: true, 
@@ -138,7 +137,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     if (daysToExp !== undefined) {
       const fridgeItemsDeepCopy = JSON.parse(JSON.stringify(this.state.fridgeItems));
       fridgeItemsDeepCopy[index].daysToExp = daysToExp
-      console.log(fridgeItemsDeepCopy[index].daysToExp)
       this.setState({
         fridgeItems: fridgeItemsDeepCopy,
         modal: {
@@ -263,20 +261,19 @@ const styles = StyleSheet.create({
 
 /*
   FE-TODO
-    FEATURE
-      - separate page for adding food item to fridge
     FUNCTIONALITY
-      - implement ability to edit daysToExp
-      - add plus icon for adding item to fridge
+      - go to add item page should already have keyboard up and ready to search 
+      - searching through list should be able to:
+        - click on three dots and go to modal when keyboard was up
+        - swipe on items 
     DESIGN
-      - fridge modal 
-*/
+      - modal 
 
-/*
   BE-TODO
-    - query for all fridge items
-    - send put request with item's updated daysToExp
-    - delete item in fridge from database
-    - update count for wasted food item 
-    - update count for eaten food item 
+    REQUESTS
+      - GET: all fridge items
+      - PUT: item's updated daysToExp
+      - DELETE: item in fridge from database
+      - PUT: count for wasted food item 
+      - PUT: count for eaten food item 
 */

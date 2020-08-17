@@ -199,5 +199,27 @@
         "bake ingredients"
       ]
     }
+  ],
+  "dummyShoppingListItems": [
+    {
+      "id": "1",
+      "title": "bell pepper"
+    },
+    {
+      "id": "2",
+      "title": "cauliflower"
+    },
+    {
+      "id": "3",
+      "title": "ground turkey"
+    },
+    {
+      "id": "4",
+      "title": "almonds"
+    },
+    {
+      "id": "5",
+      "title": "chickpeas"
+    }
   ]
 }

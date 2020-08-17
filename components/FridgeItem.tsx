@@ -171,5 +171,6 @@ const styles = StyleSheet.create({
 
 /*
   BE-TODO
-    - get images to render from backend
+    REQUESTS
+    - GET: images to render from database
 */

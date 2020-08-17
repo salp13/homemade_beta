@@ -27,7 +27,7 @@ interface Props {
 }
 
 interface State {
-  selectedFoods: Array<any>
+  specifiedItems: Array<any>
   recipes: Array<recipe>
   filters: {
     mealType: Array<string>,
@@ -40,9 +40,9 @@ interface State {
 export default class HomeResultScreen extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.props.route.params.specifiedItems
+    const specifiedItems = JSON.parse(JSON.stringify(this.props.route.params.specifiedItems))
     this.state = { 
-      selectedFoods: [],
+      specifiedItems: specifiedItems,
       recipes: [],
       filters: {
         mealType: [],
@@ -64,22 +64,11 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     this.setState({
       recipes: dummyData.dummyRecipeOverviews,
     })
-    // return fetch('https://jsonplaceholder.typicode.com/posts', {body: JSON.stringify(this.state.selectedFoods)})
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     this.setState(
-    //       {
-    //         recipes: data
-    //       }
-    //     );
-    //   })
-    //   .catch(error => {
-    //     console.error(error);
-    //   });
+
+    // get all recipes with specifiedItems
   }
 
   onPressFilter() {
-    console.log(this.state.filters)
     this.setState({
       filterModalViewable: false,
     })
@@ -90,26 +79,12 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   filterModalResults(filters: any) {
-    console.log("filterModalResults called")
     this.setState({
       filterModalViewable: false,
       filters: filters
     })
 
-    // return fetch('https://jsonplaceholder.typicode.com/posts', {body: JSON.stringify(filters)})
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     this.setState(
-    //       {
-    //         recipes: data,
-    //         filterModalViewable: false,
-    //         filters: filters
-    //       }
-    //     );
-    //   })
-    //   .catch(error => {
-    //     console.error(error);
-    //   });
+    // get all recipes with specifiedItems and filters
   }
 
   navigateRecipe(recipeId: string) {
@@ -117,7 +92,6 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   saveRecipe(recipeId: string) {
-    console.log("saveRecipe")
     const replaceRecipes = this.state.recipes
     const recipeIndex = replaceRecipes.findIndex((recipe) => {return recipe.id === recipeId})
     if (recipeIndex !== -1) {
@@ -129,7 +103,6 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   dismissRecipe(recipeId: string) {
-    console.log("dismissRecipe")
     const replaceRecipes = this.state.recipes
     const recipeIndex = replaceRecipes.findIndex((recipe) => {return recipe.id === recipeId})
     if (recipeIndex !== -1) {
@@ -220,6 +193,7 @@ const styles = StyleSheet.create({
 
 /*
   BE-TODO
-    - query for all recipes fitting ingredients specifications 
-    - query for all recipes fitting filter specifications
+    REQUESTS
+      - GET: all recipes fitting ingredients specifications 
+      - GET: all recipes fitting filter specifications and ingredients specifications
 */

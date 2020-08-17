@@ -1,30 +1,27 @@
 import * as React from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Platform, TouchableWithoutFeedback} from 'react-native';
+import { StyleSheet, FlatList, Platform, TouchableWithoutFeedback} from 'react-native';
 import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 
 import { Text, View, SearchBar } from '../components/Themed';
 import dummyData from '../dummyData.json'
-import { AddFridgeItemParamList } from '../types'
+import { AddShoppingListItemParamList } from '../types'
 
 type foodItem = {
   title: string,
   id: string,
-  defaultDaysToExp: number
-  imageIndex: number
 }
 
 interface Props {
-  navigation: StackNavigationProp<AddFridgeItemParamList, 'AddFridgeItemScreen'>,
-  route: RouteProp<AddFridgeItemParamList, 'AddFridgeItemScreen'>
+  navigation: StackNavigationProp<AddShoppingListItemParamList, 'AddShoppingListItemScreen'>,
+  route: RouteProp<AddShoppingListItemParamList, 'AddShoppingListItemScreen'>
 }
 
 interface State {
-  isLoading: boolean
   search: string
   allFood: Array<foodItem>
-  fridgeItems: Array<any>
+  shoppingListItems: Array<any>
 }
 
 export default class FridgeScreen extends React.Component<Props, State> {
@@ -44,10 +41,9 @@ export default class FridgeScreen extends React.Component<Props, State> {
     super(props);
     
     this.state = { 
-      isLoading: true, 
       search: '',
       allFood: [],
-      fridgeItems: []
+      shoppingListItems: []
     };
 
     this.OnChangeSearch = this.OnChangeSearch.bind(this)
@@ -57,14 +53,13 @@ export default class FridgeScreen extends React.Component<Props, State> {
 
   }
   componentDidMount() {
-    const fridgeItems = JSON.parse(JSON.stringify(dummyData.dummyFridgeItems)) 
+    const shoppingListItems = JSON.parse(JSON.stringify(dummyData.dummyShoppingListItems)) 
 
     this.setState({
-      isLoading: false,
-      fridgeItems: fridgeItems,
+      shoppingListItems: shoppingListItems,
     })
 
-    // TODO: query for all fridge items
+    // TODO: query for all shopping list items
   }
 
 
@@ -81,9 +76,9 @@ export default class FridgeScreen extends React.Component<Props, State> {
     let newFood = JSON.parse(JSON.stringify(dummyData.dummyAllFoods))
     .filter((food) => {return food.title.includes(lowerCaseText)
     }).filter((food) => {
-      return !this.state.fridgeItems
-      .find((fridgeItem) => {
-        return fridgeItem.title === food.title})
+      return !this.state.shoppingListItems
+      .find((shoppingListItem) => {
+        return shoppingListItem.title === food.title})
       })
     
     this.setState({
@@ -102,26 +97,19 @@ export default class FridgeScreen extends React.Component<Props, State> {
   }
 
   OnPressSearch(id: string) {    
-    console.log('add item to fridge items in database')
+    console.log('add item to shopping list items in database')
 
-    // TODO: post request to add food item to fridge
+    // TODO: post request to add food item to shopping list
     if (this.searchRef.current?.cancel) this.searchRef.current.cancel()
 
-    this.props.navigation.navigate('FridgeScreen')
+    this.props.navigation.navigate('ShoppingListScreen')
   }
 
   OnCancel() {
-    this.props.navigation.navigate("FridgeScreen")
+    this.props.navigation.navigate("ShoppingListScreen")
   }
 
   render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
     return (
       <View style={styles.container}>
         <View>
@@ -190,7 +178,7 @@ const styles = StyleSheet.create({
 /*
   BE-TODO
     REQUESTS
-      - GET: all fridge items
-      - GET: all food items matching search params
-      - POST: add food item to fridge
+      - GET: all shopping list items
+      - GET: all food items that match search params
+      - POST: add food item to shopping list
 */

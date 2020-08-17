@@ -67,20 +67,20 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
           swipeThreshold={50}
           opacity={.7}
           >
-            <View style={styles.bar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)"/>
-            <ModalContent style={styles.container}>
-              <TouchableWithoutFeedback onPress={() => {this.modalAdd()}}> 
-                <Text style={styles.option}>Add this item to ingredients list</Text>
-              </TouchableWithoutFeedback>
-              <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-              <TouchableWithoutFeedback onPress={() => {this.modalDismiss()}}> 
-                <Text style={styles.option}>Dismiss this item for now</Text>
-              </TouchableWithoutFeedback>
-              <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-              <TouchableWithoutFeedback onPress={() => {this.modalCancel()}}>
-                <Text style={styles.cancel}>Cancel</Text>
-              </TouchableWithoutFeedback>
-            </ModalContent>
+          <View style={styles.bar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)"/>
+          <ModalContent style={styles.container}>
+            <TouchableWithoutFeedback onPress={() => {this.modalAdd()}}> 
+              <Text style={styles.option}>Add this item to ingredients list</Text>
+            </TouchableWithoutFeedback>
+            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            <TouchableWithoutFeedback onPress={() => {this.modalDismiss()}}> 
+              <Text style={styles.option}>Dismiss this item for now</Text>
+            </TouchableWithoutFeedback>
+            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            <TouchableWithoutFeedback onPress={() => {this.modalCancel()}}>
+              <Text style={styles.cancel}>Cancel</Text>
+            </TouchableWithoutFeedback>
+          </ModalContent>
         </BottomModal>
       </View>
     );
