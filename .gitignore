@@ -1,16 +1,16 @@
-node_modules/**/*
-.expo/*
-.expo-shared/*
-npm-debug.*
+ui/node_modules/**/*
+ui/.expo/*
+ui/.expo-shared/*
+ui/npm-debug.*
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
 *.orig.*
-web-build/
-yarn.lock
-package.json.lock
+ui/web-build/
+ui/yarn.lock
+ui/package.json.lock
 
 # macOS
-.DS_Store
+*.DS_Store
