@@ -16,9 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from food.views import fetch_foods, post_foods
+from recipes.views import fetch_recipes, fetch_recipe, post_recipes
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('fetch_foods/', fetch_foods),
     path('post_foods/', post_foods),
+    path('fetch_recipes/', fetch_recipes),
+    path('fetch_recipe/', fetch_recipe),
+    path('post_recipes/', post_recipes)
 ]

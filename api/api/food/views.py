@@ -3,7 +3,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import Food_Group_Serializer
-from .serializers import Food_Serializer
+from .serializers import Food_GETSerializer
+from .serializers import Food_POSTSerializer
 from .models import Food_Group
 from .models import Food
 
@@ -13,13 +14,13 @@ def fetch_foods(request):
         foods = Food.objects.filter(name__startswith=request.query_params.__getitem__('value'))
     else: 
         foods = Food.objects.all()
-    serializer = Food_Serializer(foods, many=True)
+    serializer = Food_GETSerializer(foods, many=True)
     return Response(serializer.data)
 
 # admin use
 @api_view(['post', 'put'])
 def post_foods(request):
-    serializer = Food_Serializer(data=request.data, many=True)
+    serializer = Food_POSTSerializer(data=request.data, many=True)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)

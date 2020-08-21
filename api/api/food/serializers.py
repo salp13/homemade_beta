@@ -8,9 +8,14 @@ class Food_Group_Serializer(ModelSerializer):
 		model = Food_Group
 		fields = '__all__'
 
-class Food_Serializer(ModelSerializer):
-	food_group_id = Food_Group_Serializer(read_only=True)
+class Food_GETSerializer(ModelSerializer):
+	food_group = Food_Group_Serializer(read_only=True)
 
+	class Meta:
+		model = Food
+		fields = '__all__'
+
+class Food_POSTSerializer(ModelSerializer):
 	class Meta:
 		model = Food
 		fields = '__all__'

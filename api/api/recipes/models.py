@@ -4,34 +4,36 @@ from uuid import uuid4
 
 # should contain images later
 class Diet(models.Model):
-    diet_id = models.CharField(primary_key=True, max_length=128)
-    diet = models.CharField(max_length=128)
+    diet_id = models.CharField(primary_key=True, max_length=128, unique=True)
+    diet = models.CharField(max_length=128, unique=True)
 
     class Meta:
         db_table = 'diet'
 
 class Cuisine(models.Model):
-    cuisine_id = models.CharField(primary_key=True, max_length=128)
-    cuisine = models.CharField(max_length=128)
+    cuisine_id = models.CharField(primary_key=True, max_length=128, unique=True)
+    cuisine = models.CharField(max_length=128, unique=True)
 
     class Meta:
         db_table = 'cuisine'
 
 class Meal_Type(models.Model):
-    meal_type_id = models.CharField(primary_key=True, max_length=128)
-    meal_type = models.CharField(max_length=128)
+    meal_type_id = models.CharField(primary_key=True, max_length=128, unique=True)
+    meal_type = models.CharField(max_length=128, unique=True)
 
     class Meta:
         db_table = 'meal_type'
 
 class Recipe(models.Model):
     recipe_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, unique=True)
     image = models.CharField(max_length=128, null=True)
     description = models.TextField()
+    instructions = models.TextField(default='')
     diets = models.ManyToManyField(Diet)
-    cuisine = models.ForeignKey(Cuisine, on_delete=models.RESTRICT)
-    meal_type = models.ForeignKey(Meal_Type, on_delete=models.RESTRICT)
+    cuisine = models.ForeignKey(Cuisine, on_delete=models.RESTRICT, null=True)
+    meal_type = models.ForeignKey(Meal_Type, on_delete=models.RESTRICT, null=True)
+    foods = models.ManyToManyField('food.Food', through='recipes.Ingredient', related_name='recipes')
 
     class Meta: 
         db_table = 'recipe'
