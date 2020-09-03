@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from .models import Diet, Cuisine, Meal_Type, Ingredient, Recipe
-from food.serializers import Food_POSTSerializer
+from food.serializers import Food_IngredientSerializer
 
 class Diet_Serializer(ModelSerializer):
 	class Meta:
@@ -18,11 +18,16 @@ class Meal_Type_Serializer(ModelSerializer):
 		model = Meal_Type
 		fields = '__all__'
 
-class Ingredient_Serializer(ModelSerializer):
-	food = Food_POSTSerializer(read_only=True)
+class Ingredient_POSTSerializer(ModelSerializer):
 	class Meta:
 		model = Ingredient
 		fields = '__all__'
+
+class Ingredient_GETSerializer(ModelSerializer):
+	food = Food_IngredientSerializer(read_only=True)
+	class Meta:
+		model = Ingredient
+		fields = ['quantity', 'measurement_unit', 'food', 'unlisted_food']
 
 class Recipe_POSTSerializer(ModelSerializer):
 	class Meta:
@@ -36,7 +41,7 @@ class Recipe_GETSerializer(ModelSerializer):
 	
 	class Meta:
 		model = Recipe
-		fields = '__all__'
+		fields = ['recipe_id', 'recipe_name', 'image', 'diets', 'cuisine', 'meal_type', 'instructions', 'description', 'image']
 
 class RecipeOverview_GETSerializer(ModelSerializer):
 	diets = Diet_Serializer(read_only=True, many=True)
@@ -45,4 +50,4 @@ class RecipeOverview_GETSerializer(ModelSerializer):
 	
 	class Meta:
 		model = Recipe
-		fields = ['recipe_id', 'name', 'image', 'diets', 'cuisine', 'meal_type']
+		fields = ['recipe_id', 'recipe_name', 'image', 'diets', 'cuisine', 'meal_type']

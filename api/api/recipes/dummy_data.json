@@ -1,128 +1,144 @@
 {
+    "recipes": [
+        {
+            "recipe_name": "Orzo Chickpea Salad",
+            "image": null,
+            "description": "This mediterranean inspired recipe is great when you need a small, quick, easy meal. It is easily customizable to your personal preference and tastes delish!",
+            "instructions": "1. Boil water in a pot and, once boiling, add orzo to the water. Cook for 10 minutes or to preference \n 2. While the orzo is cooking, open can of chickpeas, strain out the water, and rinse off the chickpeas \n 3. Chop the cucumber into small bite-size pieces \n 4. Combine the chickpeas and cucumber. Crumble the feta cheese on top of it \n 4. When orzo is done cooking, strain the water and cool the pasta down by running cold water through it \n 5. Once the orzo is cooled and strained of all water, add it to the other ingredients and mix everything together \n 6. Season with olive oil and salt",
+            "diets": [
+                "vegetarian",
+                "gluten-free"
+            ],
+            "cuisine": "mediterranean",
+            "meal_type": "lunch",
+            "foods": [
+                {
+                    "food": "orzo",
+                    "quantity": 0.5,
+                    "measurement_unit": "cup"
+                },
+                {
+                    "food": "chickpea",
+                    "quantity": 1,
+                    "measurement_unit": "can"
+                },
+                {
+                    "food": "cucumber",
+                    "quantity": 1,
+                    "measurement_unit": null
+                },
+                {
+                    "food": "feta cheese",
+                    "quantity": 0.25,
+                    "measurement_unit": "cup"
+                },
+                {
+                    "food": "olive oil",
+                    "quantity": 1,
+                    "measurement_unit": "tbsp"
+                },
+                {
+                    "food": "salt",
+                    "quantity": 1,
+                    "measurement_unit": "tsp"
+                }
+            ]
+        }
+    ],
     "cuisines": [
         {
-            "cuisine_id": "1",
             "cuisine": "american"
         },
         {
-            "cuisine_id": "2",
             "cuisine": "italian"
         },
         {
-            "cuisine_id": "3",
             "cuisine": "chinese"
         },
         {
-            "cuisine_id": "4",
             "cuisine": "korean"
         },
         {
-            "cuisine_id": "5",
             "cuisine": "japanese"
         },
         {
-            "cuisine_id": "6",
             "cuisine": "thai"
         },
         {
-            "cuisine_id": "7",
             "cuisine": "indian"
         },
         {
-            "cuisine_id": "8",
             "cuisine": "arab"
         },
         {
-            "cuisine_id": "9",
             "cuisine": "mediterranean"
         },
         {
-            "cuisine_id": "10",
             "cuisine": "african"
         },
         {
-            "cuisine_id": "11",
             "cuisine": "austrailian"
         },
         {
-            "cuisine_id": "12",
             "cuisine": "french"
         },
         {
-            "cuisine_id": "13",
             "cuisine": "spanish"
         },
         {
-            "cuisine_id": "14",
             "cuisine": "german"
         },
         {
-            "cuisine_id": "15",
             "cuisine": "british"
         },
         {
-            "cuisine_id": "16",
             "cuisine": "mexican"
         },
         {
-            "cuisine_id": "17",
             "cuisine": "brazilian"
         },
         {
-            "cuisine_id": "18",
             "cuisine": "latin american"
         }
     ],
     "diets": [
         {
-            "diet_id": "1",
             "diet": "dairy-free"
         },
         {
-            "diet_id": "2",
             "diet": "gluten-free"
         },
         {
-            "diet_id": "3",
             "diet": "vegan"
         },
         {
-            "diet_id": "4",
             "diet": "vegetarian"
         },
         {
-            "diet_id": "5",
             "diet": "sustainable"
         },
         {
-            "diet_id": "6",
             "diet": "pescatarian"
         }
     ],
     "meal_types": [
         {
-            "meal_type_id": "1",
             "meal_type": "breakfast"
         },
         {
-            "meal_type_id": "2",
             "meal_type": "lunch"
         },
         {
-            "meal_type_id": "3",
             "meal_type": "dinner"
         },
         {
-            "meal_type_id": "4",
             "meal_type": "dessert"
         },
         {
-            "meal_type_id": "5",
             "meal_type": "side"
         },
         {
-            "meal_type_id": "6",
-            "meal_type": "drink"
+            "meal_type": "beverage"
         }
     ]
 }

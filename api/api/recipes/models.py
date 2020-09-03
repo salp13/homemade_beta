@@ -26,7 +26,7 @@ class Meal_Type(models.Model):
 
 class Recipe(models.Model):
     recipe_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    name = models.CharField(max_length=128)
+    recipe_name = models.CharField(max_length=128)
     image = models.CharField(max_length=128, null=True)
     description = models.TextField()
     instructions = models.TextField(default='')
@@ -41,8 +41,9 @@ class Recipe(models.Model):
 class Ingredient(models.Model):
     food = models.ForeignKey('food.Food', on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    quantity = models.PositiveSmallIntegerField(default=1)
-    measurement_unit = models.CharField(max_length=128)
-    
+    quantity = models.FloatField(default=1.0)
+    measurement_unit = models.CharField(max_length=128, null=True)
+    unlisted_food = models.CharField(max_length=128, null=True)
+
     class Meta:
         db_table = 'ingredient'

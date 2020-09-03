@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from food.views import fetch_foods, post_foods, admin_clean
-from recipes.views import fetch_recipes, fetch_recipe, post_recipe, admin_post
+from recipes.views import fetch_recipes, fetch_recipe, post_recipe, admin_post, delete_recipe
 from users.views import fetch_users, post_users, single_user, user_fridge, user_shopping_list, user_saved_recipes
 
 urlpatterns = [
@@ -34,4 +34,5 @@ urlpatterns = [
     path('user_saved_recipes/<uuid:pk>/<uuid:recipePK>', user_saved_recipes),
     path('admin_clean', admin_clean),
     path('admin_post', admin_post),
+    path('delete_recipe/<uuid:pk>', delete_recipe)
 ]
