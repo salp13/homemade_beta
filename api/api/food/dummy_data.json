@@ -1,0 +1,23 @@
+[
+    {
+        "food_group": "vegetable"
+    },
+    {
+        "food_group": "fruit"
+    },
+    {
+        "food_group": "protein"
+    },
+    {
+        "food_group": "snack"
+    },
+    {
+        "food_group": "beverage"
+    },
+    {
+        "food_group": "grain"
+    },
+    {
+        "food_group": "other"
+    }
+]

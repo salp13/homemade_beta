@@ -15,14 +15,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from food.views import fetch_foods, post_foods
-from recipes.views import fetch_recipes, fetch_recipe, post_recipes
+from food.views import fetch_foods, post_foods, admin_clean
+from recipes.views import fetch_recipes, fetch_recipe, post_recipe, admin_post
+from users.views import fetch_users, post_users, single_user, user_fridge, user_shopping_list, user_saved_recipes
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('fetch_foods/', fetch_foods),
     path('post_foods/', post_foods),
     path('fetch_recipes/', fetch_recipes),
-    path('fetch_recipe/', fetch_recipe),
-    path('post_recipes/', post_recipes)
+    path('fetch_recipe/<uuid:pk>', fetch_recipe),
+    path('post_recipe/', post_recipe),
+    path('fetch_users/', fetch_users),
+    path('post_users/', post_users),
+    path('single_user/<uuid:pk>', single_user),
+    path('user_fridge/<uuid:pk>/<uuid:foodPK>', user_fridge),
+    path('user_shopping_list/<uuid:pk>/<uuid:foodPK>', user_shopping_list),
+    path('user_saved_recipes/<uuid:pk>/<uuid:recipePK>', user_saved_recipes),
+    path('admin_clean', admin_clean),
+    path('admin_post', admin_post),
 ]

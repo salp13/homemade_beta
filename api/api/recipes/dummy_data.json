@@ -1,0 +1,128 @@
+{
+    "cuisines": [
+        {
+            "cuisine_id": "1",
+            "cuisine": "american"
+        },
+        {
+            "cuisine_id": "2",
+            "cuisine": "italian"
+        },
+        {
+            "cuisine_id": "3",
+            "cuisine": "chinese"
+        },
+        {
+            "cuisine_id": "4",
+            "cuisine": "korean"
+        },
+        {
+            "cuisine_id": "5",
+            "cuisine": "japanese"
+        },
+        {
+            "cuisine_id": "6",
+            "cuisine": "thai"
+        },
+        {
+            "cuisine_id": "7",
+            "cuisine": "indian"
+        },
+        {
+            "cuisine_id": "8",
+            "cuisine": "arab"
+        },
+        {
+            "cuisine_id": "9",
+            "cuisine": "mediterranean"
+        },
+        {
+            "cuisine_id": "10",
+            "cuisine": "african"
+        },
+        {
+            "cuisine_id": "11",
+            "cuisine": "austrailian"
+        },
+        {
+            "cuisine_id": "12",
+            "cuisine": "french"
+        },
+        {
+            "cuisine_id": "13",
+            "cuisine": "spanish"
+        },
+        {
+            "cuisine_id": "14",
+            "cuisine": "german"
+        },
+        {
+            "cuisine_id": "15",
+            "cuisine": "british"
+        },
+        {
+            "cuisine_id": "16",
+            "cuisine": "mexican"
+        },
+        {
+            "cuisine_id": "17",
+            "cuisine": "brazilian"
+        },
+        {
+            "cuisine_id": "18",
+            "cuisine": "latin american"
+        }
+    ],
+    "diets": [
+        {
+            "diet_id": "1",
+            "diet": "dairy-free"
+        },
+        {
+            "diet_id": "2",
+            "diet": "gluten-free"
+        },
+        {
+            "diet_id": "3",
+            "diet": "vegan"
+        },
+        {
+            "diet_id": "4",
+            "diet": "vegetarian"
+        },
+        {
+            "diet_id": "5",
+            "diet": "sustainable"
+        },
+        {
+            "diet_id": "6",
+            "diet": "pescatarian"
+        }
+    ],
+    "meal_types": [
+        {
+            "meal_type_id": "1",
+            "meal_type": "breakfast"
+        },
+        {
+            "meal_type_id": "2",
+            "meal_type": "lunch"
+        },
+        {
+            "meal_type_id": "3",
+            "meal_type": "dinner"
+        },
+        {
+            "meal_type_id": "4",
+            "meal_type": "dessert"
+        },
+        {
+            "meal_type_id": "5",
+            "meal_type": "side"
+        },
+        {
+            "meal_type_id": "6",
+            "meal_type": "drink"
+        }
+    ]
+}

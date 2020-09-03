@@ -4,8 +4,8 @@ from uuid import uuid4
 
 # should contain images later
 class Food_Group(models.Model):
-    food_group_id = models.CharField(primary_key=True, max_length=128, unique=True, editable=False)
-    food_group = models.CharField(max_length=128, unique=True)
+    food_group_id = models.AutoField(primary_key=True)
+    food_group = models.CharField(max_length=128, editable=False)
     image = models.CharField(max_length=128, null=True)
 
     class Meta:

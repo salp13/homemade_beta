@@ -1,0 +1,895 @@
+food_name,food_group,default_days_to_exp
+Beaver,Protein,4
+Bison,Protein,4
+Black bear,Protein,4
+Wild boar,Protein,4
+Brown bear,Protein,4
+Buffalo,Protein,4
+Caribou,Protein,4
+Chicken,Protein,2
+Mule deer,Protein,4
+Mallard duck,Protein,2
+Elk,Protein,4
+Emu,Protein,2
+Greylag goose,Protein,2
+Guinea hen,Protein,2
+Horse,Protein,4
+Moose,Protein,4
+Muskrat,Protein,4
+Opossum,Protein,4
+Ostrich,Protein,2
+Velvet duck,Protein,2
+Pheasant,Protein,2
+Polar bear,Protein,4
+European rabbit,Protein,2
+Raccoon,Protein,4
+Lamb,Protein,4
+Mutton,Protein,4
+Squab,Protein,4
+Squirrel,Protein,4
+Turkey,Protein,4
+Beef,Protein,4
+Veal,Protein,4
+Deer,Protein,4
+Arctic ground squirrel,Protein,4
+Rabbit,Protein,4
+Domestic goat,Protein,4
+Beefalo,Protein,4
+Antelope,Protein,4
+Pork,Protein,4
+Great horned owl,Protein,2
+Quail,Protein,2
+Duck,Protein,4
+Goose,Protein,4
+Swan,Protein,2
+Mountain hare,Protein,4
+Dove,Protein,4
+Pigeon,Protein,2
+Abalone,Protein,2
+Red king crab,Protein,2
+Atlantic herring,Protein,2
+Atlantic mackerel,Protein,2
+Painted comber,Protein,2
+Atlantic pollock,Protein,2
+Atlantic wolffish,Protein,2
+Striped bass,Protein,2
+Beluga whale,Protein,2
+Alaska blackfish,Protein,2
+Blue crab,Protein,2
+Blue mussel,Protein,2
+Northern bluefin tuna,Protein,2
+Bluefish,Protein,2
+Bowhead whale,Protein,2
+Burbot,Protein,2
+American butterfish,Protein,2
+Common carp,Protein,2
+Channel catfish,Protein,2
+Cisco,Protein,2
+Nuttall cockle,Protein,2
+Pacific cod,Protein,2
+Atlantic cod,Protein,2
+Common octopus,Protein,2
+Atlantic croaker,Protein,2
+Cusk,Protein,2
+Cuttlefish,Protein,2
+Devilfish,Protein,2
+Dolphin fish,Protein,2
+Freshwater drum,Protein,2
+Dungeness crab,Protein,2
+Eastern oyster,Protein,2
+Freshwater eel,Protein,2
+European anchovy,Protein,2
+Turbot,Protein,2
+Florida pompano,Protein,2
+Greenland halibut,Protein,2
+Grouper,Protein,2
+Haddock,Protein,2
+Common halibut,Protein,2
+Pacific jack mackerel,Protein,2
+Kelp,Vegetable,
+King mackerel,Protein,2
+Leather chiton,Protein,2
+Common ling,Protein,2
+Lingcod,Protein,2
+American lobster,Protein,2
+Milkfish,Protein,2
+Monkfish,Protein,2
+Striped mullet,Protein,2
+Ocean pout,Protein,2
+North Pacific giant octopus,Protein,2
+Tunicate,Protein,2
+Spotted seal,Protein,2
+Pacific herring,Protein,2
+Pacific oyster,Protein,2
+Pacific rockfish,Protein,2
+Northern pike,Protein,2
+Rainbow smelt,Protein,2
+Rainbow trout,Protein,2
+Orange roughy,Protein,2
+Sablefish,Protein,2
+Pink salmon,Protein,2
+Chum salmon,Protein,2
+Coho salmon,Protein,2
+Sockeye salmon,Protein,2
+Chinook salmon,Protein,2
+Atlantic salmon,Protein,2
+Spanish mackerel,Protein,2
+Pacific sardine,Protein,2
+Scallop,Protein,2
+Scup,Protein,2
+Sea cucumber,Protein,2
+Steller sea lion,Protein,2
+Bearded seal,Protein,2
+Ringed seal,Protein,2
+Seatrout,Protein,2
+American shad,Protein,2
+Shark,Protein,2
+Sheefish,Protein,2
+Sheepshead,Protein,2
+Skipjack tuna,Protein,2
+Snapper,Protein,2
+Spirulina,Other,
+Greater sturgeon,Protein,2
+White sucker,Protein,2
+Pumpkinseed sunfish,Protein,2
+Swordfish,Protein,2
+Tilefish,Protein,2
+Salmon,Protein,2
+Trout,Protein,2
+Walleye,Protein,2
+Alaska pollock,Protein,2
+Whelk,Protein,2
+Coalfish pollock,Protein,2
+Broad whitefish,Protein,2
+Whitefish,Protein,2
+Whiting,Protein,2
+Yellowfin tuna,Protein,2
+Yellowtail amberjack,Protein,2
+Pollock,Protein,2
+Albacore tuna,Protein,2
+Common cod,Protein,2
+Atlantic halibut,Protein,2
+Pacific halibut,Protein,2
+Pacific salmon,Protein,2
+Smelt,Protein,2
+Herring,Protein,2
+Sardine,Protein,2
+Sprat,Protein,2
+Spiny lobster,Protein,2
+Snow crab,Protein,2
+Bass,Protein,2
+Clam,Protein,2
+Mussel,Protein,2
+Oyster,Protein,2
+Squid,Protein,2
+Shrimp,Protein,2
+Crayfish,Protein,2
+Flatfish,Protein,2
+Walrus,Protein,2
+Purple laver,Protein,2
+Wakame,Protein,2
+Spot croaker,Protein,2
+Atlantic menhaden,Protein,2
+Jellyfish,Protein,2
+Anchovy,Protein,2
+Blue whiting,Protein,2
+Carp bream,Protein,2
+Sturgeon,Protein,2
+Charr,Protein,2
+Crab,Protein,2
+Common dab,Protein,2
+Spiny dogfish,Protein,2
+Eel,Protein,2
+True frog,Protein,2
+Garfish,Protein,2
+Code,Protein,2
+Hake,Protein,2
+Lake trout,Protein,2
+Lemon sole,Protein,2
+Clawed lobster,Protein,2
+Lumpsucker,Protein,2
+Bonito,Protein,2
+Mackerel,Protein,2
+Tuna,Protein,2
+Marine mussel,Protein,2
+Norway haddock,Protein,2
+Norway lobster,Protein,2
+Norway pout,Protein,2
+True oyster,Protein,2
+Pikeperch,Protein,2
+Dab,Protein,2
+Halibut,Protein,2
+Plaice,Protein,2
+Pacific ocean perch,Protein,2
+True seal,Protein,2
+Red algae,Protein,2
+Kombu,Protein,2
+Snail,Protein,2
+True sole,Protein,2
+Catfish,Protein,2
+Common tuna,Protein,2
+Dolphin,Protein,2
+Porpoise,Protein,2
+Whale,Protein,2
+Conch,Protein,2
+Roe,Protein,2
+Tilapia,Protein,2
+Green turtle,Protein,2
+Ascidians,Protein,2
+Baby food,Baby foods,
+Vinegar,Other,
+Salad dressing,Other,
+Sauce,Other,
+Salt,Other,
+Butter substitute,Other,
+Sugar,Other,
+Mustard,Other,
+Sugar substitute,Other,
+Meat bouillon,Other,
+Leavening agent,Other,
+Gelatin,Other,
+Syrup,Other,
+Remoulade,Other,
+Cream substitute,Other,
+Topping,Other,
+Pectin,Other,
+Coffee substitute,Other,
+Tapioca pearl,Other,
+Spread,Other,
+Egg substitute,Other,
+Ketchup,Other,
+Adobo,Other,
+Relish,Other,
+Phyllo dough,Other,
+Cooking oil,Other,
+Pie crust,Other,
+Pie filling,Other,
+Ice cream cone,Other,
+Molasses,Other,
+Wonton wrapper,Other,
+Stuffing,Other,
+Edible shell,Other,
+Milk substitute,Other,
+Beer,Beverage,
+Spirit,Beverage,
+Fortified wine,Beverage,
+Grape wine,Beverage,
+Berry wine,Beverage,
+Other wine,Beverage,
+Apple cider,Beverage,
+Liquor,Beverage,
+Vodka,Beverage,
+Whisky,Beverage,
+Gin,Beverage,
+Rum,Beverage,
+Port wine,Beverage,
+Vermouth,Beverage,
+Sherry,Beverage,
+Madeira wine,Beverage,
+Water,Beverage,
+Energy drink,Beverage,
+Sake,Beverage,
+Cocktail,Beverage,
+Fruit juice,Beverage,
+Vegetable juice,Beverage,
+Horchata,Beverage,
+Soft drink,Beverage,
+Oat,Grain,
+Common buckwheat,Grain,
+Tartary buckwheat,Grain,
+Barley,Grain,
+Rice,Grain,
+Millet,Grain,
+Rye,Grain,
+Sorghum,Grain,
+Common wheat,Grain,
+Corn,Grain,
+Red rice,Grain,
+Annual wild rice,Grain,
+Hard wheat,Grain,
+Triticale,Grain,
+Breakfast cereal,Grain,
+Pasta,Grain,
+Biscuit,Grain,
+Sourdough,Grain,
+Spelt,Grain,
+Wild rice,Grain,
+Oriental wheat,Grain,
+Wheat,Grain,
+Crisp bread,Grain,
+Zwieback,Grain,
+Tortilla,Grain,
+Bulgur,Grain,
+Semolina,Grain,
+Flour,Grain,
+Dough,Grain,
+Pita bread,Grain,
+Focaccia,Grain,
+Bagel,Grain,
+Piki bread,Grain,
+French toast,Grain,
+Wheat bread,Grain,
+Rye bread,Grain,
+Oat bread,Grain,
+Potato bread,Grain,
+Cornbread,Grain,
+Corn grits,Grain,
+Multigrain bread,Grain,
+Rice bread,Grain,
+Pan dulce,Grain,
+Raisin bread,Grain,
+Cereals and cereal products,Grain,
+Cocoa bean,Other,
+Cocoa butter,Other,
+Cocoa powder,Other,
+Cocoa liquor,Other,
+Chocolate,Other,
+Hot chocolate,Other,
+Coffee,Other,
+Arabica coffee,Other,
+Robusta coffee,Other,
+Coffee mocha,Other,
+Ice cream,Snacks,
+Honey,Other,
+Liquorice,Snacks,
+Nougat,Snacks,
+Toffee,Snacks,
+Cake,Snacks,
+Pastry,Snacks,
+Chewing gum,Snacks,
+Marzipan,Snacks,
+Marshmallow,Snacks,
+Chocolate spread,Snacks,
+Fruit gum,Snacks,
+Meringue,Snacks,
+Icing,Snacks,
+Dulce de leche,Snacks,
+Sweet custard,Snacks,
+Gelatin dessert,Snacks,
+Junket,Snacks,
+Pudding,Snacks,
+Pie,Snacks,
+Akutaq,Snacks,
+Frozen yogurt,Snacks,
+Milkshake,Snacks,
+Chocolate mousse,Snacks,
+Fudge,Snacks,
+Candy bar,Snacks,
+Pizza,Dish,4
+Sausage,Dish,4
+Meatball,Dish,4
+Pate,Dish,4
+Dumpling,Dish,4
+Soup,Dish,4
+Burrito,Dish,4
+Hamburger,Dish,4
+Baked beans,Dish,4
+Chili,Dish,4
+Taco,Dish,4
+Nachos,Dish,4
+Salad,Dish,4
+Egg roll,Dish,4
+Stew,Dish,4
+Falafel,Dish,4
+Frybread,Dish,4
+Lasagna,Dish,4
+Pancake,Dish,4
+Waffle,Dish,4
+Meatloaf,Dish,4
+Couscous,Dish,4
+Chimichanga,Dish,4
+Tostada,Dish,4
+Quesadilla,Dish,4
+Baked potato,Dish,4
+Hot dog,Dish,4
+Enchilada,Dish,4
+Other sandwich,Dish,4
+Breakfast sandwich,Dish,4
+Macaroni and cheese,Dish,4
+Hushpuppy,Dish,4
+Vegetarian food,Dish,4
+Veggie burger,Dish,4
+Cold cut,Dish,4
+Ravioli,Dish,4
+Scrapple,Dish,4
+Other pasta dish,Dish,4
+Succotash,Dish,4
+Tamale,Dish,4
+Rice cake,Dish,4
+Pupusa,Dish,4
+Empanada,Dish,4
+Arepa,Dish,4
+Gefilte fish,Dish,4
+Fish burger,Dish,4
+Other dish,Dish,4
+Pot pie,Dish,4
+Hummus,Dish,4
+Potato puffs,Dish,4
+Potato gratin,Dish,4
+Eggs,Protein,
+Tallow,Other,
+Lard,Other,
+Avocado Oil,Other,
+Shortening,Other,
+Dripping,Other,
+Margarine,Other,
+Olive Oil,Other,
+Sesame Oil,Other,
+Kiwi,Fruit,10
+Pineapple,Fruit,10
+Custard apple,Fruit,10
+Star fruit,Fruit,10
+Papaya,Fruit,10
+Lime,Fruit,10
+Lemon,Fruit,10
+Pummelo,Fruit,10
+Clementine,Fruit,10
+Tangerine,Fruit,10
+Mandarin orange,Fruit,10
+Sweet orange,Fruit,10
+Quince,Fruit,10
+Japanese persimmon,Fruit,10
+Black crowberry,Fruit,10
+Loquat,Fruit,10
+Wax apple,Fruit,10
+Fig,Fruit,10
+Strawberry,Fruit,10
+Black huckleberry,Fruit,10
+Sea-buckthornberry,Fruit,10
+Lichee,Fruit,10
+Apple,Fruit,10
+Mango,Fruit,10
+Medlar,Fruit,10
+Mulberry,Fruit,10
+Black mulberry,Fruit,10
+Passion fruit,Fruit,10
+Date,Fruit,10
+Black chokeberry,Fruit,10
+Cherry,Fruit,10
+Plum,Fruit,10
+Apricot,Fruit,10
+Sweet cherry,Fruit,10
+Sour cherry,Fruit,10
+European plum,Fruit,10
+Peach,Fruit,10
+Guava,Fruit,10
+Pomegranate,Fruit,10
+Pear,Fruit,10
+Blackcurrant,Fruit,10
+Redcurrant,Fruit,10
+Gooseberry,Fruit,10
+Blackberry,Fruit,10
+Raspberry,Fruit,10
+Cloudberry,Fruit,10
+Red raspberry,Fruit,10
+Black raspberry,Fruit,10
+Black elderberry,Fruit,10
+Rowanberry,Fruit,10
+Tamarind,Fruit,10
+Blueberry,Fruit,10
+Cranberry, Fruit,10
+Huckleberry,Fruit,10
+Lowbush blueberry,Fruit,10
+Sparkleberry,Fruit,10
+Highbush blueberry,Fruit,10
+American cranberry,Fruit,10
+Bilberry,Fruit,10
+Lingonberry,Fruit,10
+Muscadine grape,Fruit,10
+Common grape,Fruit,10
+Arctic blackberry,Fruit,10
+Banana,Fruit,10
+Bayberry,Fruit,10
+Elliott's blueberry,Fruit,10
+Canada blueberry,Fruit,10
+Bog bilberry,Fruit,10
+Buffalo currant,Fruit,10
+European cranberry,Fruit,10
+Deerberry,Fruit,10
+Cascade huckleberry,Fruit,10
+Oval-leaf huckleberry,Fruit,10
+Evergreen huckleberry,Fruit,10
+Red huckleberry,Fruit,10
+Longan,Fruit,10
+Summer grape,Fruit,10
+Fox grape,Fruit,10
+Nectarine,Fruit,10
+Peach,Fruit,10
+Rambutan,Fruit,10
+Half-highbush blueberry,Fruit,10
+Grapefruit,Fruit,10
+Jostaberry,Fruit,10
+Sweet rowanberry,Fruit,10
+Skunk currant,Fruit,10
+Abiyuch,Fruit,10
+Acerola,Fruit,10
+Asian pear,Fruit,10
+Breadfruit,Fruit,10
+Natal plum,Fruit,10
+Cherimoya,Fruit,10
+Coconut,Fruit,10
+Crab apple,Fruit,10
+Squashberry,Fruit,10
+Durian,Fruit,10
+Elderberry,Fruit,10
+Grape,Fruit,10
+Alaska blueberry,Fruit,10
+Jackfruit,Fruit,10
+Java plum,Fruit,10
+Jujube,Fruit,10
+Kumquat,Fruit,10
+Loganberry,Fruit,10
+Mammee apple,Fruit,10
+Purple mangosteen,Fruit,10
+Ohelo berry,Fruit,10
+Common persimmon,Fruit,10
+Pitanga,Fruit,10
+Plains prickly pear,Fruit,10
+French plantain,Fruit,10
+Prickly pear,Fruit,10
+Malabar plum,Fruit,10
+Salmonberry,Fruit,10
+Sapodilla,Fruit,10
+Mamey sapote,Fruit,10
+Soursop,Fruit,10
+Strawberry guava,Fruit,10
+Sugar apple,Fruit,10
+Boysenberry,Fruit,10
+Persian lime,Fruit,10
+Feijoa,Fruit,10
+Common chokecherry,Fruit,10
+Persimmon,Fruit,10
+Fruit preserve,Fruit,10
+Fruit salad,Fruit,10
+Nance,Fruit,10
+Naranjilla,Fruit,10
+Chinese bayberry,Fruit,10
+Pomes,Fruit,10
+Citrus,Fruit,10
+Fruits,Fruit,10
+Saskatoon berry,Fruit,10
+Nanking cherry,Fruit,10
+Watermelon,Fruit,10
+Cantelope,Fruit,10
+Honeydew melon,Fruit,10
+Cucumber,Fruit,10
+Gourd,Fruit,5
+Bitter gourd,Fruit,5
+Squash,Fruit,60
+Winter squash,Fruit,90
+Butternut squash,Fruit,90
+Chayote,Fruit,7
+Wax gourd,Fruit,90
+Tinda,Fruit,90
+Horned melon,Fruit,90
+Sunburst squash,Fruit,5
+Zucchini,Fruit,14
+Pumpkin,Fruit,90
+Angelica,Other,
+Silver linden,Other,
+Garlic,Other,
+Chives,Other,
+Lemon verbena,Other,
+Dill,Other,
+Wild celery,Other,
+Horseradish,Other,
+Tarragon,Other,
+Mugwort,Other,
+Borage,Other,
+Turnip,Other,
+Capers,Other,
+Safflower,Other,
+Caraway,Other,
+Roman camomile,Other,
+Cinnamon,Other,
+Coriander,Other,
+Saffron,Other,
+Cumin,Other,
+Turmeric,Other,
+Lemon grass,Other,
+Cardamom,Other,
+Fennel,Other,
+Sunflower,Other,
+Hyssop,Other,
+Star anise,Other,
+Sweet bay,Other,
+Lovage,Other,
+Flaxseed,Other,
+Mexican oregano,Other,
+German camomile,Other,
+Lemon balm,Other,
+Mint,Other,
+Orange mint,Other,
+Cornmint,Other,
+Spearmint,Other,
+Peppermint,Other,
+Nutmeg,Other,
+Sweet basil,Other,
+Evening primrose,Other,
+Sweet marjoram,Other,
+Pot marjoram,Other,
+Oregano,Other,
+Poppy,Other,
+Parsley,Other,
+Anise,Other,
+Ground Pepper,Other,
+Purslane,Other,
+Watercress,Other,
+Rosemary,Other,
+Sorrel,Other,
+Sage,Other,
+Summer savory,Other,
+Winter savory,Other,
+Sesame,Other,
+Cloves,Other,
+Dandelion,Other,
+Thyme,Other,
+Linden,Other,
+Small-leaf linden,Other,
+Fenugreek,Other,
+Vanilla,Other,
+Verbena,Other,
+Ginger,Other,
+Chinese chives,Other,
+Ginseng,Other,
+Lemon thyme,Other,
+Welsh onion,Other,
+Celery leaves,Other,
+Italian oregano,Other,
+Pineappple sage,Other,
+Alfalfa,Other,
+Allspice,Other,
+Amaranth,Other,
+Breadnut tree seed,Other,
+Chervil,Other,
+Chia,Other,
+Cottonseed,Other,
+Dock,Other,
+Fireweed,Other,
+Ginkgo nuts,Other,
+Lotus,Other,
+White mustard,Other,
+Opium poppy,Other,
+Quinoa,Grain,
+Rose hip,Other,
+Roselle,Other,
+Hedge mustard,Other,
+Teff,Other,
+Wasabi,Other,
+Tea leaf willow,Other,
+Rowal,Other,
+Epazote,Other,
+Sourdock,Other,
+Cinnamon,Other,
+Oil palm,Other,
+Sago palm,Other,
+Curry powder,Other,
+Canola,Other,
+Babassu palm,Other,
+Shea tree,Other,
+Oil-seed Camellia,Other,
+Ucuhuba,Other,
+Yellow pond-lily,Other,
+Soft-necked garlic,Other,
+Cheese,Dairy,21
+Milk,Dairy,14
+Yogurt,Dairy,14
+Butter,Dairy,90
+Cream,Dairy,14
+Casein,Dairy,
+Kefir,Dairy,14
+Buttermilk,Dairy,14
+Evaporated milk,Dairy,
+Condensed milk,Dairy,
+Cashew nut,Protein,
+Peanut,Protein,
+Brazil nut,Protein,
+Pecan nut,Protein,
+Chestnut,Protein,
+Hazelnut,Protein,
+Black walnut,Protein,
+Walnut,Protein,
+Pine nut,Protein,
+Pistachio,Protein,
+Almond,Protein,
+Macadamia nut,Protein,
+Japanese walnut,Protein,
+Acorn,Protein,
+Beech nut,Protein,
+Butternut,Protein,
+Chinese chestnut,Protein,
+European chestnut,Protein,
+Hazelnut,Protein,
+Hickory nut,Protein,
+Japanese chestnut,Protein,
+Pili nut,Protein,
+Colorado pinyon,Protein,
+Macadamia nut,Protein,
+Walnut,Protein,
+Mixed nuts,Protein,
+Nuts,Protein,
+Pigeon pea,Protein,
+Chickpea,Protein,
+Grass pea,Protein,
+Lentils,Protein,
+Lupine,Protein,
+Scarlet bean,Protein,
+Lima bean,Protein,
+Common bean,Protein,
+Common pea,Protein,
+Broad bean,Protein,
+Adzuki bean,Protein,
+Gram bean,Protein,
+Mung bean,Protein,
+Climbing bean,Protein,
+Cowpea,Protein,
+Catjang pea,Protein,
+Hyacinth bean,Protein,
+White lupine,Protein,
+Moth bean,Protein,
+Winged bean,Protein,
+Black-eyed pea,Protein,
+Yardlong bean,Protein,
+Yellow wax bean,Protein,
+Green bean,Protein,
+Snack bar,Snack,
+Popcorn,Snack,
+Potato chip,Snack,
+Tortilla chip,Snack,
+Corn chip,Snack,
+Cracker,Snack,
+Trail mix,Snack,
+Soy bean,Protein,
+Soy sauce,Other,
+Miso,Other,
+Tofu,Protein,30
+Soy milk,Protein,10
+Soy yogurt,Protein,10
+Soy cream,Protein,10
+Natto,Protein,10
+Tea,Beverage,
+Hibiscus tea,Beverage,
+Greenthread tea,Beverage,
+Savoy cabbage,Vegetable,10
+Onion,Vegetable,40
+Garden onion,Vegetable,40
+Leek,Vegetable,40
+Burdock,Vegetable,30
+Asparagus,Vegetable,10
+Common beet,Vegetable,10
+Cabbage,Vegetable,10
+Cauliflower,Vegetable,14
+Brussel sprouts,Vegetable,14
+Kohlrabi,Vegetable,21
+Broccoli,Vegetable,14
+Chinese cabbage,Vegetable,10
+Endive,Vegetable,5
+Chicory,Vegetable,5
+Artichoke,Vegetable,7
+Wild carrot,Vegetable,30
+Arugula,Vegetable,7
+Swamp cabbage,Vegetable,10
+Sweet potato,Vegetable,90
+Lettuce,Vegetable,10
+Olive,Vegetable,90
+Parsnip,Vegetable,14
+Avocado,Vegetable,5
+Radish,Vegetable,14
+Garden rhubarb,Vegetable,7
+Garden tomato,Vegetable,7
+Cherry tomato,Vegetable,7
+Eggplant,Vegetable,10
+Potato,Vegetable,90
+Spinach,Vegetable,14
+Celery,Vegetable,30
+Swiss chard,Vegetable,4
+Tronchuda cabbage,Vegetable,10
+Shallot,Vegetable,90
+Carrot,Vegetable,21
+Black cabbage,Vegetable,10
+Chicory leaves,Vegetable,5
+Komatsuna,Vegetable,10
+Pak choy,Vegetable,10
+Napa cabbage,Vegetable,10
+Kai-lan,Vegetable,10
+Oxheart cabbage,Vegetable,10
+Daikon radish,Vegetable,14
+Black radish,Vegetable,14
+Red beetroot,Vegetable,4
+Arrowhead,Vegetable,90
+Arrowroot,Vegetable,90
+Rapini,Vegetable,5
+Cassava,Vegetable,7
+Chinese broccoli,Vegetable,14
+water chestnut,Vegetable,10
+Corn salad,Vegetable,14
+Jerusalem artichoke,Vegetable,7
+Jute,Vegetable,14
+Kale,Vegetable,10
+Wild leek,Vegetable,10
+Malabar spinach,Vegetable,14
+Mountain yam,Vegetable,7
+Mustard spinach,Vegetable,10
+New Zealand spinach,Vegetable,14
+Nopal,Vegetable,14
+Okra,Vegetable,3
+Salsify,Vegetable,7
+Taro,Vegetable,4
+Yam,Vegetable,7
+Jicama,Vegetable,21
+Alaska wild rhubarb,Vegetable,7
+Mushroom,Vegetable,14
+Shiitake mushroom,Vegetable,14
+Enokitake,Vegetable,14
+Oyster mushroom,Vegetable,14
+Cloud ear fungus,Vegetable,
+Maitake,Vegetable,14
+Chanterelle,Vegetable,14
+Black salsify,Vegetable,7
+Heart of palm,Vegetable,14
+Morel Mushroom,Vegetable,14
+Cabbage,Vegetable,10
+Green bell pepper,Vegetable,14
+Yellow bell pepper,Vegetable,14
+Orange bell pepper,Vegetable,14
+Red bell pepper,Vegetable,14
+Italian sweet red pepper,Vegetable,14
+White cabbage,Vegetable,10
+Romaine lettuce,Vegetable,14
+Hummus,Protein,14
+Ayran,Beverage,
+Cottage Cheese,Dairy,10
+Cream,Dairy,14
+Cream Cheese,Dairy,10
+Curd,Dairy,14
+Custard,Snack,
+Dulche de Leche,Snack,
+Doogh,Beverage,
+Eggnog,Beverage,
+Gelato,Snack,
+Ghee,Dairy,
+Mozzerella Cheese,Dairy,21
+Paneer,Dairy,3
+Ricotta Cheese,Dairy,21
+Sour Cream,Dairy,21
+Rice Pudding,Snack,
+Protein Powder,Protein,
+Whipped Cream,Dairy,14
+String Cheese,Dairy,14
+Cheddar Cheese,Dairy,60
+Mexican Blend Cheese,Dairy,14
+Gouda Cheese,Dairy,21
+Brie Cheese,Dairy,14
+Feta Cheese,Dairy,30
+Goat Cheese,Dairy,14
+Pepperjack Cheese,Dairy,60
+Muenster Cheese,Dairy,21
+Queso Cheese,Dairy,14
+Montery Jack Cheese,Dairy,60
+Mascarpone Cheese,Dairy,10
+Manchego Cheese,Dairy,30
+Gruyere,Dairy,30
+Bleu Cheese,Dairy,30
+Farmer Cheese,Dairy,5
+Parmesan Cheese,Dairy,60
+Pecorino Romano Cheese,Dairy,60
+Roquefort Cheese,Dairy,30
+Gorgonzola Cheese,Dairy,21
+Epoisses Cheese,Dairy,10
+Swiss Cheese,Dairy,30
+Provolone Cheese,Dairy,21
+Camembert Cheese,Dairy,30
+Havarti Cheese,Dairy,21
+Colby-Jack Cheese,Dairy,60
+Comte Cheese,Dairy,60
+American Cheese,Dairy,60
+Jalapeno Pepper,Vegetable,10
+Banana Pepper,Vegetable,10
+Cayenne Pepper,Vegetable,10
+Poblano Pepper,Vegetable,10
+Chile Pepper,Vegetable,10
+Serrano Pepper,Vegetable,10
+Habanero Pepper,Vegetable,10
+Tabasco Pepper,Vegetable,10
+Cherry Pepper,Vegetable,10
+Ghost Pepper,Vegetable,10

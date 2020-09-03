@@ -31,20 +31,20 @@ def fetch_recipes(request):
     return Response(serializer.data)
 
 @api_view(['get'])
-def fetch_recipe(request):
-    if request.query_params:
-        recipe_id = request.query_params.get('id')
-        recipe = Recipe.objects.get(recipe_id=recipe_id)
-        ingredients = Ingredient.objects.all().filter(recipe__recipe_id=recipe_id)
-        recipe_serializer = Recipe_GETSerializer(recipe, many=False).data
-        ingredients_serializer = Ingredient_Serializer(ingredients, many=True).data
-        serialized = recipe_serializer['ingredients'] = ingredients_serializer
-        return Response(recipe_serializer)
-    else: 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+def fetch_recipe(request, pk):
+    try:
+        recipe = Recipe.objects.get(pk=pk)
+    except Recipe.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    ingredients = Ingredient.objects.all().filter(recipe__pk=pk)
+    recipe_serializer = Recipe_GETSerializer(recipe, many=False).data
+    ingredients_serializer = Ingredient_Serializer(ingredients, many=True).data
+    serialized = recipe_serializer['ingredients'] = ingredients_serializer
+    return Response(recipe_serializer)
 
 @api_view(['post'])
-def post_recipes(request):
+def post_recipe(request):
     ingredients_data = request.data.pop('ingredients')
     recipe_data = request.data
 
@@ -67,3 +67,17 @@ def post_recipes(request):
     ingredients_serializer.save()
     
     return Response(recipe_serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['get', 'post'])
+def admin_post(request):
+    if request.method=='GET':
+        cuisines = Cuisine.objects.all()
+        serializer = Cuisine_Serializer(food_groups, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = Cuisine_Serializer(data=request.data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

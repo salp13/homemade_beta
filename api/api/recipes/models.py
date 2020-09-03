@@ -4,29 +4,29 @@ from uuid import uuid4
 
 # should contain images later
 class Diet(models.Model):
-    diet_id = models.CharField(primary_key=True, max_length=128, unique=True)
-    diet = models.CharField(max_length=128, unique=True)
+    diet_id = models.AutoField(primary_key=True)
+    diet = models.CharField(max_length=128)
 
     class Meta:
         db_table = 'diet'
 
 class Cuisine(models.Model):
-    cuisine_id = models.CharField(primary_key=True, max_length=128, unique=True)
-    cuisine = models.CharField(max_length=128, unique=True)
+    cuisine_id = models.AutoField(primary_key=True)
+    cuisine = models.CharField(max_length=128)
 
     class Meta:
         db_table = 'cuisine'
 
 class Meal_Type(models.Model):
-    meal_type_id = models.CharField(primary_key=True, max_length=128, unique=True)
-    meal_type = models.CharField(max_length=128, unique=True)
+    meal_type_id = models.AutoField(primary_key=True)
+    meal_type = models.CharField(max_length=128)
 
     class Meta:
         db_table = 'meal_type'
 
 class Recipe(models.Model):
     recipe_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    name = models.CharField(max_length=128, unique=True)
+    name = models.CharField(max_length=128)
     image = models.CharField(max_length=128, null=True)
     description = models.TextField()
     instructions = models.TextField(default='')
@@ -39,11 +39,10 @@ class Recipe(models.Model):
         db_table = 'recipe'
 
 class Ingredient(models.Model):
-    ingredient_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    food = models.ForeignKey('food.Food', on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     quantity = models.PositiveSmallIntegerField(default=1)
     measurement_unit = models.CharField(max_length=128)
-    food = models.ForeignKey('food.Food', on_delete=models.RESTRICT)
-    recipe = models.ForeignKey(Recipe, on_delete=models.RESTRICT)
     
     class Meta:
         db_table = 'ingredient'

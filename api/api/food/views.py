@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import Food_Group_Serializer
+from .serializers import Food_Group_GETSerializer, Food_Group_POSTSerializer
 from .serializers import Food_GETSerializer
 from .serializers import Food_POSTSerializer
 from .models import Food_Group
@@ -25,3 +25,17 @@ def post_foods(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['get', 'post'])
+def admin_clean(request):
+    if request.method=='GET':
+        food_groups = Food_Group.objects.all()
+        serializer = Food_Group_GETSerializer(food_groups, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = Food_Group_POSTSerializer(data=request.data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

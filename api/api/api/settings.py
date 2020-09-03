@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'psycopg2',
     'food',
     'recipes',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -81,7 +82,7 @@ WSGI_APPLICATION = 'api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'homemade',
+        'NAME': 'homemade_db',
         'USER': 'susiealptekin',
         'PASSWORD': 'Derbydog3',
         'HOST': 'localhost',
