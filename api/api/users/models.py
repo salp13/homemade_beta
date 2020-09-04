@@ -14,7 +14,7 @@ class User(models.Model):
     dairy_wasted = models.PositiveIntegerField(default=0)
     total_items = models.PositiveIntegerField(default=0)
     saved_recipes = models.ManyToManyField('recipes.Recipe')
-    shopping_list = models.ManyToManyField('food.Food')
+    shopping_list = models.ManyToManyField('food.Food', through='users.Shopping_List_Item')
     fridge = models.ManyToManyField('food.Food', through='users.Fridge_Item', related_name='users')
 
     class Meta:
@@ -24,7 +24,16 @@ class User(models.Model):
 class Fridge_Item(models.Model):
     food = models.ForeignKey('food.Food', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    unlisted_food = models.CharField(max_length=128, null=True)
     expiration_date = models.DateField()
     
     class Meta:
         db_table = 'fridge_item'
+
+class Shopping_List_Item(models.Model):
+    food = models.ForeignKey('food.Food', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    unlisted_food = models.CharField(max_length=128, null=True)
+
+    class Meta:
+        db_table = 'shopping_list'
