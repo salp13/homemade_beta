@@ -4,7 +4,7 @@
             "recipe_name": "Orzo Chickpea Salad",
             "image": null,
             "description": "This mediterranean inspired recipe is great when you need a small, quick, easy meal. It is easily customizable to your personal preference and tastes delish!",
-            "instructions": "1. Boil water in a pot and, once boiling, add orzo to the water. Cook for 10 minutes or to preference \n 2. While the orzo is cooking, open can of chickpeas, strain out the water, and rinse off the chickpeas \n 3. Chop the cucumber into small bite-size pieces \n 4. Combine the chickpeas and cucumber. Crumble the feta cheese on top of it \n 4. When orzo is done cooking, strain the water and cool the pasta down by running cold water through it \n 5. Once the orzo is cooled and strained of all water, add it to the other ingredients and mix everything together \n 6. Season with olive oil and salt",
+            "instructions": "1. Boil water in a pot and, once boiling, add orzo to the water. Cook for 10 minutes or to preference \n 2. While the orzo is cooking, open can of chickpeas and rinse in a strainer \n 3. Chop the cucumber into small bite-size pieces \n 4. Combine the chickpeas, cucumber, and feta cheese \n 4. When orzo is done cooking, strain the water and cool the pasta down by running cold water through it \n 5. Once the orzo is cooled and strained of all water, add it to the other ingredients and mix everything together \n 6. Season with olive oil and salt to taste",
             "diets": [
                 "vegetarian",
                 "gluten-free"
@@ -14,33 +14,303 @@
             "foods": [
                 {
                     "food": "orzo",
-                    "quantity": 0.5,
-                    "measurement_unit": "cup"
+                    "description": "1/2 cup orzo"
                 },
                 {
                     "food": "chickpea",
-                    "quantity": 1,
-                    "measurement_unit": "can"
+                    "description": "1 can chickpeas"
                 },
                 {
                     "food": "cucumber",
-                    "quantity": 1,
-                    "measurement_unit": null
+                    "description": "1 cucumber"
                 },
                 {
                     "food": "feta cheese",
-                    "quantity": 0.25,
-                    "measurement_unit": "cup"
+                    "description": "1/4 cup crumbled feta cheese"
                 },
                 {
                     "food": "olive oil",
-                    "quantity": 1,
-                    "measurement_unit": "tbsp"
+                    "description": "olive oil to taste"
                 },
                 {
                     "food": "salt",
-                    "quantity": 1,
-                    "measurement_unit": "tsp"
+                    "description": "salt to taste"
+                }
+            ]
+        },
+        {
+            "recipe_name": "Bruschetta Baked Salmon",
+            "image": null,
+            "description": "Delicious baked salmon dish with italian inspired bruschetta topping",
+            "instructions": "1. Preheat oven to 400F \n 2. Place salmon, 2 tbsp of balsamic vinaigrette, garlic powder, and salt in bowl. Let sit for at least 5 minutes. \n 3. Combine feta cheese, tomatoes, green onions, and basil in a medium bowl. \n 4. Once oven is preheated, bake salmon for roughly 12 minutes. \n 5. Arrange salmon with bruschetta on top",
+            "diets": [
+                "pescatarian",
+                "gluten-free"
+            ],
+            "cuisine": "italian",
+            "meal_type": "dinner",
+            "foods": [
+                {
+                    "food": "salmon",
+                    "description": "2 salmon fillets"
+                },
+                {
+                    "food": "balsamic vinaigrette",
+                    "description": "3 tbsp balsamic vinaigrette"
+                },
+                {
+                    "food": "garlic powder",
+                    "description": "1/2 tsp garlic powder"
+                },
+                {
+                    "food": "salt",
+                    "description": "salt to taste"
+                },
+                {
+                    "food": "olive oil",
+                    "description": "1/2 tbsp olive oil"
+                },
+                {
+                    "food": "feta cheese",
+                    "description": "2 tbsp crumbled feta cheese"
+                },
+                {
+                    "food": "tomato",
+                    "description": "1/4 cup diced tomatoes"
+                },
+                {
+                    "food": "green onion",
+                    "description": "2 tbsp finely chopped green onions"
+                },
+                {
+                    "food": "basil",
+                    "description": "1 tsp minced fresh basil"
+                }
+            ]
+        },
+        {
+            "recipe_name": "Mango Salsa Salmon with Coconut Rice",
+            "image": null,
+            "description": "Tropical, tasty meal that's great for summer nights!",
+            "instructions": "1. Preheat oven to 400F. \n 2. Whisk together 1 1/2 tablespoons olive oil, lime zest, 1 1/2 tablespoons lime juice, and garlic. Season with salt and pepper to taste. \n 3. Place salmon in marinade and let sit in fridge for at least 15 minutes on each side. \n 4. While salmon is marinating, bring coconut water, coconut milk, and rice to boil in a saucepan. \n 5. Once boiling, reduce heat to a simmer and cover saucepan for approximately 22 minutes or until liquid is absorbed. \n 6. Once oven is preheated and salmon has marinated, bake salmon for approximately 12 minutes or until fully cooked. \n 7. In a bowl, combine diced mango, bell pepper, cilantro, onion, avocado, remaining lime juice, and remaining olive oil.",
+            "diets": [
+                "pescatarian",
+                "gluten-free",
+                "dairy-free"
+            ],
+            "cuisine": "american",
+            "meal_type": "dinner",
+            "foods": [
+                {
+                    "food": "salmon",
+                    "description": "2 salmon fillets"
+                },
+                {
+                    "food": "olive oil",
+                    "description": "2 1/2 tbsp olive oil"
+                },
+                {
+                    "food": "lime zest",
+                    "description": "1 tsp lime zest"
+                },
+                {
+                    "food": "lime juice",
+                    "description": "2 1/2 tbsp lime juice"
+                },
+                {
+                    "food": "garlic",
+                    "description": "1 1/2 cloves garlic"
+                },
+                {
+                    "food": "coconut water",
+                    "description": "1/2 cup coconut water"
+                },
+                {
+                    "food": "coconut milk",
+                    "description": "1/2 cup coconut milk"
+                },
+                {
+                    "food": "jasmine rice",
+                    "description": "1/2 cup jasmine rice"
+                },
+                {
+                    "food": "mango",
+                    "description": "1/2 diced mango"
+                },
+                {
+                    "food": "bell pepper",
+                    "description": "1/4 cup diced bell peppers"
+                },
+                {
+                    "food": "cilantro",
+                    "description": "1 tbsp minced cilantro"
+                },
+                {
+                    "food": "red onion",
+                    "description": "1 tbsp chopped red onion"
+                },
+                {
+                    "food": "avocado",
+                    "description": "1/2 sliced avocado"
+                }
+            ]
+        },
+        {
+            "recipe_name": "Tomato Pesto Salmon",
+            "image": null,
+            "description": "Quick and easy salmon dinner.",
+            "instructions": "1. Preheat oven to 400F. \n 2. Slice zucchini and halve the cherry tomatoes \n 3. Arrange sliced zuccinis on baking sheet and place salmon next to them. \n 4. Spread the pesto on top of the salmon and distribute halved cherry tomatoes on top of the pesto. \n 5. drizzle zucchini with olive oil and season to taste with salt and pepper. \n 6. Bake for 12 minutes or until salmon is fully cooked.",
+            "diets": [
+                "pescatarian",
+                "gluten-free"
+            ],
+            "cuisine": "italian",
+            "meal_type": "dinner",
+            "foods": [
+                {
+                    "food": "salmon",
+                    "description": "2 salmon fillets"
+                },
+                {
+                    "food": "olive oil",
+                    "description": "1 tbsp olive oil"
+                },
+                {
+                    "food": "salt",
+                    "description": "salt to taste"
+                },
+                {
+                    "food": "ground pepper",
+                    "description": "ground pepper to taste"
+                },
+                {
+                    "food": "cherry tomato",
+                    "description": "10 cherry tomatoes"
+                },
+                {
+                    "food": "pesto",
+                    "description": "5 tbsp pesto"
+                },
+                {
+                    "food": "zucchini",
+                    "description": "2 zucchinis"
+                }
+            ]
+        },
+        {
+            "recipe_name": "Spicy Shrimp Tacos",
+            "image": null,
+            "description": "Delicious shrimp tacos with a bit of a kick!",
+            "instructions": "1. Combine olive oil, lime juice, and spices in a large bowl. Add the shrimp and mix until shrimp is coated completely. \n 2. Cook shrimp on stovetop griddle pan for 2 minutes per side. They should be golden brown on both sides. \n 3. Warm tortillas in the oven or on the stovetop for a few minutes before assembling the taco by adding shredded cabbage, diced avocado, and shrimp. ",
+            "diets": [
+                "pescatarian",
+                "gluten-free",
+                "dairy-free"
+            ],
+            "cuisine": "mexican",
+            "meal_type": "dinner",
+            "foods": [
+                {
+                    "food": "shrimp",
+                    "description": "1/2 lb shrimp"
+                },
+                {
+                    "food": "olive oil",
+                    "description": "1 tbsp olive oil"
+                },
+                {
+                    "food": "lime juice",
+                    "description": "1 tbsp lime juice"
+                },
+                {
+                    "food": "taco seasoning",
+                    "description": "1 tsp taco seasoning"
+                },
+                {
+                    "food": "red pepper flakes",
+                    "description": "1/2 tsp red pepper flakes"
+                },
+                {
+                    "food": "ground cumin",
+                    "description": "1/4 tsp ground cumin"
+                },
+                {
+                    "food": "corn tortilla",
+                    "description": "4 corn tortillas"
+                },
+                {
+                    "food": "cabbage",
+                    "description": "1/2 cup sliced cabbage"
+                },
+                {
+                    "food": "avocado",
+                    "description": "1 sliced avocado"
+                } 
+            ]
+        },
+        {
+            "recipe_name": "Ground Turkey Curry",
+            "image": null,
+            "description": "Delicious curry that uses ground turkey instead of beef to put a sustainable spin on this wonderful dish.",
+            "instructions": "1. Combine 1 cup water and 1 cup rice in saucepan and bring to a boil. Once boiling, cover and let simmer for approximately 22 minutes or until liquid is absorbed. \n 2. While rice is cooking, heat olive oil in large skillet. When hot, add onion and saute until onions appear translucent. \n 3. Add ground turkey and minced garlic to the skillet and cook for approximately 8 minutes or until meat is cooked. \n 4. In meantime, combine spices and seasonings. When meat is done cooking, add coconut milk and seasoning mixture to skillet. \n 5. Let simmer for an additional 10 minutes. \n 6. Serve curry over the rice. ",
+            "diets": [
+                "gluten-free",
+                "dairy-free"
+            ],
+            "cuisine": "indian",
+            "meal_type": "dinner",
+            "foods": [
+                {
+                    "food": "ground turkey",
+                    "description": "1 lb ground turkey"
+                },
+                {
+                    "food": "olive oil",
+                    "description": "2 tbsp olive oil"
+                },
+                {
+                    "food": "onion",
+                    "description": "1 cup diced onion"
+                },
+                {
+                    "food": "garlic",
+                    "description": "2 cloves garlic"
+                },
+                {
+                    "food": "coconut milk",
+                    "description": "1 cup coconut milk"
+                },
+                {
+                    "food": "jasmine rice",
+                    "description": "1 cup jasmine rice"
+                },
+                {
+                    "food": "curry powder",
+                    "description": "1 1/2 tsp curry powder"
+                },
+                {
+                    "food": "garam masala",
+                    "description": "1 tsp garam masala"
+                },
+                {
+                    "food": "cumin",
+                    "description": "1/4 tsp cumin"
+                },
+                {
+                    "food": "tumeric",
+                    "description": "1/4 tsp tumeric"
+                },
+                {
+                    "food": "cayenne",
+                    "description": "1/4 tsp cayenne"
+                },
+                {
+                    "food": "salt",
+                    "description": "salt to taste"
+                },
+                {
+                    "food": "ground pepper",
+                    "description": "ground pepper to taste"
                 }
             ]
         }

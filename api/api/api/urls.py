@@ -15,24 +15,26 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from food.views import fetch_foods, post_foods, admin_clean
-from recipes.views import fetch_recipes, fetch_recipe, post_recipe, admin_post, delete_recipe
-from users.views import fetch_users, post_users, single_user, user_fridge, user_shopping_list, user_saved_recipes
+from food.views import many_foods, single_food, admin_food_group
+from recipes.views import many_recipes, single_recipe, admin_post
+from users.views import many_users, single_user, metric_data, many_fridge, single_fridge, many_shopping_list, single_shopping_list, many_saved_recipes, single_saved_recipe
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('fetch_foods/', fetch_foods),
-    path('post_foods/', post_foods),
-    path('fetch_recipes/', fetch_recipes),
-    path('fetch_recipe/<uuid:pk>', fetch_recipe),
-    path('post_recipe/', post_recipe),
-    path('fetch_users/', fetch_users),
-    path('post_users/', post_users),
-    path('single_user/<uuid:pk>', single_user),
-    path('user_fridge/<uuid:pk>/<uuid:foodPK>', user_fridge),
-    path('user_shopping_list/<uuid:pk>/<uuid:foodPK>', user_shopping_list),
-    path('user_saved_recipes/<uuid:pk>/<uuid:recipePK>', user_saved_recipes),
-    path('admin_clean', admin_clean),
+    path('many_foods/', many_foods),
+    path('single_food/<uuid:pk>', single_food),
+    path('admin_food_group', admin_food_group),
+    path('many_recipes/', many_recipes),
+    path('single_recipe/<uuid:pk>', single_recipe),
     path('admin_post', admin_post),
-    path('delete_recipe/<uuid:pk>', delete_recipe)
+    path('many_users', many_users),
+    path('single_user/<uuid:user_pk>', single_user),
+    path('metric_data/<uuid:user_pk>', metric_data),
+    path('many_fridge/<uuid:user_pk>', many_fridge),
+    path('single_fridge/<uuid:user_pk>/<uuid:fridge_pk>', single_fridge),
+    path('many_shopping_list/<uuid:user_pk>', many_shopping_list),
+    path('single_shopping_list/<uuid:user_pk>/<uuid:shopping_list_pk>', single_shopping_list),
+    path('many_saved_recipes/<uuid:user_pk>', many_saved_recipes),
+    path('single_saved_recipe/<uuid:user_pk>/<uuid:recipe_pk>', single_saved_recipe),
 ]

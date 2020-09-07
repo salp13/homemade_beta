@@ -19,5 +19,11 @@
     },
     {
         "food_group": "other"
+    },
+    {
+        "food_group": "dairy"
+    },
+    {
+        "food_group": "dish"
     }
 ]

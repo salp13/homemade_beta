@@ -25,9 +25,10 @@ class Ingredient_POSTSerializer(ModelSerializer):
 
 class Ingredient_GETSerializer(ModelSerializer):
 	food = Food_IngredientSerializer(read_only=True)
+	
 	class Meta:
 		model = Ingredient
-		fields = ['quantity', 'measurement_unit', 'food', 'unlisted_food']
+		fields = ['description', 'food', 'unlisted_food']
 
 class Recipe_POSTSerializer(ModelSerializer):
 	class Meta:
@@ -38,10 +39,11 @@ class Recipe_GETSerializer(ModelSerializer):
 	diets = Diet_Serializer(read_only=True, many=True)
 	cuisine = Cuisine_Serializer(read_only=True)
 	meal_type = Meal_Type_Serializer(read_only=True)
+	ingredients = Ingredient_GETSerializer(source='ingredient_set', many=True)
 	
 	class Meta:
 		model = Recipe
-		fields = ['recipe_id', 'recipe_name', 'image', 'diets', 'cuisine', 'meal_type', 'instructions', 'description', 'image']
+		fields = ['recipe_id', 'recipe_name', 'image', 'diets', 'cuisine', 'meal_type', 'instructions', 'description', 'image', 'ingredients']
 
 class RecipeOverview_GETSerializer(ModelSerializer):
 	diets = Diet_Serializer(read_only=True, many=True)

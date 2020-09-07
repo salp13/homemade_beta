@@ -1,7 +1,7 @@
 [
  {
    "food_name": "cranberry",
-   "food_group": " fruit",
+   "food_group": "fruit",
    "default_days_to_exp": 10
  },
  {
@@ -4428,5 +4428,10 @@
    "food_name": "yellow bell pepper",
    "food_group": "vegetable",
    "default_days_to_exp": 14
+ },
+ {
+   "food_name": "unlisted_food",
+   "food_group": "other",
+   "default_days_to_exp": null
  }
 ]

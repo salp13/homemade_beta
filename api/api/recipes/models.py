@@ -1,8 +1,6 @@
 from django.db import models
 from uuid import uuid4
 
-
-# should contain images later
 class Diet(models.Model):
     diet_id = models.AutoField(primary_key=True)
     diet = models.CharField(max_length=128)
@@ -29,7 +27,7 @@ class Recipe(models.Model):
     recipe_name = models.CharField(max_length=128)
     image = models.CharField(max_length=128, null=True)
     description = models.TextField()
-    instructions = models.TextField(default='')
+    instructions = models.TextField()
     diets = models.ManyToManyField(Diet)
     cuisine = models.ForeignKey(Cuisine, on_delete=models.RESTRICT, null=True)
     meal_type = models.ForeignKey(Meal_Type, on_delete=models.RESTRICT, null=True)
@@ -41,8 +39,7 @@ class Recipe(models.Model):
 class Ingredient(models.Model):
     food = models.ForeignKey('food.Food', on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    quantity = models.FloatField(default=1.0)
-    measurement_unit = models.CharField(max_length=128, null=True)
+    description = models.TextField()
     unlisted_food = models.CharField(max_length=128, null=True)
 
     class Meta:

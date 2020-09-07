@@ -31,8 +31,6 @@ def many_recipes(request):
             recipes = Recipe.objects.all()
         recipe_serializer = RecipeOverview_GETSerializer(recipes, many=True)
         return Response(recipe_serializer.data)
-
-
     if request.method == 'POST':
         ingredients_data = request.data.pop('foods')
         try:
@@ -41,7 +39,7 @@ def many_recipes(request):
             request.data['meal_type'] = Meal_Type.objects.filter(meal_type=request.data['meal_type']).values_list('meal_type_id', flat=True)[0]
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        recipe_serializer = Recipe_POSTSerializer(data=request.data, many=False)
+        recipe_serializer = Recipe_POSTSerializer(data=request.data)
         if not recipe_serializer.is_valid():
                 return Response(recipe_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         recipe_serializer.save()
@@ -52,7 +50,7 @@ def many_recipes(request):
                     ele['food'] = Food.objects.filter(food_name=ele['food']).values_list('food_id', flat=True)[0]
                 except:
                     ele['unlisted_food'] = ele['food']
-                    ele['food'] = 'f704d172-3e5a-4aab-a516-7d2846c051c5'
+                    ele['food'] = '0508cd76-8fec-4739-b996-c7001763c98f'
             ingredients_serializer = Ingredient_POSTSerializer(data=ingredients_data, many=True)
             if ingredients_serializer.is_valid():
                 ingredients_serializer.save()
@@ -60,10 +58,8 @@ def many_recipes(request):
             created_recipe = Recipe.objects.get(pk=recipe_id).delete()
             return Response(ingredients_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except:
-            created_recipe = Recipe.objects.get(pk=recipe_id).delete()
+            created_recipe = Recipe.objects.get(pk=recipe_serializer.data['recipe_id']).delete()
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        
-
     if request.method == 'DELETE':
         recipes = Recipe.objects.all().delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -75,7 +71,7 @@ def single_recipe(request, pk):
     try:
         recipe = Recipe.objects.get(pk=pk)
     except Recipe.DoesNotExist:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
         recipe_serializer = Recipe_GETSerializer(recipe)
@@ -92,128 +88,10 @@ def single_recipe(request, pk):
     
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['get'])
-def fetch_recipes(request):
-    all_meal_types = Meal_Type.objects.values_list('meal_type', flat=True)
-    all_diets = Diet.objects.values_list('diet', flat=True)
-    all_cuisines = Cuisine.objects.values_list('cuisine', flat=True)
-
-    if request.query_params:
-        search_param = request.query_params.get('value', '')
-        meal_type_params = request.query_params.getlist('meal_type', all_meal_types)
-        diet_params = request.query_params.getlist('dietary_preference', all_diets)
-        cuisine_params = request.query_params.getlist('cuisine', all_cuisines)
-    
-        recipes = (Recipe.objects.filter(
-            recipe_name__startswith=search_param, 
-            meal_type__meal_type__in=meal_type_params, 
-            diets__diet__in=diet_params, 
-            cuisine__cuisine__in=cuisine_params
-            ))
-    else: 
-        recipes = Recipe.objects.all()
-    serializer = RecipeOverview_GETSerializer(recipes, many=True)
-    return Response(serializer.data)
-
-@api_view(['get'])
-def fetch_recipe(request, pk):
-    try:
-        recipe = Recipe.objects.get(pk=pk)
-    except Recipe.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    ingredients = Ingredient.objects.all().filter(recipe__pk=pk)
-    recipe_serializer = Recipe_GETSerializer(recipe, many=False).data
-    ingredients_serializer = Ingredient_GETSerializer(ingredients, many=True).data
-    serialized = recipe_serializer['ingredients'] = ingredients_serializer
-    return Response(recipe_serializer)
-
 @api_view(['post'])
-def post_recipe(request):
-    ingredients_data = request.data.pop('foods')
-    try:
-        request.data['diets'] = Diet.objects.filter(diet__in=request.data['diets']).values_list('diet_id', flat=True)
-        request.data['cuisine'] = Cuisine.objects.filter(cuisine=request.data['cuisine']).values_list('cuisine_id', flat=True)[0]
-        request.data['meal_type'] = Meal_Type.objects.filter(meal_type=request.data['meal_type']).values_list('meal_type_id', flat=True)[0]
-    except:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-    recipe_serializer = Recipe_POSTSerializer(data=request.data, many=False)
-    if not recipe_serializer.is_valid():
-            return Response(recipe_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    recipe_serializer.save()
-    try:
-        recipe_id = recipe_serializer.data['recipe_id']
-        for ele in ingredients_data:
-            ele['recipe'] = recipe_id
-            try:
-                ele['food'] = Food.objects.filter(food_name=ele['food']).values_list('food_id', flat=True)[0]
-            except:
-                ele['unlisted_food'] = ele['food']
-                ele['food'] = 'f704d172-3e5a-4aab-a516-7d2846c051c5'
-            
-        ingredients_serializer = Ingredient_POSTSerializer(data=ingredients_data, many=True)
-        if ingredients_serializer.is_valid():
-            ingredients_serializer.save()
-            return Response(recipe_serializer.data, status=status.HTTP_201_CREATED)
-        created_recipe = Recipe.objects.get(pk=recipe_id)
-        created_recipe.delete()
-        return Response(ingredients_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    except:
-        created_recipe = Recipe.objects.get(pk=recipe_id)
-        created_recipe.delete()
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-    # ingredients_data = request.data.pop('foods')
-    # try:
-    #     request.data['diets'] = Diet.objects.filter(diet__in=request.data['diets']).values_list('diet_id', flat=True)
-    #     request.data['cuisine'] = Cuisine.objects.filter(cuisine=request.data['cuisine']).values_list('cuisine_id', flat=True)[0]
-    #     request.data['meal_type'] = Meal_Type.objects.filter(meal_type=request.data['meal_type']).values_list('meal_type_id', flat=True)[0]
-    # except:
-    #     return Response(status=status.HTTP_400_BAD_REQUEST)
-
-    # recipe_serializer = Recipe_POSTSerializer(data=request.data, many=False)
-    # if not recipe_serializer.is_valid():
-    #         return Response(recipe_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    # recipe_serializer.save()
-
-    # recipe_id = recipe_serializer.data['recipe_id']
-    # for ele in ingredients_data:
-    #     food = ele['food']
-    #     try:
-    #         food_object = Food.objects.get(food_name=food)
-    #         food_serializer = Food_GETSerializer(food_object)
-    #         ele['food'] = food_serializer.data['food_id']
-    #     except Food.DoesNotExist:
-    #         ele['food'] = 'f704d172-3e5a-4aab-a516-7d2846c051c5'
-    #         ele['unlisted_food'] = food
-    #     ele['recipe'] = recipe_id
-
-    # ingredients_serializer = Ingredient_POSTSerializer(data=ingredients_data, many=True)
-    # if not ingredients_serializer.is_valid():
-    #     return Response(ingredients_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    # ingredients_serializer.save()
-    
-    # return Response(recipe_serializer.data, status=status.HTTP_201_CREATED)
-
-
-@api_view(['delete'])
-def delete_recipe(request, pk):
-    if request.method == 'DELETE':
-        try:
-            recipe = Recipe.objects.get(pk=pk)
-            recipe.delete()
-        except Recipe.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-    return Response(status=status.HTTP_204_NO_CONTENT)
-
-@api_view(['get', 'post'])
 def admin_post(request):
-    if request.method=='GET':
-        diets = Diet.objects.all()
-        serializer = Diet_Serializer(diets, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = Meal_Type_Serializer(data=request.data, many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+    serializer = Cuisine_Serializer(data=request.data, many=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
