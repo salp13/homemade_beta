@@ -14,6 +14,11 @@ import ProfileScreen from '../screens/ProfileScreen';
 import HomeResultScreen from '../screens/HomeResultScreen';
 import AddFridgeItemScreen from '../screens/AddFridgeItemScreen';
 import AddShoppingListItemScreen from '../screens/AddShoppingListItemScreen'
+import SettingsScreen from '../screens/SettingsScreen'
+import AccountScreen from '../screens/AccountScreen'
+import AboutScreen from '../screens/AboutScreen'
+import IndividualRecipeScreen from '../screens/IndividualRecipeScreen'
+
 import { 
   BottomTabParamList, 
   HomeParamList, 
@@ -23,7 +28,11 @@ import {
   ProfileParamList, 
   HomeResultParamList, 
   AddFridgeItemParamList,
-  AddShoppingListItemParamList} from '../types';
+  AddShoppingListItemParamList,
+  SettingsParamList,
+  AccountParamList,
+  AboutParamList,
+  IndividualRecipeParamList} from '../types';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -93,6 +102,10 @@ const ProfileStack = createStackNavigator<ProfileParamList>();
 const HomeResultStack = createStackNavigator<HomeResultParamList>();
 const AddFridgeItemStack = createStackNavigator<AddFridgeItemParamList>();
 const AddShoppingListItemStack = createStackNavigator<AddShoppingListItemParamList>();
+const SettingsStack = createStackNavigator<SettingsParamList>();
+const AccountStack = createStackNavigator<AccountParamList>();
+const AboutStack = createStackNavigator<AboutParamList>();
+const IndividualRecipeStack = createStackNavigator<IndividualRecipeParamList>();
 
 function HomeNavigator() {
   return (
@@ -110,6 +123,11 @@ function HomeNavigator() {
         component={HomeResultScreen}
         initialParams={{ specifiedItems: ['avocado'] }}
       />
+      <IndividualRecipeStack.Screen
+        name="IndividualRecipeScreen"
+        component={IndividualRecipeScreen}
+        options={{ headerShown: false }}
+      />
     </HomeStack.Navigator>
   );
 }
@@ -124,6 +142,11 @@ function SearchNavigator() {
       <SearchStack.Screen
         name="SearchScreen"
         component={SearchScreen}
+      />
+      <IndividualRecipeStack.Screen
+        name="IndividualRecipeScreen"
+        component={IndividualRecipeScreen}
+        options={{ headerShown: false }}
       />
     </SearchStack.Navigator>
   );
@@ -169,9 +192,29 @@ function ProfileNavigator() {
       <ProfileStack.Screen
         name="ProfileScreen"
         component={ProfileScreen}
+        options={{ headerTitle: 'profile' }}
+      />
+      <SettingsStack.Screen
+        name="SettingsScreen"
+        component={SettingsScreen}
+        options={{ headerTitle: 'settings' }}
+      />
+      <AccountStack.Screen
+        name="AccountScreen"
+        component={AccountScreen}
+        options={{ headerTitle: 'account' }}
+      />
+      <AboutStack.Screen
+        name="AboutScreen"
+        component={AboutScreen}
+        options={{ headerTitle: 'about' }}
+      />
+      <IndividualRecipeStack.Screen
+        name="IndividualRecipeScreen"
+        component={IndividualRecipeScreen}
         options={{ headerShown: false }}
       />
-    </ProfileStack.Navigator>
+  </ProfileStack.Navigator>
   );
 }
 

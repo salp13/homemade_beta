@@ -4,7 +4,7 @@
       "title": "cauliflower", 
       "daysToExp": 6, 
       "imageIndex": 0, 
-      "selected": false,
+      "selected": true,
       "viewable": true
     },
     {
@@ -194,10 +194,7 @@
         "butter",
         "sugar"
       ],
-      "directions": [
-        "combine ingredients in a bowl",
-        "bake ingredients"
-      ]
+      "directions": "1. Combine 1 cup water and 1 cup rice in saucepan and bring to a boil. Once boiling, cover and let simmer for approximately 22 minutes or until liquid is absorbed. \n 2. While rice is cooking, heat olive oil in large skillet. When hot, add onion and saute until onions appear translucent. \n 3. Add ground turkey and minced garlic to the skillet and cook for approximately 8 minutes or until meat is cooked. \n 4. In meantime, combine spices and seasonings. When meat is done cooking, add coconut milk and seasoning mixture to skillet. \n 5. Let simmer for an additional 10 minutes. \n 6. Serve curry over the rice. "
     }
   ],
   "dummyShoppingListItems": [
@@ -238,7 +235,7 @@
           "vegan",
           "sustainable"
         ],
-        "saved": false,
+        "saved": true,
         "cuisine": "german",
         "mealType": "dinner"
       },
@@ -250,7 +247,7 @@
           "vegan",
           "sustainable"
         ],
-        "saved": false,
+        "saved": true,
         "cuisine": "mexican",
         "mealType": "dinner"
       },
@@ -262,10 +259,27 @@
           "vegan",
           "sustainable"
         ],
-        "saved": false,
+        "saved": true,
         "cuisine": "indian",
         "mealType": "dinner"
       }
     ]
+  },
+  "dummyIndividualRecipe": {
+    "id": "1",
+    "title":"recipe1",
+    "imageIndex": 0,
+    "dietaryPreferences": [
+      "vegan",
+      "sustainable"
+    ],
+    "servingSize": 2,
+    "saved": false,
+    "ingredients": [
+      "flour",
+      "butter",
+      "sugar"
+    ],
+    "directions": "1. Combine 1 cup water and 1 cup rice in saucepan and bring to a boil. Once boiling, cover and let simmer for approximately 22 minutes or until liquid is absorbed. \n 2. While rice is cooking, heat olive oil in large skillet. When hot, add onion and saute until onions appear translucent. \n 3. Add ground turkey and minced garlic to the skillet and cook for approximately 8 minutes or until meat is cooked. \n 4. In meantime, combine spices and seasonings. When meat is done cooking, add coconut milk and seasoning mixture to skillet. \n 5. Let simmer for an additional 10 minutes. \n 6. Serve curry over the rice. "
   }
 }

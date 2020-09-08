@@ -20,6 +20,9 @@ export type HomeParamList = {
 
 export type SearchParamList = {
   SearchScreen: undefined;
+  IndividualRecipeScreen: {
+    recipeId: string
+  }
 };
 
 export type FridgeParamList = {
@@ -33,12 +36,19 @@ export type ShoppingListParamList = {
 };
 
 export type ProfileParamList = {
-  ProfileScreen: undefined;
+  ProfileScreen: undefined
+  SettingsScreen: undefined
+  IndividualRecipeScreen: {
+    recipeId: string
+  }
 };
 
 export type HomeResultParamList = {
   HomeResultScreen: {
     specifiedItems: Array<any>
+  }
+  IndividualRecipeScreen: {
+    recipeId: string
   }
 };
 
@@ -50,4 +60,27 @@ export type AddFridgeItemParamList = {
 export type AddShoppingListItemParamList = {
   AddShoppingListItemScreen: undefined
   ShoppingListScreen: undefined
+}
+
+export type SettingsParamList = {
+  SettingsScreen: undefined
+  ProfileScreen: undefined
+  AccountScreen: undefined
+  AboutScreen: undefined
+}
+
+export type AccountParamList = {
+  AccountScreen: undefined
+  SettingsScreen: undefined
+}
+
+export type AboutParamList = {
+  AboutScreen: undefined
+  SettingsScreen: undefined
+}
+
+export type IndividualRecipeParamList = {
+  IndividualRecipeScreen: {
+    recipeId: string
+  }
 }
