@@ -2,6 +2,7 @@ import * as React from 'react';
 import { StyleSheet, SectionList, TouchableWithoutFeedback, FlatList } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import { Ionicons } from '@expo/vector-icons';
+// import Ionicons from 'react-native-vector-icons/Ionicons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 
@@ -9,7 +10,7 @@ import { Text, View } from '../components/Themed';
 import RecipeOverview from '../components/RecipeOverview'
 import FilterModal from '../components/FilterModal'
 import dummyData from "../dummyData.json";
-import { HomeResultParamList } from '../types';
+import { HomeParamList } from '../types';
 
 type recipe = {
   id: string
@@ -22,8 +23,8 @@ type recipe = {
 }
 
 interface Props {
-  navigation: StackNavigationProp<HomeResultParamList, 'HomeResultScreen'>,
-  route: RouteProp<HomeResultParamList, 'HomeResultScreen'>
+  navigation: StackNavigationProp<HomeParamList, 'HomeResultScreen'>,
+  route: RouteProp<HomeParamList, 'HomeResultScreen'>
 }
 
 interface State {

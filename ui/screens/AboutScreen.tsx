@@ -1,14 +1,13 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 
 import { Text, View } from '../components/Themed';
-import { AboutParamList } from '../types'
+import { ProfileParamList } from '../types'
 
-type AboutScreenNavigationProp = StackNavigationProp<AboutParamList, 'AboutScreen'>;
-type AboutScreenRouteProp = RouteProp<AboutParamList, 'AboutScreen'>;
+type AboutScreenNavigationProp = StackNavigationProp<ProfileParamList, 'AboutScreen'>;
+type AboutScreenRouteProp = RouteProp<ProfileParamList, 'AboutScreen'>;
 
 interface Props {
   navigation: AboutScreenNavigationProp,

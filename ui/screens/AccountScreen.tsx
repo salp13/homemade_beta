@@ -1,15 +1,14 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 
 import { Text, View } from '../components/Themed';
 import dummyData from "../dummyData.json";
-import { AccountParamList } from '../types'
+import { ProfileParamList } from '../types'
 
-type AccountScreenNavigationProp = StackNavigationProp<AccountParamList, 'AccountScreen'>;
-type AccountScreenRouteProp = RouteProp<AccountParamList, 'AccountScreen'>;
+type AccountScreenNavigationProp = StackNavigationProp<ProfileParamList, 'AccountScreen'>;
+type AccountScreenRouteProp = RouteProp<ProfileParamList, 'AccountScreen'>;
 
 interface Props {
   navigation: AccountScreenNavigationProp,

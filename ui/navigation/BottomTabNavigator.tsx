@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import { MaterialIcons } from '@expo/vector-icons'; 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import * as React from 'react';
 
 import Colors from '../constants/Colors';
@@ -25,14 +25,8 @@ import {
   SearchParamList, 
   FridgeParamList, 
   ShoppingListParamList, 
-  ProfileParamList, 
-  HomeResultParamList, 
-  AddFridgeItemParamList,
-  AddShoppingListItemParamList,
-  SettingsParamList,
-  AccountParamList,
-  AboutParamList,
-  IndividualRecipeParamList} from '../types';
+  ProfileParamList } from '../types';
+import { StackActions } from '@react-navigation/native';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -42,12 +36,14 @@ export default function BottomTabNavigator() {
   return (
     <BottomTab.Navigator
       initialRouteName="Fridge"
-      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint, showLabel: false }}>
+      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint, showLabel: false }}
+      >
       <BottomTab.Screen
         name="Home"
         component={HomeNavigator}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          unmountOnBlur: true,
         }}
       />
       <BottomTab.Screen
@@ -55,6 +51,7 @@ export default function BottomTabNavigator() {
         component={SearchNavigator}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+          unmountOnBlur: true,
         }}
       />
       <BottomTab.Screen
@@ -62,6 +59,7 @@ export default function BottomTabNavigator() {
         component={FridgeNavigator}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="fridge-outline" color={color} />,
+          unmountOnBlur: true,
         }}
       />
       <BottomTab.Screen
@@ -69,6 +67,7 @@ export default function BottomTabNavigator() {
         component={ShoppingListNavigator}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="format-list-bulleted" color={color} />,
+          unmountOnBlur: true,
         }}
       />
       <BottomTab.Screen
@@ -76,6 +75,7 @@ export default function BottomTabNavigator() {
         component={ProfileNavigator}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="person" color={color} />,
+          unmountOnBlur: true,
         }}
       />
     </BottomTab.Navigator>
@@ -91,6 +91,13 @@ function TabBarIcon(props: { name: string; color: string }) {
   return <MaterialIcons size={30} style={{ marginBottom: -3 }} {...props} />;
 }
 
+function resetStack(navigation: StackNavigationProp<HomeParamList, 'HomeScreen'>) {
+  navigation.dispatch(
+    StackActions.popToTop()
+  );
+}
+
+
 // Each tab has its own navigation stack, you can read more about this pattern here:
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
 
@@ -99,34 +106,26 @@ const SearchStack = createStackNavigator<SearchParamList>();
 const FridgeStack = createStackNavigator<FridgeParamList>();
 const ShoppingListStack = createStackNavigator<ShoppingListParamList>();
 const ProfileStack = createStackNavigator<ProfileParamList>();
-const HomeResultStack = createStackNavigator<HomeResultParamList>();
-const AddFridgeItemStack = createStackNavigator<AddFridgeItemParamList>();
-const AddShoppingListItemStack = createStackNavigator<AddShoppingListItemParamList>();
-const SettingsStack = createStackNavigator<SettingsParamList>();
-const AccountStack = createStackNavigator<AccountParamList>();
-const AboutStack = createStackNavigator<AboutParamList>();
-const IndividualRecipeStack = createStackNavigator<IndividualRecipeParamList>();
 
 function HomeNavigator() {
   return (
     <HomeStack.Navigator
+      initialRouteName="HomeScreen"
       screenOptions={{
         headerShown: false
       }}
-    >
+      >
       <HomeStack.Screen
         name="HomeScreen"
         component={HomeScreen}
       />
-      <HomeResultStack.Screen
+      <HomeStack.Screen
         name="HomeResultScreen"
         component={HomeResultScreen}
-        initialParams={{ specifiedItems: ['avocado'] }}
       />
-      <IndividualRecipeStack.Screen
+      <HomeStack.Screen
         name="IndividualRecipeScreen"
         component={IndividualRecipeScreen}
-        options={{ headerShown: false }}
       />
     </HomeStack.Navigator>
   );
@@ -135,18 +134,18 @@ function HomeNavigator() {
 function SearchNavigator() {
   return (
     <SearchStack.Navigator
+      initialRouteName="SearchScreen"
       screenOptions={{
         headerShown: false
       }}
-    >
+      >
       <SearchStack.Screen
         name="SearchScreen"
         component={SearchScreen}
       />
-      <IndividualRecipeStack.Screen
+      <SearchStack.Screen
         name="IndividualRecipeScreen"
         component={IndividualRecipeScreen}
-        options={{ headerShown: false }}
       />
     </SearchStack.Navigator>
   );
@@ -154,13 +153,15 @@ function SearchNavigator() {
 
 function FridgeNavigator() {
   return (
-    <FridgeStack.Navigator>
+    <FridgeStack.Navigator
+      initialRouteName="FridgeScreen"
+      >
       <FridgeStack.Screen
         name="FridgeScreen"
         component={FridgeScreen}
         options={{ headerTitle: 'your fridge' }}
       />
-      <AddFridgeItemStack.Screen
+      <FridgeStack.Screen
         name="AddFridgeItemScreen"
         component={AddFridgeItemScreen}
         options={{headerShown: false}}
@@ -171,13 +172,15 @@ function FridgeNavigator() {
 
 function ShoppingListNavigator() {
   return (
-    <ShoppingListStack.Navigator>
+    <ShoppingListStack.Navigator
+      initialRouteName="ShoppingListScreen"
+      >
       <ShoppingListStack.Screen
         name="ShoppingListScreen"
         component={ShoppingListScreen}
         options={{ headerTitle: 'shopping list' }}
         />
-      <AddShoppingListItemStack.Screen
+      <ShoppingListStack.Screen
         name="AddShoppingListItemScreen"
         component={AddShoppingListItemScreen}
         options={{ headerShown: false }}
@@ -188,85 +191,35 @@ function ShoppingListNavigator() {
 
 function ProfileNavigator() {
   return (
-    <ProfileStack.Navigator>
+    <ProfileStack.Navigator
+      initialRouteName="ProfileScreen"
+      >
       <ProfileStack.Screen
         name="ProfileScreen"
         component={ProfileScreen}
-        options={{ headerTitle: 'profile' }}
+        initialParams={{headerTitle: 'profile'}}
+        options={({ route }) => ({ title: route.params.headerTitle })}
       />
-      <SettingsStack.Screen
+      <ProfileStack.Screen
         name="SettingsScreen"
         component={SettingsScreen}
         options={{ headerTitle: 'settings' }}
       />
-      <AccountStack.Screen
+      <ProfileStack.Screen
         name="AccountScreen"
         component={AccountScreen}
         options={{ headerTitle: 'account' }}
       />
-      <AboutStack.Screen
+      <ProfileStack.Screen
         name="AboutScreen"
         component={AboutScreen}
         options={{ headerTitle: 'about' }}
       />
-      <IndividualRecipeStack.Screen
+      <ProfileStack.Screen
         name="IndividualRecipeScreen"
         component={IndividualRecipeScreen}
         options={{ headerShown: false }}
       />
   </ProfileStack.Navigator>
-  );
-}
-
-function HomeResultNavigator() {
-  return (
-    <HomeResultStack.Navigator
-      screenOptions={{
-        headerShown: false
-      }}
-    >
-      <HomeResultStack.Screen
-        name="HomeResultScreen"
-        component={HomeResultScreen}
-      />
-    </HomeResultStack.Navigator>
-  );
-}
-
-function AddFridgeItemNavigator() {
-  return (
-    <AddFridgeItemStack.Navigator
-      screenOptions={{
-        headerShown: false
-      }}
-    >
-      <AddFridgeItemStack.Screen
-        name="AddFridgeItemScreen"
-        component={AddFridgeItemScreen}
-      />
-      <FridgeStack.Screen
-        name="FridgeScreen"
-        component={FridgeScreen}
-      />
-    </AddFridgeItemStack.Navigator>
-  );
-}
-
-function AddShoppingListItemNavigator() {
-  return (
-    <AddShoppingListItemStack.Navigator
-      screenOptions={{
-        headerShown: false
-      }}
-    >
-      <AddShoppingListItemStack.Screen
-        name="AddShoppingListItemScreen"
-        component={AddShoppingListItemScreen}
-      />
-      <ShoppingListStack.Screen
-        name="ShoppingListScreen"
-        component={ShoppingListScreen}
-      />
-    </AddShoppingListItemStack.Navigator>
   );
 }

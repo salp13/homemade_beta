@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { StyleSheet, ActivityIndicator, Platform, SectionList, FlatList, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+// import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 

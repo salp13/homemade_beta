@@ -6,7 +6,7 @@ import { RouteProp } from '@react-navigation/native';
 
 import { Text, View, SearchBar } from '../components/Themed';
 import dummyData from '../dummyData.json'
-import { AddShoppingListItemParamList } from '../types'
+import { ShoppingListParamList } from '../types'
 
 type foodItem = {
   title: string,
@@ -14,8 +14,8 @@ type foodItem = {
 }
 
 interface Props {
-  navigation: StackNavigationProp<AddShoppingListItemParamList, 'AddShoppingListItemScreen'>,
-  route: RouteProp<AddShoppingListItemParamList, 'AddShoppingListItemScreen'>
+  navigation: StackNavigationProp<ShoppingListParamList, 'AddShoppingListItemScreen'>,
+  route: RouteProp<ShoppingListParamList, 'AddShoppingListItemScreen'>
 }
 
 interface State {

@@ -40,7 +40,7 @@ export default class HomeScreen extends React.Component<Props, State> {
     super(props)
 
     this.state = {
-      toggle: false,
+      toggle: true,
       metrics: {},
       savedRecipes: [],
       fridgeCount: 0,
@@ -56,6 +56,7 @@ export default class HomeScreen extends React.Component<Props, State> {
 
   componentDidMount() {
     const userData = JSON.parse(JSON.stringify(dummyData.dummyUserData))
+    this.props.navigation.setOptions({ headerTitle: userData.username })
     this.setState({
       username: userData.username,
       name: userData.name,

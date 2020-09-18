@@ -1,20 +1,26 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { Fontisto, Ionicons } from '@expo/vector-icons';
+// import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import {TouchableWithoutFeedback, SectionList, ScrollView} from 'react-native'
+import { TouchableWithoutFeedback, SectionList } from 'react-native'
 
 import { Text, View, Image } from '../components/Themed';
 import dummyData from "../dummyData.json";
-import { IndividualRecipeParamList } from '../types'
+import { HomeParamList, SearchParamList, ProfileParamList } from '../types'
 
-type IndividualRecipeScreenNavigationProp = StackNavigationProp<IndividualRecipeParamList, 'IndividualRecipeScreen'>;
-type IndividualRecipeScreenRouteProp = RouteProp<IndividualRecipeParamList, 'IndividualRecipeScreen'>;
+type HomeNavigationProp = StackNavigationProp<HomeParamList, 'IndividualRecipeScreen'>;
+type HomeRouteProp = RouteProp<HomeParamList, 'IndividualRecipeScreen'>;
+type SearchNavigationProp = StackNavigationProp<SearchParamList, 'IndividualRecipeScreen'>;
+type SearchRouteProp = RouteProp<SearchParamList, 'IndividualRecipeScreen'>;
+type ProfileNavigationProp = StackNavigationProp<ProfileParamList, 'IndividualRecipeScreen'>;
+type ProfileRouteProp = RouteProp<ProfileParamList, 'IndividualRecipeScreen'>;
 
 interface Props {
-  navigation: IndividualRecipeScreenNavigationProp,
-  route: IndividualRecipeScreenRouteProp
+  navigation: HomeNavigationProp | SearchNavigationProp | ProfileNavigationProp,
+  route: HomeRouteProp | SearchRouteProp | ProfileRouteProp
 }
 
 interface State {

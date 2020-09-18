@@ -1,20 +1,36 @@
+import { StackNavigationProp } from '@react-navigation/stack';
+
+
 export type RootStackParamList = {
   Root: undefined;
   NotFound: undefined;
 };
 
 export type BottomTabParamList = {
-  Home: undefined;
-  Search: undefined;
-  Fridge: undefined;
-  ShoppingList: undefined;
-  Profile: undefined;
+  Home: {
+    screen: 'HomeScreen',
+  };
+  Search: {
+    screen: 'SearchScreen'
+  };
+  Fridge: {
+    screen: 'FridgeScreen'
+  };
+  ShoppingList: {
+    screen: 'ShoppingListScreen'
+  };
+  Profile: {
+    screen: 'ProfileScreen'
+  };
 };
 
 export type HomeParamList = {
   HomeScreen: undefined;
   HomeResultScreen: {
     specifiedItems: Array<any>
+  }
+  IndividualRecipeScreen: {
+    recipeId: string
   }
 };
 
@@ -36,51 +52,13 @@ export type ShoppingListParamList = {
 };
 
 export type ProfileParamList = {
-  ProfileScreen: undefined
+  ProfileScreen: {
+    headerTitle: string
+  }
   SettingsScreen: undefined
+  AccountScreen: undefined
+  AboutScreen: undefined
   IndividualRecipeScreen: {
     recipeId: string
   }
 };
-
-export type HomeResultParamList = {
-  HomeResultScreen: {
-    specifiedItems: Array<any>
-  }
-  IndividualRecipeScreen: {
-    recipeId: string
-  }
-};
-
-export type AddFridgeItemParamList = {
-  AddFridgeItemScreen: undefined
-  FridgeScreen: undefined
-}
-
-export type AddShoppingListItemParamList = {
-  AddShoppingListItemScreen: undefined
-  ShoppingListScreen: undefined
-}
-
-export type SettingsParamList = {
-  SettingsScreen: undefined
-  ProfileScreen: undefined
-  AccountScreen: undefined
-  AboutScreen: undefined
-}
-
-export type AccountParamList = {
-  AccountScreen: undefined
-  SettingsScreen: undefined
-}
-
-export type AboutParamList = {
-  AboutScreen: undefined
-  SettingsScreen: undefined
-}
-
-export type IndividualRecipeParamList = {
-  IndividualRecipeScreen: {
-    recipeId: string
-  }
-}
