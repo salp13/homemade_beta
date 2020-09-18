@@ -14,9 +14,6 @@ export default function useCachedResources() {
 
         // Load fonts
         await Font.loadAsync({
-          // ...Ionicons.font,
-          // Ionicons: require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf'),
-          // FontAwesome: require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome.ttf'),
           Ionicons: require('react-native-vector-icons/Fonts/Ionicons.ttf'),
           'space-mono': require('../assets/fonts/SpaceMono-Regular.ttf'),
         });
