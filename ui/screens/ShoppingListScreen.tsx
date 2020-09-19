@@ -1,11 +1,13 @@
 import * as React from 'react';
-import { StyleSheet, Platform, TouchableWithoutFeedback, FlatList, ScrollView } from 'react-native';
+import { StyleSheet, Platform, TouchableWithoutFeedback, FlatList, ScrollView, Animated } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { SearchBar as SearchBarElement } from 'react-native-elements'
 import Swipeable from 'react-native-swipeable';
-import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'
-
+import { MaterialCommunityIcons, AntDesign, Foundation } from '@expo/vector-icons'
+import DraggableFlatList from 'react-native-draggable-flatlist'
+import SwipeableItem from 'react-native-swipeable-item'
+import SortableListView from 'react-native-sortable-list'
 import { Text, View, SearchBar } from '../components/Themed';
 import dummyData from "../dummyData.json";
 import { ShoppingListParamList } from '../types';
@@ -29,6 +31,7 @@ interface State {
     index: number | undefined
   }
   swipingAction: boolean
+  draggable: boolean
 }
 
 interface Arrayholder {
@@ -60,6 +63,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
         index: undefined
       },
       swipingAction: false,
+      draggable: false,
     };
     this.arrayholder = [];
 
@@ -71,6 +75,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     this.itemReorder = this.itemReorder.bind(this)
     this.itemRemove = this.itemRemove.bind(this)
     this.itemAddFridge = this.itemAddFridge.bind(this)
+    this.stopReorder = this.stopReorder.bind(this)
   }
 
   componentDidMount() {
@@ -96,7 +101,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     });
   }
 
-  modalUpdate(index: number) {
+  modalUpdate(index: number | undefined) {
     this.setState({
       modal: {
         visible: true, 
@@ -108,7 +113,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   modalResult(index: number, action?: string) {
     if (action === "addFridge") this.itemAddFridge(index)
     else if (action === "remove") this.itemRemove(index)
-    else if (action === "reorder") this.itemReorder(index)
+    else if (action === "reorder") this.itemReorder()
     else {
       this.setState({
         modal: {
@@ -131,17 +136,25 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     })
   }
 
-  itemReorder(index: number) {
+  itemReorder() {
     this.setState({
       modal: {
         visible: false, 
         index: undefined,
       },
+      draggable: true,
     })
   }
 
-  itemRemove(index: number) {
+  stopReorder() {
+    this.setState({
+      draggable: false,
+    })
+  }
+
+  itemRemove(index: number | undefined) {
     const replaceShoppingListItems = this.state.shoppingListItems
+    if (!index) return
     replaceShoppingListItems.splice(index, 1)
     this.setState({
       shoppingListItems: replaceShoppingListItems,
@@ -153,8 +166,9 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     // TODO: delete item from shopping list in database
   }
 
-  itemAddFridge(index: number) {
+  itemAddFridge(index: number | undefined) {
     const replaceShoppingListItems = this.state.shoppingListItems
+    if (!index) return
     replaceShoppingListItems.splice(index, 1)
     this.setState({
       shoppingListItems: replaceShoppingListItems,
@@ -172,55 +186,88 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   render() {
     return (
       <View style={styles.container}>
-        <View style={{flexDirection: 'row'}}>
-          <SearchBar
-            onChangeText={text => this.SearchFilterFunction(text)}
-            onClear={this.SearchFilterFunction}
-            value={this.state.search}
-            platform={Platform.OS === "android" || Platform.OS === "ios" ? Platform.OS : "default"}
-            {...this.searchBarProps}
-          />
-          <View style={{marginTop: 18, marginLeft: 10}}>
-            <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('AddShoppingListItemScreen')}>
-              <AntDesign name="plus" size={24} color="black"/>
-            </TouchableWithoutFeedback>
-          </View>
-        </View>
-
-        <ScrollView scrollEnabled={!this.state.swipingAction}>
-          <FlatList
-            keyboardShouldPersistTaps='always'
-            scrollEnabled={!this.state.swipingAction}
-            data={this.state.shoppingListItems}
-            renderItem={({ item, index }) => {
-              return (
-                <View>
-                  <Swipeable
-                    keyboardShouldPersistTaps='always'
-                    leftActionActivationDistance={20}
-                    rightActionActivationDistance={20}
-                    rightContent={(<View style={[styles.rightSwipeItem, {backgroundColor: '#96FFAF'}]}></View>)}
-                    leftContent={(<View style={[styles.leftSwipeItem, {backgroundColor: '#FF6A6A'}]}></View>)}
-                    onLeftActionComplete={() => this.itemRemove(index)}
-                    onRightActionComplete={() => this.itemAddFridge(index)}
-                    onSwipeStart={this.OnSwipeNoScroll}
-                    onSwipeEnd={this.OnSwipeScroll}
-                    >
-                    <View style={{flexDirection: 'row', marginVertical: 15}}>
-                        <Text style={styles.itemName}>{item.title}</Text>
-                        <View style={styles.menuIcon}>
-                          <TouchableWithoutFeedback onPress={() => this.modalUpdate(index)}>
-                            <MaterialCommunityIcons name="dots-horizontal" size={25}/>
-                          </TouchableWithoutFeedback>
+        { this.state.draggable ? (
+          <View style={{flex: 1}}>
+            <View style={{flexDirection: 'row', marginLeft: 'auto', marginVertical: 20}}>
+              <TouchableWithoutFeedback onPress={this.stopReorder}>
+                <Text style={{textDecorationLine: 'underline', fontSize: 15}}>done</Text>
+              </TouchableWithoutFeedback>
+            </View>
+            <DraggableFlatList
+              keyboardShouldPersistTaps='always'
+              scrollEnabled={!this.state.swipingAction}
+              data={this.state.shoppingListItems}
+              renderItem={({ item, index, drag }) => {
+                return (
+                  <View>
+                    <TouchableWithoutFeedback onLongPress={drag}>
+                        <View style={{flexDirection: 'row', marginVertical: 15}}>
+                            <Text style={styles.itemName}>{item.title}</Text>
+                            <View style={styles.menuIcon}>
+                                <Foundation name="list" size={25}/>
+                            </View>
                         </View>
-                    </View>
-                  </Swipeable>
+                      </TouchableWithoutFeedback>
+                  </View>
+              )}}
+              keyExtractor={(item, index) => index.toString()}
+              onDragEnd={({data}) => this.setState({shoppingListItems: data})}
+                />
+            </View>
+           ) : (
+             <View style={{flex: 1}}>
+              <View style={{flexDirection: 'row'}}>
+                <SearchBar
+                  onChangeText={text => this.SearchFilterFunction(text)}
+                  onClear={this.SearchFilterFunction}
+                  value={this.state.search}
+                  platform={Platform.OS === "android" || Platform.OS === "ios" ? Platform.OS : "default"}
+                  {...this.searchBarProps}
+                />
+                <View style={{marginTop: 18, marginLeft: 10}}>
+                  <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('AddShoppingListItemScreen')}>
+                    <AntDesign name="plus" size={24} color="black"/>
+                  </TouchableWithoutFeedback>
                 </View>
-            )}}
-            keyExtractor={(item, index) => index.toString()}
-          />
-        </ScrollView>
-        <ShoppingListModal modalProperties={this.state.modal} ModalResultFunc={this.modalResult}/>
+              </View>
+              <ScrollView scrollEnabled={!this.state.swipingAction}>
+                <FlatList
+                  keyboardShouldPersistTaps='always'
+                  scrollEnabled={!this.state.swipingAction}
+                  data={this.state.shoppingListItems}
+                  renderItem={({ item, index }) => {
+                    return (
+                      <View>
+                        <Swipeable
+                          keyboardShouldPersistTaps='always'
+                          leftActionActivationDistance={70}
+                          rightActionActivationDistance={70}
+                          rightContent={(<View style={[styles.rightSwipeItem, {backgroundColor: '#96FFAF'}]}></View>)}
+                          leftContent={(<View style={[styles.leftSwipeItem, {backgroundColor: '#FF6A6A'}]}></View>)}
+                          onLeftActionComplete={() => this.itemRemove(index)}
+                          onRightActionComplete={() => this.itemAddFridge(index)}
+                          onSwipeStart={this.OnSwipeNoScroll}
+                          onSwipeEnd={this.OnSwipeScroll}
+                          >
+                          <TouchableWithoutFeedback>
+                              <View style={{flexDirection: 'row', marginVertical: 15}}>
+                                  <Text style={styles.itemName}>{item.title}</Text>
+                                  <View style={styles.menuIcon}>
+                                    <TouchableWithoutFeedback onPress={() => this.modalUpdate(index)}>
+                                      <MaterialCommunityIcons name="dots-horizontal" size={25}/>
+                                    </TouchableWithoutFeedback>
+                                  </View>
+                              </View>
+                            </TouchableWithoutFeedback>
+                        </Swipeable>
+                      </View>
+                  )}}
+                  keyExtractor={(item, index) => index.toString()}
+                  />
+              </ScrollView>
+            </View>
+          )}
+          <ShoppingListModal modalProperties={this.state.modal} ModalResultFunc={this.modalResult}/>
       </View>
     )
   }
@@ -268,6 +315,8 @@ const styles = StyleSheet.create({
 
 /*
   FE-TODO
+    BUG
+      - first item not registering swipe
     FUNCTIONALITY
       - reorder
       - go to add item page should already have keyboard up and ready to search 

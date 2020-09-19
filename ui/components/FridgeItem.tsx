@@ -75,8 +75,8 @@ export default class FridgeItem extends React.Component<Props, State> {
 
     return (
       <Swipeable
-        leftActionActivationDistance={20}
-        rightActionActivationDistance={20}
+        leftActionActivationDistance={70}
+        rightActionActivationDistance={70}
         rightContent={this.state.selected ? (<Text></Text>) : 
           (<View style={[styles.rightSwipeItem, {backgroundColor: '#96FFAF'}]}></View>)}
         leftContent={(
