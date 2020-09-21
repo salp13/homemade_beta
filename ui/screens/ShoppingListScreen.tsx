@@ -6,8 +6,6 @@ import { SearchBar as SearchBarElement } from 'react-native-elements'
 import Swipeable from 'react-native-swipeable';
 import { MaterialCommunityIcons, AntDesign, Foundation } from '@expo/vector-icons'
 import DraggableFlatList from 'react-native-draggable-flatlist'
-import SwipeableItem from 'react-native-swipeable-item'
-import SortableListView from 'react-native-sortable-list'
 import { Text, View, SearchBar } from '../components/Themed';
 import dummyData from "../dummyData.json";
 import { ShoppingListParamList } from '../types';
@@ -315,10 +313,7 @@ const styles = StyleSheet.create({
 
 /*
   FE-TODO
-    BUG
-      - first item not registering swipe
     FUNCTIONALITY
-      - reorder
       - go to add item page should already have keyboard up and ready to search 
       - searching through list should be able to:
         - click on three dots and go to modal when keyboard was up

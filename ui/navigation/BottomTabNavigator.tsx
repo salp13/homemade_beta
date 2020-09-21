@@ -3,7 +3,10 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import * as React from 'react';
+import { TouchableWithoutFeedback } from 'react-native'
+import { SimpleLineIcons } from '@expo/vector-icons'; 
 
+import { View } from '../components/Themed';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import HomeScreen from '../screens/HomeScreen';
@@ -198,7 +201,17 @@ function ProfileNavigator() {
         name="ProfileScreen"
         component={ProfileScreen}
         initialParams={{headerTitle: 'profile'}}
-        options={({ route }) => ({ title: route.params.headerTitle })}
+        options={({ navigation, route }) => ({ 
+          title: route.params.headerTitle,
+          headerRight: () => (
+            <View style={{marginRight: 20}}>
+              <TouchableWithoutFeedback onPress={() => navigation.navigate('SettingsScreen')}>
+                <SimpleLineIcons name="settings" size={24} color="black" />
+              </TouchableWithoutFeedback>       
+            </View>
+            
+          )
+        })}
       />
       <ProfileStack.Screen
         name="SettingsScreen"

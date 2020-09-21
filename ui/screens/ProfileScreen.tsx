@@ -3,11 +3,13 @@ import { StyleSheet, TouchableWithoutFeedback, SectionList, FlatList } from 'rea
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { SimpleLineIcons } from '@expo/vector-icons';
+import Swiper from 'react-native-swiper'
 
 import { Text, View, Image } from '../components/Themed';
 import SavedRecipe from '../components/SavedRecipe'
 import { ProfileParamList } from '../types'
 import dummyData from '../dummyData.json'
+import Animated from 'react-native';
 
 type ProfileScreenNavigationProp = StackNavigationProp<ProfileParamList, 'ProfileScreen'>;
 type ProfileScreenRouteProp = RouteProp<ProfileParamList, 'ProfileScreen'>;
@@ -51,6 +53,7 @@ export default class HomeScreen extends React.Component<Props, State> {
     this.unsaveRecipe = this.unsaveRecipe.bind(this)
     this.navigateRecipe = this.navigateRecipe.bind(this)
     this.onPressSettings = this.onPressSettings.bind(this)
+    this.toggle = this.toggle.bind(this)
   }
 
 
@@ -86,66 +89,78 @@ export default class HomeScreen extends React.Component<Props, State> {
     this.props.navigation.navigate('SettingsScreen')
   }
 
+  toggle() {
+    this.setState({
+      toggle: !this.state.toggle
+    })
+  }
+
   render() {
     return (
       <View style={styles.container}>
-          <View style={{marginLeft: 'auto', marginRight: 20, marginTop: 10}}>
-            <TouchableWithoutFeedback onPress={this.onPressSettings}>
-              <SimpleLineIcons name="settings" size={24} color="black" />
-            </TouchableWithoutFeedback>
-          </View>
         <View style={{marginTop: 30, marginBottom: 50}}>
           <Text style={styles.usersName}>{this.state.name}</Text>
           <Text style={styles.currentFridgeCount}>your fridge has {this.state.fridgeCount} items</Text>
         </View>
-        <View style={{flexDirection: 'row'}}>
-          <View style={{marginRight:'auto', marginLeft: 60}}>
-            <Text style={this.state.toggle ? {fontWeight: 'bold'} : {fontWeight: 'normal'}}>Your Metrics</Text>
-          </View>
-          <View style={{marginLeft:'auto', marginRight: 55}}>
-            <Text style={!this.state.toggle ? {fontWeight: 'bold'} : {fontWeight: 'normal'}}>Saved Recipes</Text>
-          </View>
-        </View> 
-        <View>
-          <View style={styles.completeSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-          <View style={!this.state.toggle ? StyleSheet.flatten([styles.halfSeparator, {marginLeft: 'auto'}]) : styles.halfSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-        </View>
-        {this.state.toggle ? 
-        (<View>
-          <View style={{flexDirection: 'row', marginVertical: 40}}>
-            <View style={styles.fridgeCountCircle}>
-            <Text style={{marginTop: 28, marginLeft: 15, fontSize: 35}}>{this.state.metrics.percentage}%</Text>
-            </View>
-            <Text style={{marginTop: 20, marginLeft: 30, fontSize: 15}}>Great Job!{"\n"}94% of food in your fridge{"\n"} is eaten instead of wasted!</Text>
-          </View>
-          <View style={{flexDirection: 'row', marginBottom: 40}}>
-            <View style={styles.fridgeCountCircle}>
-            <Text style={{marginTop: 5, marginLeft: 25, fontSize: 75}}>{this.state.metrics.averageFridgeCount}</Text>
-            </View>
-            <Text style={{marginTop: 40, marginLeft: 30, fontSize: 15}}>items on average in fridge</Text>
-          </View>
           <View style={{flexDirection: 'row'}}>
-            <View style={styles.imageContainer}>
-              <Image style={styles.image} source={images[this.state.metrics.foodGroupIndex]}/>
+            <View style={{marginRight:'auto', marginLeft: 60}}>
+              <Text style={this.state.toggle ? {fontWeight: 'bold'} : {fontWeight: 'normal'}}>Your Metrics</Text>
             </View>
-            <Text style={{marginTop: 40, marginLeft: 30, fontSize: 15}}>food group wasted the most often</Text>
+            <View style={{marginLeft:'auto', marginRight: 55}}>
+              <Text style={!this.state.toggle ? {fontWeight: 'bold'} : {fontWeight: 'normal'}}>Saved Recipes</Text>
+            </View>
+          </View> 
+          <View>
+            <View style={styles.completeSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            <View style={!this.state.toggle ? StyleSheet.flatten([styles.halfSeparator, {marginLeft: 'auto'}]) : styles.halfSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
           </View>
-        </View>) : 
-        (<View>
-          <FlatList 
-            data={this.state.savedRecipes}
-            renderItem={({item}) => (
-              <SavedRecipe 
-              id={item.id}
-              title={item.title}
-              imageIndex={item.imageIndex}
-              dietaryPreferences={item.dietaryPreference}
-              saved={item.saved}
-              onPressNavigate={this.navigateRecipe}
-              saveRecipe={this.unsaveRecipe}
-            />)}
-            />
-        </View>)}
+        <Swiper 
+          showsButtons={false} 
+          loop={false} 
+          onIndexChanged={this.toggle} 
+          dot={<View></View>} 
+          activeDot={<View></View>} 
+          scrollsToTop={true}>
+          <View>
+            <View>
+              <View style={{flexDirection: 'row', marginVertical: 40}}>
+                <View style={styles.fridgeCountCircle}>
+                <Text style={{marginTop: 28, marginLeft: 15, fontSize: 35}}>{this.state.metrics.percentage}%</Text>
+                </View>
+                <Text style={{marginTop: 20, marginLeft: 30, fontSize: 15}}>Great Job!{"\n"}94% of food in your fridge{"\n"} is eaten instead of wasted!</Text>
+              </View>
+              <View style={{flexDirection: 'row', marginBottom: 40}}>
+                <View style={styles.fridgeCountCircle}>
+                <Text style={{marginTop: 5, marginLeft: 25, fontSize: 75}}>{this.state.metrics.averageFridgeCount}</Text>
+                </View>
+                <Text style={{marginTop: 40, marginLeft: 30, fontSize: 15}}>items on average in fridge</Text>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <View style={styles.imageContainer}>
+                  <Image style={styles.image} source={images[this.state.metrics.foodGroupIndex]}/>
+                </View>
+                <Text style={{marginTop: 40, marginLeft: 30, fontSize: 15}}>food group wasted the most often</Text>
+              </View>
+            </View>
+          </View>
+          <View>
+            <View>
+              <FlatList 
+                data={this.state.savedRecipes}
+                renderItem={({item}) => (
+                  <SavedRecipe 
+                  id={item.id}
+                  title={item.title}
+                  imageIndex={item.imageIndex}
+                  dietaryPreferences={item.dietaryPreference}
+                  saved={item.saved}
+                  onPressNavigate={this.navigateRecipe}
+                  saveRecipe={this.unsaveRecipe}
+                />)}
+                />
+            </View>
+          </View>
+        </Swiper>
       </View>
     )
   }
@@ -213,7 +228,6 @@ const styles = StyleSheet.create({
   FE-TODO
     FUNCTIONALITY
       - metric visuals
-      - toggle swipe
 
   BE-TODO
     REQUESTS
