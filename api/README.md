@@ -1,16 +1,16 @@
-## Route Documentation
-### Food
-### Recipe
-### User
-#### many_users  
+# Route Documentation
+## Food
+## Recipe
+## User
+### many_users  
 
 
-#### single_user  
+### single_user  
 
-#### metric_data
+### metric_data
 
-#### many_fridge
-**GET**
+### many_fridge
+**GET**  
 url: 
 - user_id
 - query params: 
@@ -43,12 +43,12 @@ receive:
 - unlisted_food: chars or null
 - expiration_date: datetime.date or null  
 
-#### single_fridge
+### single_fridge
 
-#### many_shopping_list  
+### many_shopping_list  
 
-#### single_shopping_list  
+### single_shopping_list  
 
-#### many_saved_recipes
+### many_saved_recipes
 
-#### single_saved_recipe
+### single_saved_recipe
