@@ -32,7 +32,7 @@ urlpatterns = [
     path('homemade/single_user/<uuid:user_pk>', single_user),
     path('homemade/metric_data/<uuid:user_pk>', metric_data),
     path('homemade/many_fridge/<uuid:user_pk>', many_fridge),
-    path('homemade/single_fridge/<uuid:user_pk>/<uuid:fridge_pk>', single_fridge),
+    path('homemade/single_fridge/<uuid:user_pk>/<int:fridge_pk>', single_fridge),
     path('homemade/many_shopping_list/<uuid:user_pk>', many_shopping_list),
     path('homemade/single_shopping_list/<uuid:user_pk>/<uuid:shopping_list_pk>', single_shopping_list),
     path('homemade/many_saved_recipes/<uuid:user_pk>', many_saved_recipes),

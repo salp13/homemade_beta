@@ -2,11 +2,12 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import Fridge_Item_Serializer, User_GETSerializer, User_POSTSerializer, Shopping_List_Item_Serializer
+from .serializers import Fridge_Item_D_Serializer, Fridge_Item_DN_Serializer, Fridge_Item_SN_Serializer, Fridge_Item_DNSN_Serializer
+from .serializers import User_GETSerializer, User_POSTSerializer, Shopping_List_Item_Serializer
 from .models import User, Fridge_Item, Shopping_List_Item
 from food.models import Food
 from recipes.serializers import RecipeOverview_GETSerializer
-from food.serializers import Food_IngredientSerializer
+from food.serializers import Food_S_Serializer, Food_D_Serializer
 import datetime
 
 @api_view(['get', 'post'])
@@ -36,7 +37,7 @@ def single_user(request, user_pk):
         user_partial_serializer = User_GETSerializer(user, data=request.data, partial=True)
         if user_partial_serializer.is_valid():
             user_partial_serializer.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(user_partial_serializer.data)
         return Response(user_partial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
         user.delete()
@@ -57,7 +58,7 @@ def metric_data(request, user_pk):
         user_partial_serializer = User_POSTSerializer(user, data=request.data, partial=True)
         if user_partial_serializer.is_valid():
             user_partial_serializer.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(user_partial_serializer.data)
         return Response(user_partial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -66,24 +67,26 @@ def metric_data(request, user_pk):
 def many_fridge(request, user_pk):
     if request.method == 'GET':
         if request.query_params:
+            # searching through fridge
             listed_foods = Food.objects.filter(food_name__startswith=request.query_params.get('value')).value_list('food_name', flat=True)
             unlisted_foods = Fridge_Item.objects.filter(unlisted_foods__startswith=request.query_params.get('value')).value_list('unlisted_food', flat=True)
             foods = listed_foods.append(unlisted_foods)
             fridge = Fridge_Item.objects.filter(user=user_pk, food__in=foods)
         else:
+            # fetching entire fridge
             fridge = Fridge_Item.objects.filter(user=user_pk)
-        fridge_serializer = Fridge_Item_Serializer(fridge, many=True)
+        fridge_serializer = Fridge_Item_DNSN_Serializer(fridge, many=True)
         return Response(fridge_serializer.data)
     elif request.method == 'POST':
         # data given : food_id, user_id, food_name if unlisted 
-
-        # find food and make that food element
-        # use food to calculate expiration date
-        
-        request.data['food'] = food_serializer.data
-        request.data['user'] = user_pk
-        request.data['expiration_date'] = datetime.datetime.now().date() + datetime.timedelta(days=food.default_days_to_exp)
-        fridge_serializer = Fridge_Item_Serializer(data=request.data)
+        # find food_element in order to access default days to exp
+        food_element = Food.objects.get(pk=request.data['food'])
+        food_serializer = Food_D_Serializer(food_element) 
+        request.data['user'] = user_pk #if UI has access to it's user's pk then this is unnecessary 
+        # if the food's default_days_to_exp is not null
+        if (food_serializer.data['default_days_to_exp']):
+            request.data['expiration_date'] = datetime.datetime.now().date() + datetime.timedelta(days=food_serializer.data['default_days_to_exp'])
+        fridge_serializer = Fridge_Item_D_Serializer(data=request.data)
         if fridge_serializer.is_valid():
             fridge_serializer.save()
             return Response(fridge_serializer.data, status=status.HTTP_201_CREATED)
@@ -97,14 +100,14 @@ def single_fridge(request, user_pk, fridge_pk):
         fridge_item = Fridge_Item.objects.get(pk=fridge_pk)
     except Fridge_Item.DoesNotExist:
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    if request.method == 'GET':
-        fridge_serializer = Fridge_Item_Serializer(fridge_item)
+    if request.method == 'GET': # no current use case (unformatted)
+        fridge_serializer = Fridge_Item_DNSN_Serializer(fridge_item)
         return Response(fridge_serializer.data)
     elif request.method == 'PATCH':
-        fridge_partial_serializer = Fridge_Item_Serializer(fridge_item, data=request.data, partial=True)
+        fridge_partial_serializer = Fridge_Item_DNSN_Serializer(fridge_item, data=request.data, partial=True)
         if fridge_partial_serializer.is_valid():
             fridge_partial_serializer.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(fridge_partial_serializer.data)
         return Response(fridge_partial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
         fridge_item.delete()
