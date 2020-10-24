@@ -4,7 +4,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import Fridge_Item_Serializer, User_GETSerializer, User_POSTSerializer, Shopping_List_Item_Serializer
 from .models import User, Fridge_Item, Shopping_List_Item
+from food.models import Food
 from recipes.serializers import RecipeOverview_GETSerializer
+from food.serializers import Food_IngredientSerializer
 import datetime
 
 @api_view(['get', 'post'])
@@ -73,6 +75,14 @@ def many_fridge(request, user_pk):
         fridge_serializer = Fridge_Item_Serializer(fridge, many=True)
         return Response(fridge_serializer.data)
     elif request.method == 'POST':
+        # data given : food_id, user_id, food_name if unlisted 
+
+        # find food and make that food element
+        # use food to calculate expiration date
+        
+        request.data['food'] = food_serializer.data
+        request.data['user'] = user_pk
+        request.data['expiration_date'] = datetime.datetime.now().date() + datetime.timedelta(days=food.default_days_to_exp)
         fridge_serializer = Fridge_Item_Serializer(data=request.data)
         if fridge_serializer.is_valid():
             fridge_serializer.save()

@@ -1,15 +1,13 @@
 import * as React from 'react';
-import { StyleSheet, TouchableWithoutFeedback, SectionList, FlatList } from 'react-native';
+import { StyleSheet, FlatList } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { SimpleLineIcons } from '@expo/vector-icons';
 import Swiper from 'react-native-swiper'
 
 import { Text, View, Image } from '../components/Themed';
 import SavedRecipe from '../components/SavedRecipe'
 import { ProfileParamList } from '../types'
 import dummyData from '../dummyData.json'
-import Animated from 'react-native';
 
 type ProfileScreenNavigationProp = StackNavigationProp<ProfileParamList, 'ProfileScreen'>;
 type ProfileScreenRouteProp = RouteProp<ProfileParamList, 'ProfileScreen'>;

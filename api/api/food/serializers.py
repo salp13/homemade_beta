@@ -21,7 +21,6 @@ class Food_POSTSerializer(ModelSerializer):
 		fields = '__all__'
 
 class Food_IngredientSerializer(ModelSerializer):
-
 	class Meta: 
 		model = Food
 		fields = ['food_id', 'food_name']

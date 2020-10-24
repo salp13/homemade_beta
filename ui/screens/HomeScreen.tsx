@@ -91,7 +91,7 @@ export default class HomeScreen extends React.Component<Props, State> {
       fridgeItems: fridgeItemsDeepCopy
     })
 
-    // return fetch('https://jsonplaceholder.typicode.com/posts')
+    // return fetch('http://127.0.0.1:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea')
     //   .then(response => response.json())
     //   .then(data => {
     //     this.setState(

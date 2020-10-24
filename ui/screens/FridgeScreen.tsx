@@ -19,7 +19,11 @@ interface Props {
 interface State {
   isLoading: boolean
   search: string
-  fridgeItems: Array<any>
+  fridgeItems: Array<{
+    foodId: string
+    foodName: string
+    daysToExp: number | undefined
+  }>,
   modal: {
     visible: boolean
     index: number | undefined
@@ -80,7 +84,19 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
     this.arrayholder = fridgeItemsDeepCopy
 
-    // TODO: query for fridge items
+    return fetch('http://127.0.0.1:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea')
+      .then(response => response.json())
+      .then(data => {
+        this.setState(
+          {
+            isLoading: false,
+            fridgeItems: data,
+          }
+        );
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
   SearchFilterFunction(text: string = '') {

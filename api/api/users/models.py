@@ -26,7 +26,7 @@ class Fridge_Item(models.Model):
     food = models.ForeignKey('food.Food', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     unlisted_food = models.CharField(max_length=128, null=True)
-    expiration_date = models.DateField()
+    expiration_date = models.DateField(null=True)
     
     class Meta:
         db_table = 'fridge_item'

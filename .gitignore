@@ -11,6 +11,7 @@ ui/npm-debug.*
 ui/web-build/
 ui/yarn.lock
 ui/package.json.lock
+*.pyc
 
 # macOS
 *.DS_Store

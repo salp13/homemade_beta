@@ -10,6 +10,12 @@ class Fridge_Item_Serializer(ModelSerializer):
 		model = Fridge_Item
 		fields = '__all__'
 
+class Fridge_Item_POSTSerializer(ModelSerializer):
+	food = Food_IngredientSerializer(read_only=True)
+	class Meta:
+		model = Fridge_Item
+		fields = '__all__'
+
 class Shopping_List_Item_Serializer(ModelSerializer):
 	food = Food_POSTSerializer(read_only=True)
 	class Meta:
