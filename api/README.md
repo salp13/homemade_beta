@@ -4,10 +4,10 @@
 ## User
 ### many_users  
 
-### single_user  
+### single_user ###
 **GET**  
 url:
-- user_pk: UUID
+- user_pk: UUID  
 send: {}  
 receive:
 - user_id: UUID
@@ -27,13 +27,13 @@ receive:
     - list:
         - ???
 - fridge:
-    - list of food_ids
+    - list of food_ids  
 **PATCH**  
 url:
-- user_pk: UUID
-send (any combination of following): 
+- user_pk: UUID  
+send (any combination of following):  
 - name: chars
-receive:
+receive:  
 - user_id: UUID
 - username: chars
 - name: chars
@@ -51,7 +51,7 @@ receive:
     - list:
         - ???
 - fridge:
-    - list of food_ids
+    - list of food_ids  
 **DELETE**
 url:
 - user_pk: UUID
@@ -81,7 +81,7 @@ receive:
     - list:
         - ???
 - fridge:
-    - list of food_ids
+    - list of food_ids  
 **PATCH**  
 url:
 - user_pk: UUID
@@ -161,7 +161,6 @@ receive:
         - image: image file
 - unlisted_food: chars or null
 - expiration_date: datetime.date or null  
-
 **PATCH**  
 url: 
 - user_pk: UUID
@@ -178,8 +177,7 @@ receive:
         - food_group_id: int
         - image: image file
 - unlisted_food: chars or null
-- expiration_date: datetime.date or null 
-
+- expiration_date: datetime.date or null  
 **DELETE**  
 url: 
 - user_pk: UUID
