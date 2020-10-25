@@ -23,7 +23,21 @@ interface State {
     foodId: string
     foodName: string
     daysToExp: number | undefined
-  }>,
+  }>
+  formattedFridgeItems: Array<{
+    id: number
+    user: string
+    food: {
+      food_id: string
+      food_name: string
+      food_group: {
+        food_group_id: string
+        image: string
+      }
+    }
+    unlisted_food: string | undefined
+    expiration_date: string | undefined
+  }>
   modal: {
     visible: boolean
     index: number | undefined
@@ -57,6 +71,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       isLoading: true, 
       search: '',
       fridgeItems: [],
+      formattedFridgeItems: [],
       modal: {
         visible: false,
         index: undefined,
@@ -90,7 +105,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         this.setState(
           {
             isLoading: false,
-            fridgeItems: data,
+            formattedFridgeItems: data,
           }
         );
       })
