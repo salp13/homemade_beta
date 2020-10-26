@@ -163,6 +163,7 @@ function FridgeNavigator() {
         name="FridgeScreen"
         component={FridgeScreen}
         options={{ headerTitle: 'your fridge' }}
+        initialParams={{trigger: false}}
       />
       <FridgeStack.Screen
         name="AddFridgeItemScreen"

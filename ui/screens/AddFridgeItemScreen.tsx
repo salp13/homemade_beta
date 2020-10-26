@@ -9,10 +9,13 @@ import dummyData from '../dummyData.json'
 import { FridgeParamList } from '../types'
 
 type foodItem = {
-  title: string,
-  id: string,
-  defaultDaysToExp: number
-  imageIndex: number
+  food_id: string
+  food_name: string
+  default_days_to_exp: number | undefined
+  food_group: {
+    food_group_id: number
+    image: string
+  }
 }
 
 interface Props {
@@ -22,6 +25,7 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  trigger: boolean
   search: string
   allFood: Array<foodItem>
   fridgeItems: Array<any>
@@ -45,6 +49,7 @@ export default class FridgeScreen extends React.Component<Props, State> {
     
     this.state = { 
       isLoading: true, 
+      trigger: false,
       search: '',
       allFood: [],
       fridgeItems: []
@@ -57,41 +62,54 @@ export default class FridgeScreen extends React.Component<Props, State> {
 
   }
   componentDidMount() {
-    const fridgeItems = JSON.parse(JSON.stringify(dummyData.dummyFridgeItems)) 
-
-    this.setState({
-      isLoading: false,
-      fridgeItems: fridgeItems,
+    return fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     })
-
-    // TODO: query for all fridge items
+      .then(response => response.json())
+      .then(data => {
+        this.setState(
+          {
+            isLoading: false,
+            fridgeItems: data,
+          }
+        );
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
 
   OnChangeSearch(text: string) {
-    if (text === '') {
-      this.setState({
-        allFood: [],
-        search: text
-      });
-      return
-    }
-
-    const lowerCaseText = text.toLowerCase()
-    let newFood = JSON.parse(JSON.stringify(dummyData.dummyAllFoods))
-    .filter((food) => {return food.title.includes(lowerCaseText)
-    }).filter((food) => {
-      return !this.state.fridgeItems
-      .find((fridgeItem) => {
-        return fridgeItem.title === food.title})
+    let lowercase = text.toLowerCase()
+    return fetch(`http://localhost:8000/homemade/many_foods?value=${lowercase}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        let filteredData = data.filter((food) => {
+          return !this.state.fridgeItems
+          .find((fridgeItem) => {
+            return fridgeItem.food.food_name === food.food_name})
+          })
+        this.setState(
+          {
+            allFood: filteredData,
+            search: text
+          }
+        );
       })
-    
-    this.setState({
-      allFood: newFood,
-      search: text
-    });
-
-    // TODO: query for all foods that match search params
+      .catch(error => {
+        console.error(error);
+      });
   }
 
   OnClearSearch() {
@@ -101,17 +119,36 @@ export default class FridgeScreen extends React.Component<Props, State> {
     });
   }
 
-  OnPressSearch(id: string) {    
+  async OnPressSearch(id: string, food_name: string) {    
     console.log('add item to fridge items in database')
 
-    // TODO: post request to add food item to fridge
-    if (this.searchRef.current?.cancel) this.searchRef.current.cancel()
-
-    this.props.navigation.navigate('FridgeScreen')
+    let body
+    if (food_name === 'unlisted_food') body = JSON.stringify({food: id, unlisted_food: food_name})
+    else body = JSON.stringify({food: id})
+    await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: body
+    })
+      .catch(error => {
+        console.error(error);
+      });
+      
+    this.setState({
+      trigger: !this.state.trigger
+    })
+    console.log(this.state.trigger)
+    this.props.navigation.navigate('FridgeScreen', {trigger: this.state.trigger})
   }
 
   OnCancel() {
-    this.props.navigation.navigate("FridgeScreen")
+    this.setState({
+      trigger: !this.state.trigger
+    })
+    this.props.navigation.navigate("FridgeScreen", {trigger: this.state.trigger})
   }
 
   render() {
@@ -139,8 +176,8 @@ export default class FridgeScreen extends React.Component<Props, State> {
           data={this.state.allFood}
           renderItem={({ item, index }) => (
             <View>
-              <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.id)}>
-                <Text style={styles.searchResultText}>{item.title}</Text>
+              <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.food_id, item.food_name)}>
+                <Text style={styles.searchResultText}>{item.food_name}</Text>
               </TouchableWithoutFeedback>
             </View>
           )}

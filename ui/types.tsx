@@ -42,7 +42,9 @@ export type SearchParamList = {
 };
 
 export type FridgeParamList = {
-  FridgeScreen: undefined;
+  FridgeScreen: {
+    trigger: boolean
+  };
   AddFridgeItemScreen: undefined;
 };
 

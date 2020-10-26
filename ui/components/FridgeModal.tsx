@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import {
   TouchableWithoutFeedback,
   StyleSheet
@@ -12,7 +13,7 @@ interface Props {
     modalProperties: {
       visible: boolean,
       index: number | undefined,
-      daysToExp: number | undefined
+      expiration_date: Date | undefined
     },
     ModalResultFunc: Function
 }
@@ -20,6 +21,7 @@ interface Props {
 interface State {
   visible: boolean
   index: number | undefined
+  expiration_date: Date | undefined
   daysToExp: number | undefined
   editting: boolean
 }
@@ -29,10 +31,12 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     const propValues = JSON.parse(JSON.stringify(this.props.modalProperties))
+    let daysDiff = Math.ceil((new Date(propValues.expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000))
     this.state = {
       visible: propValues.visible,
       index: propValues.index,
-      daysToExp: propValues.daysToExp,
+      expiration_date: propValues.expiration_date,
+      daysToExp: daysDiff,
       editting: false
     }
 
@@ -49,10 +53,12 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   componentDidUpdate() {
     if (this.props.modalProperties.visible !== this.state.visible) {
       const propValues = JSON.parse(JSON.stringify(this.props.modalProperties))
+      let daysDiff = Math.ceil((new Date(propValues.expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000))
       this.setState({
         visible: propValues.visible,
         index: propValues.index,
-        daysToExp: propValues.daysToExp,
+        expiration_date: propValues.expiration_date,
+        daysToExp: daysDiff
       })
     }
   }
@@ -67,30 +73,42 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     this.setState({
       editting: false,
     })
-    this.props.ModalResultFunc(this.state.index, "edit", this.state.daysToExp)
+    this.props.ModalResultFunc(this.state.index, "edit", this.state.expiration_date)
   }
 
   cancelEdit() {
-    const daysToExp = JSON.parse(JSON.stringify(this.props.modalProperties.daysToExp))
+    const expiration_date = JSON.parse(JSON.stringify(this.props.modalProperties.expiration_date))
+    let daysDiff = Math.ceil((new Date(expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000))
     this.setState({
       editting: false,
-      daysToExp: daysToExp,
+      expiration_date: expiration_date,
+      daysToExp: daysDiff,
       visible: false,
     })
   }
 
   editPlus() {
     let updateDays = JSON.parse(JSON.stringify(this.state.daysToExp))
-    if (updateDays !== undefined) updateDays = updateDays + 1
+    let exp_date = JSON.parse(JSON.stringify(this.state.expiration_date))
+    if (updateDays !== undefined) {
+      updateDays = updateDays + 1
+      exp_date = new Date(new Date(exp_date).valueOf() + 1000*60*60*24)
+    }
     this.setState({
+      expiration_date: exp_date,
       daysToExp: updateDays
     })
   }
 
   editMinus() {
     let updateDays = JSON.parse(JSON.stringify(this.state.daysToExp))
-    if (updateDays) updateDays = updateDays - 1
+    let exp_date = JSON.parse(JSON.stringify(this.state.expiration_date))
+    if (updateDays !== undefined) {
+      updateDays = updateDays - 1
+      exp_date = new Date(new Date(exp_date).valueOf() - 1000*60*60*24)
+    }
     this.setState({
+      expiration_date: exp_date,
       daysToExp: updateDays
     })
   }

@@ -8,7 +8,6 @@ import { Text, View, Image } from './Themed';
 
 interface Props {
   item: any
-  index: number
   modalUpdateFunc: Function
   swipeLeftFunc: Function
   swipeRightFunc: Function
@@ -17,11 +16,11 @@ interface Props {
 }
 
 interface State {
+  id: number
   imageIndex: number
-  title: string
-  daysToExp: number | undefined
+  food_name: string
+  expiration_date: Date | undefined
   selected: boolean
-  index: number
 }
 
 const images = [
@@ -35,43 +34,50 @@ const images = [
 export default class FridgeItem extends React.Component<Props, State> {
   constructor(props:Props) {
     super(props)
+    
     this.state = {
-      imageIndex: this.props.item.imageIndex,
-      title: this.props.item.title,
-      daysToExp: this.props.item.daysToExp,
+      id: this.props.item.id,
+      imageIndex: this.props.item.food.food_group.food_group_id,
+      food_name: this.props.item.food.food_name,
+      expiration_date: this.props.item.expiration_date,
       selected: this.props.item.selected,
-      index: this.props.index,
     }
   }
 
   componentDidUpdate() {
-    if (this.props.item.title !== this.state.title || this.props.item.daysToExp !== this.state.daysToExp) {
+    if (this.props.item.food.food_name !== this.state.food_name || this.props.item.expiration_date !== this.state.expiration_date) {
       this.setState({
-        imageIndex: this.props.item.imageIndex,
-        title: this.props.item.title,
-        daysToExp: this.props.item.daysToExp,
+        id: this.props.item.id,
+        imageIndex: this.props.item.food.food_group.food_group_id,
+        food_name: this.props.item.food.food_name,
+        expiration_date: this.props.item.expiration_date,
         selected: this.props.item.selected,
-        index: this.props.index,
       })
     }
   }
 
   updateModalVisible = () => {
-    this.props.modalUpdateFunc(this.state.index, this.state.selected)
+    this.props.modalUpdateFunc(this.state.id, this.state.selected)
   }
 
   swipeLeft = () => {
-    setTimeout(() => {this.props.swipeLeftFunc(this.state.index)}, 200)
+    setTimeout(() => {this.props.swipeLeftFunc(this.state.id)}, 200)
   }
 
   swipeRight = () => {
-    setTimeout(() => {this.props.swipeRightFunc(this.state.index)}, 200)
+    setTimeout(() => {this.props.swipeRightFunc(this.state.id)}, 200)
   }
 
   render() {
     let secondaryText = ''
-    if (this.state.daysToExp && this.state.daysToExp === 1) secondaryText = 'this expires today'
-    else if (this.state.daysToExp) secondaryText = `this expires in ${this.state.daysToExp} days`
+    if (this.state.expiration_date) {
+      let currentDate = new Date()
+      let placehold = new Date(this.state.expiration_date)
+      let daysToExp = Math.ceil((placehold.valueOf() - currentDate.valueOf())/(24 * 60 * 60 * 1000))
+      if (daysToExp === 1) secondaryText = 'this expires today'
+      else if (daysToExp < 1) secondaryText = 'expired'
+      else secondaryText = `this expires in ${daysToExp} days`
+    }
 
     return (
       <Swipeable
@@ -91,7 +97,7 @@ export default class FridgeItem extends React.Component<Props, State> {
             <View style={this.state.selected ? styles.imageContainerBorder : styles.imageContainerNoBorder} >
               <Image style={styles.image} source={this.state.imageIndex !== -1 ? images[this.state.imageIndex] : images[4]}/>
             </View>
-            <Text style={styles.itemName}>{this.state.title + "\n"}
+            <Text style={styles.itemName}>{this.state.food_name + "\n"}
               <Text style={styles.secondary} lightColor="#ccc" darkColor="#ccc">{secondaryText}</Text>
             </Text>
             <View style={styles.menuIcon}>

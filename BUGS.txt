@@ -1,0 +1,2 @@
+AddFridgeItemScreen: lag on updating search text due to querying database -- use arrayholder, only list first x amount
+FridgeScreen: Issues if unlisted_food -- compare to food_name always instead of maybe unlisted_food

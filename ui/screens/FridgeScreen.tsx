@@ -1,4 +1,5 @@
 import * as React from 'react';
+import moment from 'moment';
 import { StyleSheet, FlatList, ActivityIndicator, Platform, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { AntDesign } from '@expo/vector-icons'; 
@@ -6,7 +7,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 
 import { Text, View, SearchBar } from '../components/Themed';
-import dummyData from '../dummyData.json'
 import FridgeItem from '../components/FridgeItem'
 import FridgeModal from '../components/FridgeModal'
 import { FridgeParamList } from '../types'
@@ -18,7 +18,10 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  trigger: boolean
   search: string
+  wasted_count: number
+  eaten_count: number
   fridgeItems: Array<{
     foodId: string
     foodName: string
@@ -32,16 +35,16 @@ interface State {
       food_name: string
       food_group: {
         food_group_id: string
-        image: string
+        image: string | undefined
       }
     }
     unlisted_food: string | undefined
-    expiration_date: string | undefined
+    expiration_date: Date | undefined
   }>
   modal: {
     visible: boolean
     index: number | undefined
-    daysToExp: number | undefined
+    expiration_date: Date | undefined
   }
   swipingAction: boolean
 }
@@ -69,13 +72,16 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     
     this.state = { 
       isLoading: true, 
+      trigger: false,
       search: '',
+      wasted_count: 0,
+      eaten_count: 0,
       fridgeItems: [],
       formattedFridgeItems: [],
       modal: {
         visible: false,
         index: undefined,
-        daysToExp: undefined
+        expiration_date: undefined
       },
       swipingAction: false,
     };
@@ -90,63 +96,104 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.itemWasted = this.itemWasted.bind(this)
     this.itemEaten = this.itemEaten.bind(this)
   }
-  componentDidMount() {
-    const fridgeItemsDeepCopy = JSON.parse(JSON.stringify(dummyData.dummyFridgeItems));
 
-    this.setState({
-      isLoading: false,
-      fridgeItems: fridgeItemsDeepCopy
+  async componentDidMount() {
+    let fridgeData = await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     })
-    this.arrayholder = fridgeItemsDeepCopy
-
-    return fetch('http://127.0.0.1:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea')
       .then(response => response.json())
       .then(data => {
-        this.setState(
-          {
-            isLoading: false,
-            formattedFridgeItems: data,
-          }
-        );
+        this.arrayholder = data
+        return data
+      })
+      .catch(error => {
+        console.error(error);
+      });
+
+    return await fetch('http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        this.setState({
+          isLoading: false,
+          formattedFridgeItems: fridgeData,
+          wasted_count: data.wasted_count,
+          eaten_count: data.eaten_count
+        })
       })
       .catch(error => {
         console.error(error);
       });
   }
 
+  componentDidUpdate() {
+    // console.log(`in fridge ${this.props.route.params.trigger}`)
+    if (this.state.trigger !== this.props.route.params.trigger) {
+      console.log("updating")
+      return fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => response.json())
+        .then(data => {
+          this.arrayholder = data
+          this.setState({
+            formattedFridgeItems: data,
+            trigger: this.props.route.params.trigger,
+          })
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
+  }
+
   SearchFilterFunction(text: string = '') {
     const filteredData = this.arrayholder.filter(function(item: any) {
-      const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
+      const itemData = item.food.food_name ? item.food.food_name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
       return itemData.indexOf(textData) > -1;
     });
 
     this.setState({
-      fridgeItems: filteredData,
+      formattedFridgeItems: filteredData,
       search: text,
     });
   }
 
   modalUpdate(index: number) {
+    let obj = this.state.formattedFridgeItems.find(element => element.id == index)
     this.setState({
       modal: {
         visible: true, 
         index: index, 
-        daysToExp: this.state.fridgeItems[index].daysToExp
+        expiration_date: obj?.expiration_date
       }
     })
   }
 
-  modalResult(index: number, action?: string, daysToExp?: number | undefined) {
+  modalResult(index: number, action?: string, expiration_date?: Date | undefined) {
     if (action === "wasted") this.itemWasted(index)
     else if (action === "eaten") this.itemEaten(index)
-    else if (action === "edit") this.itemEditted(index, daysToExp)
+    else if (action === "edit") this.itemEditted(index, expiration_date)
     else {
       this.setState({
         modal: {
           visible: false,
           index: undefined,
-          daysToExp: undefined,
+          expiration_date: undefined,
         }
       })
     }
@@ -164,50 +211,119 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
   }
 
-  itemEditted(index: number, daysToExp: number | undefined) {
-    if (daysToExp !== undefined) {
-      const fridgeItemsDeepCopy = JSON.parse(JSON.stringify(this.state.fridgeItems));
-      fridgeItemsDeepCopy[index].daysToExp = daysToExp
-      this.setState({
-        fridgeItems: fridgeItemsDeepCopy,
-        modal: {
-          visible: false,
-          index: undefined,
-          daysToExp: undefined
-        }
+  itemEditted(index: number, expiration_date: Date | undefined) {
+      console.log(expiration_date)
+      let momented = moment(expiration_date).add(1, 'day').format('YYYY-MM-DD')
+      return fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${index}`, {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ expiration_date: momented })
       })
-      // TODO: send put request with item's updated daysToExp
-    }
+        .then(response => response.json())
+        .then(data => {
+          console.log(data)
+          let newFridge = this.state.formattedFridgeItems
+          newFridge[newFridge.findIndex(item => item.id === index)].expiration_date = expiration_date
+          this.setState({
+            modal: {
+              visible: false, 
+              index: undefined,
+              expiration_date: undefined
+            },
+            formattedFridgeItems: newFridge
+          })
+          this.arrayholder = newFridge
+        })
+        .catch(error => {
+          console.error(error);
+        });
+        
   }
 
-  itemWasted(index: number) {
-    const replaceFridgeItems = this.state.fridgeItems
-    replaceFridgeItems.splice(index, 1)
-    this.setState({
-      fridgeItems: replaceFridgeItems,
-      modal: {
-        visible: false, 
-        index: undefined,
-        daysToExp: undefined
+  async itemWasted(index: number) {
+    await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${index}`, {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
     })
-    // TODO: delete item in fridge from database
-    // TODO: update count for wasted food item 
+      .catch(error => {
+        console.error(error);
+      });
+
+    return await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+      method: 'PATCH',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        wasted_count: this.state.wasted_count + 1
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        this.setState({
+          modal: {
+            visible: false, 
+            index: undefined,
+            expiration_date: undefined
+          },
+          formattedFridgeItems: this.state.formattedFridgeItems.filter(item => item.id !== index),
+          wasted_count: data.wasted_count
+        })
+        this.arrayholder = this.state.formattedFridgeItems.filter(item => item.id !== index)
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    
+
   }
 
-  itemEaten(index: number) {
-    const replaceFridgeItems = this.state.fridgeItems
-    replaceFridgeItems.splice(index, 1)
-    this.setState({
-      fridgeItems: replaceFridgeItems,
-      modal: {
-        visible: false, 
-        index: undefined, 
-        daysToExp: undefined
+  async itemEaten(index: number) {
+    await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${index}`, {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
     })
-    // TODO: delete item in fridge from database
-    // TODO: update count for eaten food item 
+      .catch(error => {
+        console.error(error);
+      });
+
+    return await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+      method: 'PATCH',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        eaten_count: this.state.eaten_count + 1
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        this.setState({
+          modal: {
+            visible: false, 
+            index: undefined,
+            expiration_date: undefined
+          },
+          formattedFridgeItems: this.state.formattedFridgeItems.filter(item => item.id !== index),
+          eaten_count: data.eaten_count
+        })
+        this.arrayholder = this.state.formattedFridgeItems.filter(item => item.id !== index)
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    
   }
 
 
@@ -238,11 +354,10 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         <ScrollView scrollEnabled={!this.state.swipingAction}>
           <FlatList
             scrollEnabled={!this.state.swipingAction}
-            data={this.state.fridgeItems}
-            renderItem={({ item, index }) => (
-              <FridgeItem
+            data={this.state.formattedFridgeItems}
+            renderItem={({ item }) => (
+                <FridgeItem
                   item={item} 
-                  index={index} 
                   modalUpdateFunc={this.modalUpdate}
                   swipeStart={this.OnSwipeNoScroll}
                   swipeEnd={this.OnSwipeScroll}
