@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, FlatList } from 'react-native';
+import { ActivityIndicator, StyleSheet, FlatList } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import Swiper from 'react-native-swiper'
@@ -12,18 +12,48 @@ import dummyData from '../dummyData.json'
 type ProfileScreenNavigationProp = StackNavigationProp<ProfileParamList, 'ProfileScreen'>;
 type ProfileScreenRouteProp = RouteProp<ProfileParamList, 'ProfileScreen'>;
 
+type recipe = {
+  recipe_id: string
+  recipe_name: string
+  image: string
+  diets: Array<{
+    diet_id: number
+    diet: string
+  }>
+  cuisine: {
+    cuisine_id: number
+    cuisine: string
+  }
+  meal_type: {
+    meal_type_id: number
+    meal_type: string
+  }
+}
+
+type user_data = {
+  user_id: string
+  saved_recipes: Array<recipe>
+  username: string
+  name: string
+  origin_account_date: string
+  waste_count: number
+  eaten_count: number
+  produce_wasted: number
+  meat_wasted: number
+  dairy_wasted: number
+  total_items: number
+  shopping_list: Array<string>
+  fridge: Array<string>
+}
 interface Props {
   navigation: ProfileScreenNavigationProp,
   route: ProfileScreenRouteProp
 }
 
 interface State {
+  isLoading: boolean
   toggle: boolean
-  metrics: any
-  savedRecipes: Array<any>
-  fridgeCount: number
-  username: string
-  name: string
+  user_data: user_data
 }
 
 const images = [
@@ -40,12 +70,23 @@ export default class HomeScreen extends React.Component<Props, State> {
     super(props)
 
     this.state = {
+      isLoading: true,
       toggle: true,
-      metrics: {},
-      savedRecipes: [],
-      fridgeCount: 0,
-      username: '',
-      name: '',
+      user_data: {
+        user_id: "",
+        saved_recipes: [],
+        username: "",
+        name: "",
+        origin_account_date: "",
+        waste_count: 0,
+        eaten_count: 0,
+        produce_wasted: 0,
+        meat_wasted: 0,
+        dairy_wasted: 0,
+        total_items: 0,
+        shopping_list: [],
+        fridge: []
+      }
     }
 
     this.unsaveRecipe = this.unsaveRecipe.bind(this)
@@ -55,32 +96,48 @@ export default class HomeScreen extends React.Component<Props, State> {
   }
 
 
-  componentDidMount() {
-    const userData = JSON.parse(JSON.stringify(dummyData.dummyUserData))
-    this.props.navigation.setOptions({ headerTitle: userData.username })
-    this.setState({
-      username: userData.username,
-      name: userData.name,
-      fridgeCount: userData.currentFridgeCount,
-      savedRecipes: userData.savedRecipes,
-      metrics: {
-        percentage: userData.notWastedPercentage,
-        foodGroupIndex: userData.foodGroupWastedImageIndex,
-        averageFridgeCount: userData.averageFridgeCount,
+  async componentDidMount() {
+    await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
     })
-
-    // get user data
+    .then(response => response.json())
+    .then(data => {
+      this.setState({
+        isLoading: false,
+        user_data: data,
+      });
+    })
+    .catch(error => {
+      console.error(error);
+    });
   }
 
-  unsaveRecipe(recipeId: string) {
-    // delete recipeId from user's savedrecipes
-    console.log(recipeId)
+  async unsaveRecipe(recipe_id: string) {
+    await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipe_id}`, {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    .catch(error => {
+      console.error(error);
+    });
+
+    let assign_saved_recipes = this.state.user_data.saved_recipes.filter((recipe) => recipe.recipe_id !== recipe_id)
+    let assign_user_data = this.state.user_data
+    assign_user_data.saved_recipes = assign_saved_recipes
+    this.setState({
+      user_data: assign_user_data,
+    });
   }
 
-  navigateRecipe(recipeId: string) {
-    console.log(`navigate to recipe with id ${recipeId}`)
-    this.props.navigation.navigate('IndividualRecipeScreen', {recipeId: recipeId})
+  navigateRecipe(recipe_id: string) {
+    this.props.navigation.navigate('IndividualRecipeScreen', {recipe_id: recipe_id})
   }
 
   onPressSettings() {
@@ -94,11 +151,30 @@ export default class HomeScreen extends React.Component<Props, State> {
   }
 
   render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={{ flex: 1, paddingTop: 20 }}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
+
+    let percentage = Math.round((this.state.user_data.eaten_count / this.state.user_data.total_items)*100)
+    let exclamation = ""
+    if (percentage < 70) exclamation = "Needs some work"
+    else if (percentage < 80) exclamation = "Keep it up"
+    else if (percentage < 90) exclamation = "You're doing great"
+    else exclamation = "You're amazing!"
+
+    let currentDate = new Date()
+    let placehold = new Date(this.state.user_data.origin_account_date)
+    let total_days = Math.ceil((currentDate.valueOf() - placehold.valueOf())/(24 * 60 * 60 * 1000))
+    let avg_items = Math.round((this.state.user_data.total_items / total_days) * 100)
     return (
       <View style={styles.container}>
         <View style={{marginTop: 30, marginBottom: 50}}>
-          <Text style={styles.usersName}>{this.state.name}</Text>
-          <Text style={styles.currentFridgeCount}>your fridge has {this.state.fridgeCount} items</Text>
+          <Text style={styles.usersName}>{this.state.user_data.name}</Text>
+          <Text style={styles.currentFridgeCount}>your fridge has {this.state.user_data.fridge.length} items</Text>
         </View>
           <View style={{flexDirection: 'row'}}>
             <View style={{marginRight:'auto', marginLeft: 60}}>
@@ -123,19 +199,19 @@ export default class HomeScreen extends React.Component<Props, State> {
             <View>
               <View style={{flexDirection: 'row', marginVertical: 40}}>
                 <View style={styles.fridgeCountCircle}>
-                <Text style={{marginTop: 28, marginLeft: 15, fontSize: 35}}>{this.state.metrics.percentage}%</Text>
+                <Text style={{marginTop: 25, marginLeft: 17, fontSize: 35}}>{percentage}%</Text>
                 </View>
-                <Text style={{marginTop: 20, marginLeft: 30, fontSize: 15}}>Great Job!{"\n"}94% of food in your fridge{"\n"} is eaten instead of wasted!</Text>
+                <Text style={{marginTop: 20, marginLeft: 30, fontSize: 15}}>{exclamation}{"\n"}{percentage}% of food in your fridge{"\n"} is eaten instead of wasted</Text>
               </View>
               <View style={{flexDirection: 'row', marginBottom: 40}}>
                 <View style={styles.fridgeCountCircle}>
-                <Text style={{marginTop: 5, marginLeft: 25, fontSize: 75}}>{this.state.metrics.averageFridgeCount}</Text>
+                  <Text style={{marginTop: 3, marginLeft: 27, fontSize: 75}}>{avg_items}</Text> 
                 </View>
                 <Text style={{marginTop: 40, marginLeft: 30, fontSize: 15}}>items on average in fridge</Text>
               </View>
               <View style={{flexDirection: 'row'}}>
                 <View style={styles.imageContainer}>
-                  <Image style={styles.image} source={images[this.state.metrics.foodGroupIndex]}/>
+                  <Image style={styles.image} source={images[0]}/>
                 </View>
                 <Text style={{marginTop: 40, marginLeft: 30, fontSize: 15}}>food group wasted the most often</Text>
               </View>
@@ -144,14 +220,14 @@ export default class HomeScreen extends React.Component<Props, State> {
           <View>
             <View>
               <FlatList 
-                data={this.state.savedRecipes}
+                data={this.state.user_data.saved_recipes}
                 renderItem={({item}) => (
                   <SavedRecipe 
-                  id={item.id}
-                  title={item.title}
-                  imageIndex={item.imageIndex}
-                  dietaryPreferences={item.dietaryPreference}
-                  saved={item.saved}
+                  recipe_id={item.recipe_id}
+                  recipe_name={item.recipe_name}
+                  imageIndex={item.image}
+                  dietaryPreferences={item.diets}
+                  saved={true}
                   onPressNavigate={this.navigateRecipe}
                   saveRecipe={this.unsaveRecipe}
                 />)}

@@ -6,11 +6,26 @@ import { Fontisto } from '@expo/vector-icons';
 import { Text, View, Image } from './Themed';
 import { FlatList, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
+type recipe = {
+  recipe_id: string
+  recipe_name: string
+  image: string
+  diets: Array<{
+    diet_id: number
+    diet: string
+  }>
+  cuisine: {
+    cuisine_id: number
+    cuisine: string
+  }
+  meal_type: {
+    meal_type_id: number
+    meal_type: string
+  }
+}
+
 interface Props {
-  id: string
-  title: string
-  imageIndex: number
-  dietaryPreferences: Array<string>
+  recipe: recipe
   saved: boolean
   onPressNavigate: Function
   saveRecipe: Function
@@ -18,10 +33,13 @@ interface Props {
 }
 
 interface State {
-  id: string
-  title: string
-  imageIndex: number
-  dietaryPreferences: Array<string>
+  recipe_id: string
+  recipe_name: string
+  imageIndex: string
+  dietaryPreferences: Array<{
+    diet_id: number,
+    diet: string
+  }>
   saved: boolean
 }
 
@@ -40,10 +58,10 @@ export default class RecipeOverview extends React.Component<Props, State> {
     super(props)
 
     this.state = {
-      id: this.props.id,
-      title: this.props.title,
-      imageIndex: this.props.imageIndex,
-      dietaryPreferences: this.props.dietaryPreferences,
+      recipe_id: this.props.recipe.recipe_id,
+      recipe_name: this.props.recipe.recipe_name,
+      imageIndex: this.props.recipe.image,
+      dietaryPreferences: this.props.recipe.diets,
       saved: this.props.saved
     }
 
@@ -53,34 +71,34 @@ export default class RecipeOverview extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
-    if (this.state.id !== this.props.id || this.state.saved !== this.props.saved) {
+    if (this.state.recipe_id !== this.props.recipe.recipe_id || this.state.saved !== this.props.saved) {
       this.setState({
-          id: this.props.id,
-          title: this.props.title,
-          imageIndex: this.props.imageIndex,
-          dietaryPreferences: this.props.dietaryPreferences,
-          saved: this.props.saved
+        recipe_id: this.props.recipe.recipe_id,
+        recipe_name: this.props.recipe.recipe_name,
+        imageIndex: this.props.recipe.image,
+        dietaryPreferences: this.props.recipe.diets,
+        saved: this.props.saved
       })
     }
   }
 
   OnPressNavigate = () => {
-    this.props.onPressNavigate(this.state.id)
+    this.props.onPressNavigate(this.state.recipe_id)
   }
 
   OnPressSave = () => {
-    this.props.saveRecipe(this.state.id)
+    this.props.saveRecipe(this.state.recipe_id)
   }
 
   OnPressDismiss = () => {
-    this.props.dismissRecipe(this.state.id)
+    this.props.dismissRecipe(this.state.recipe_id)
   }
     
     
   render() {
     let dietaryPrefs = ''
     this.state.dietaryPreferences.forEach((pref, index) => {
-      dietaryPrefs = dietaryPrefs.concat(pref)
+      dietaryPrefs = dietaryPrefs.concat(pref.diet)
       if (index !== this.state.dietaryPreferences.length - 1) dietaryPrefs = dietaryPrefs.concat(', ')
     })
     return (
@@ -88,7 +106,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
         <TouchableWithoutFeedback onPress={this.OnPressNavigate}>
           <Image style={styles.image} source={images[this.state.imageIndex]}/>
           <View>
-            <Text style={{fontWeight: 'bold', marginBottom: 4}}>{this.state.title}</Text>
+            <Text style={{fontWeight: 'bold', marginBottom: 4}}>{this.state.recipe_name}</Text>
             <Text style={{marginBottom: 4}}>{dietaryPrefs}</Text>
           </View>
         </TouchableWithoutFeedback>
@@ -121,10 +139,3 @@ const styles = StyleSheet.create({
     marginBottom: 5
   },
 });
-
-
-/*
-  BE-TODO
-    REQUESTS
-      - GET: image to render from database
-*/

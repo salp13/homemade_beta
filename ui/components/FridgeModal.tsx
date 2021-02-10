@@ -12,7 +12,7 @@ import { Text, View } from './Themed'
 interface Props {
     modalProperties: {
       visible: boolean,
-      index: number | undefined,
+      id: number | undefined,
       expiration_date: Date | undefined
     },
     ModalResultFunc: Function
@@ -20,7 +20,7 @@ interface Props {
 
 interface State {
   visible: boolean
-  index: number | undefined
+  id: number | undefined
   expiration_date: Date | undefined
   daysToExp: number | undefined
   editting: boolean
@@ -34,7 +34,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     let daysDiff = Math.ceil((new Date(propValues.expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000))
     this.state = {
       visible: propValues.visible,
-      index: propValues.index,
+      id: propValues.id,
       expiration_date: propValues.expiration_date,
       daysToExp: daysDiff,
       editting: false
@@ -56,7 +56,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
       let daysDiff = Math.ceil((new Date(propValues.expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000))
       this.setState({
         visible: propValues.visible,
-        index: propValues.index,
+        id: propValues.id,
         expiration_date: propValues.expiration_date,
         daysToExp: daysDiff
       })
@@ -73,7 +73,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     this.setState({
       editting: false,
     })
-    this.props.ModalResultFunc(this.state.index, "edit", this.state.expiration_date)
+    this.props.ModalResultFunc(this.state.id, "edit", this.state.expiration_date)
   }
 
   cancelEdit() {
@@ -115,18 +115,18 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
 
 
   eaten() {
-    this.props.ModalResultFunc(this.state.index, "eaten")
+    this.props.ModalResultFunc(this.state.id, "eaten")
   }
 
   wasted() {
-    this.props.ModalResultFunc(this.state.index, "wasted")
+    this.props.ModalResultFunc(this.state.id, "wasted")
   }
 
   cancel() {
     this.setState({
       editting: false
     })
-    this.props.ModalResultFunc(this.state.index)
+    this.props.ModalResultFunc(this.state.id)
   }
 
   render() {

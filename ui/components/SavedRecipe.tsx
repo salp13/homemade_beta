@@ -7,20 +7,26 @@ import { Text, View, Image } from './Themed';
 import { FlatList, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 interface Props {
-  id: string
-  title: string
-  imageIndex: number
-  dietaryPreferences: Array<string>
+  recipe_id: string
+  recipe_name: string
+  imageIndex: string
+  dietaryPreferences: Array<{
+    diet_id: number
+    diet: string
+  }>
   saved: boolean
   onPressNavigate: Function
   saveRecipe: Function
 }
 
 interface State {
-  id: string
-  title: string
-  imageIndex: number
-  dietaryPreferences: Array<string>
+  recipe_id: string
+  recipe_name: string
+  imageIndex: string
+  dietaryPreferences: Array<{
+    diet_id: number
+    diet: string
+  }>
   saved: boolean
 }
 
@@ -39,8 +45,8 @@ export default class RecipeOverview extends React.Component<Props, State> {
     super(props)
 
     this.state = {
-      id: this.props.id,
-      title: this.props.title,
+      recipe_id: this.props.recipe_id,
+      recipe_name: this.props.recipe_name,
       imageIndex: this.props.imageIndex,
       dietaryPreferences: this.props.dietaryPreferences,
       saved: this.props.saved
@@ -51,30 +57,30 @@ export default class RecipeOverview extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
-    if (this.state.id !== this.props.id || this.state.saved !== this.props.saved) {
+    if (this.state.recipe_id !== this.props.recipe_id || this.state.saved !== this.props.saved) {
       this.setState({
-          id: this.props.id,
-          title: this.props.title,
-          imageIndex: this.props.imageIndex,
-          dietaryPreferences: this.props.dietaryPreferences,
-          saved: this.props.saved
+        recipe_id: this.props.recipe_id,
+        recipe_name: this.props.recipe_name,
+        imageIndex: this.props.imageIndex,
+        dietaryPreferences: this.props.dietaryPreferences,
+        saved: this.props.saved
       })
     }
   }
 
   OnPressNavigate = () => {
-    this.props.onPressNavigate(this.state.id)
+    this.props.onPressNavigate(this.state.recipe_id)
   }
 
   OnPressUnsave = () => {
-    this.props.saveRecipe(this.state.id)
+    this.props.saveRecipe(this.state.recipe_id)
   }
     
     
   render() {
     let dietaryPrefs = ''
     this.state.dietaryPreferences.forEach((pref, index) => {
-      dietaryPrefs = dietaryPrefs.concat(pref)
+      dietaryPrefs = dietaryPrefs.concat(pref.diet)
       if (index !== this.state.dietaryPreferences.length - 1) dietaryPrefs = dietaryPrefs.concat(', ')
     })
     return (
@@ -82,9 +88,9 @@ export default class RecipeOverview extends React.Component<Props, State> {
           <View style={{flexDirection:'row'}}>
             <TouchableWithoutFeedback onPress={this.OnPressNavigate}>
                 <View style ={{flexDirection: 'row'}}>
-                    <Image style={styles.image} source={images[this.state.imageIndex]}/>
+                    <Image style={styles.image} source={images[0]}/>
                     <View style={{marginLeft: 20, marginTop: 20}}>
-                        <Text style={{fontWeight: 'bold', marginBottom: 4}}>{this.state.title}</Text>
+                        <Text style={{fontWeight: 'bold', marginBottom: 4}}>{this.state.recipe_name}</Text>
                         <Text style={{marginBottom: 4}}>{dietaryPrefs}</Text>
                     </View>
                 </View>
@@ -113,10 +119,3 @@ const styles = StyleSheet.create({
     marginBottom: 5
   },
 });
-
-
-/*
-  BE-TODO
-    REQUESTS
-      - GET: image to render from database
-*/

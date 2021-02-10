@@ -13,7 +13,7 @@ type foodItem = {
   food_name: string
   default_days_to_exp: number | undefined
   food_group: {
-    food_group_id: number
+    food_group_id: string
     image: string
   }
 }
@@ -104,7 +104,6 @@ export default class FridgeScreen extends React.Component<Props, State> {
     //   search: text
     // });
 
-    // TODO: query for all foods that match search params
     let lowercase = text.toLowerCase()
     return fetch(`http://localhost:8000/homemade/many_foods?value=${lowercase}`, {
       method: 'GET',
@@ -140,9 +139,6 @@ export default class FridgeScreen extends React.Component<Props, State> {
   }
 
   async OnPressSearch(id: string, food_name: string) {    
-    console.log('add item to shopping list items in database')
-
-    // TODO: post request to add food item to shopping list
     let body
     if (food_name === 'unlisted_food') body = JSON.stringify({food: id, unlisted_food: food_name})
     else body = JSON.stringify({food: id})
@@ -243,12 +239,3 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 });
-
-
-/*
-  BE-TODO
-    REQUESTS
-      - GET: all shopping list items
-      - GET: all food items that match search params
-      - POST: add food item to shopping list
-*/

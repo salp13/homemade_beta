@@ -11,6 +11,20 @@ import dummyData from "../dummyData.json";
 import { ShoppingListParamList } from '../types';
 import ShoppingListModal from '../components/ShoppingListModal'
 
+type shoppingListItem = {
+  id: number
+  user: string
+  food: {
+    food_id: string
+    food_name: string
+    food_group: {
+      food_group_id: string
+      image: string | undefined
+    }
+  }
+  unlisted_food: string | undefined
+}
+
 interface Props {
   navigation: StackNavigationProp<ShoppingListParamList, 'ShoppingListScreen'>,
   route: RouteProp<ShoppingListParamList, 'ShoppingListScreen'>
@@ -19,26 +33,14 @@ interface Props {
 interface State {
   isLoading: boolean
   trigger: boolean
-  shoppingListItems: Array<{
-    id: number
-    user: string
-    food: {
-      food_id: string
-      food_name: string
-      food_group: {
-        food_group_id: string
-        image: string | undefined
-      }
-    }
-    unlisted_food: string | undefined
-  }>
+  draggable: boolean
+  swipingAction: boolean
+  shoppingListItems: Array<shoppingListItem>
   search: string
   modal: {
     visible: boolean
     index: number | undefined
   }
-  swipingAction: boolean
-  draggable: boolean
 }
 
 interface Arrayholder {
@@ -65,14 +67,14 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     this.state = { 
       isLoading: true,
       trigger: false,
+      draggable: false,
+      swipingAction: false,
       shoppingListItems: [],
       search: '',
       modal: {
         visible: false,
         index: undefined
       },
-      swipingAction: false,
-      draggable: false,
     };
     this.arrayholder = [];
 
@@ -109,9 +111,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   }
 
   componentDidUpdate() {
-    console.log(`in fridge ${this.props.route.params.trigger}`)
     if (this.state.trigger !== this.props.route.params.trigger) {
-      console.log("updating")
       return fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
         method: 'GET',
         headers: {
@@ -202,13 +202,11 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
 
   async itemRemove(id: number) {
     this.setState({
-      // shoppingListItems: replaceShoppingListItems,
       modal: {
         visible: false, 
         index: undefined,
       },
     })
-    // TODO: delete item from shopping list in database
     await fetch(`http://localhost:8000/homemade/single_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
       method: 'DELETE',
       headers: {
@@ -232,17 +230,13 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   }
 
   async itemAddFridge(id: number, food_name: string, food_id: string) {
-    // const replaceShoppingListItems = this.state.shoppingListItems
-    // replaceShoppingListItems.splice(index, 1)
     this.setState({
-      // shoppingListItems: replaceShoppingListItems,
       modal: {
         visible: false, 
         index: undefined,
       },
     })
 
-    // TODO: delete item from shopping list in database
     await fetch(`http://localhost:8000/homemade/single_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
       method: 'DELETE',
       headers: {
@@ -264,7 +258,6 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
         console.error(error);
       });
 
-    // TODO: add item to fridge in database 
     let body
     if (food_name === 'unlisted_food') body = JSON.stringify({food: food_id, unlisted_food: food_name})
     else body = JSON.stringify({food: food_id})
@@ -357,7 +350,6 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
                           >
                           <TouchableWithoutFeedback>
                               <View style={{flexDirection: 'row', marginVertical: 15}}>
-                                {console.log(item)}
                                   <Text style={styles.itemName}>{item.food.food_name}</Text>
                                   <View style={styles.menuIcon}>
                                     <TouchableWithoutFeedback onPress={() => this.modalUpdate(item.id)}>

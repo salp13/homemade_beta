@@ -30,14 +30,14 @@ export type HomeParamList = {
     specifiedItems: Array<any>
   }
   IndividualRecipeScreen: {
-    recipeId: string
+    recipe_id: string
   }
 };
 
 export type SearchParamList = {
   SearchScreen: undefined;
   IndividualRecipeScreen: {
-    recipeId: string
+    recipe_id: string
   }
 };
 
@@ -63,6 +63,6 @@ export type ProfileParamList = {
   AccountScreen: undefined
   AboutScreen: undefined
   IndividualRecipeScreen: {
-    recipeId: string
+    recipe_id: string
   }
 };

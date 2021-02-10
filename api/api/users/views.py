@@ -5,6 +5,7 @@ from rest_framework import status
 from .serializers import Fridge_Item_D_Serializer, Fridge_Item_DN_Serializer, Fridge_Item_SN_Serializer, Fridge_Item_DNSN_Serializer
 from .serializers import User_GETSerializer, User_POSTSerializer, Shopping_List_Item_D_Serializer, Shopping_List_Item_DN_Serializer
 from .models import User, Fridge_Item, Shopping_List_Item
+from recipes.models import Recipe
 from food.models import Food
 from recipes.serializers import RecipeOverview_GETSerializer
 from food.serializers import Food_S_Serializer, Food_D_Serializer

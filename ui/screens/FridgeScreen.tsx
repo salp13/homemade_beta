@@ -11,6 +11,21 @@ import FridgeItem from '../components/FridgeItem'
 import FridgeModal from '../components/FridgeModal'
 import { FridgeParamList } from '../types'
 
+type fridgeItem = {
+  id: number
+  user: string
+  food: {
+    food_id: string
+    food_name: string
+    food_group: {
+      food_group_id: string
+      image: string | undefined
+    }
+  }
+  unlisted_food: string | undefined
+  expiration_date: Date | undefined
+}
+
 interface Props {
   navigation: StackNavigationProp<FridgeParamList, 'FridgeScreen'>,
   route: RouteProp<FridgeParamList, 'FridgeScreen'>
@@ -22,28 +37,13 @@ interface State {
   search: string
   wasted_count: number
   eaten_count: number
-  fridgeItems: Array<{
-    foodId: string
-    foodName: string
-    daysToExp: number | undefined
-  }>
-  formattedFridgeItems: Array<{
-    id: number
-    user: string
-    food: {
-      food_id: string
-      food_name: string
-      food_group: {
-        food_group_id: string
-        image: string | undefined
-      }
-    }
-    unlisted_food: string | undefined
-    expiration_date: Date | undefined
-  }>
+  produce_wasted: number
+  dairy_wasted: number
+  meat_wasted: number
+  fridgeItems: Array<fridgeItem>
   modal: {
     visible: boolean
-    index: number | undefined
+    id: number | undefined
     expiration_date: Date | undefined
   }
   swipingAction: boolean
@@ -76,11 +76,13 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       search: '',
       wasted_count: 0,
       eaten_count: 0,
+      produce_wasted: 0,
+      dairy_wasted: 0,
+      meat_wasted: 0,
       fridgeItems: [],
-      formattedFridgeItems: [],
       modal: {
         visible: false,
-        index: undefined,
+        id: undefined,
         expiration_date: undefined
       },
       swipingAction: false,
@@ -125,7 +127,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       .then(data => {
         this.setState({
           isLoading: false,
-          formattedFridgeItems: fridgeData,
+          fridgeItems: fridgeData,
           wasted_count: data.wasted_count,
           eaten_count: data.eaten_count
         })
@@ -136,9 +138,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   componentDidUpdate() {
-    // console.log(`in fridge ${this.props.route.params.trigger}`)
     if (this.state.trigger !== this.props.route.params.trigger) {
-      console.log("updating")
       return fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
         method: 'GET',
         headers: {
@@ -150,7 +150,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         .then(data => {
           this.arrayholder = data
           this.setState({
-            formattedFridgeItems: data,
+            fridgeItems: data,
             trigger: this.props.route.params.trigger,
           })
         })
@@ -168,31 +168,31 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     });
 
     this.setState({
-      formattedFridgeItems: filteredData,
+      fridgeItems: filteredData,
       search: text,
     });
   }
 
-  modalUpdate(index: number) {
-    let obj = this.state.formattedFridgeItems.find(element => element.id == index)
+  modalUpdate(id: number) {
+    let obj = this.state.fridgeItems.find(element => element.id == id)
     this.setState({
       modal: {
         visible: true, 
-        index: index, 
+        id: id, 
         expiration_date: obj?.expiration_date
       }
     })
   }
 
-  modalResult(index: number, action?: string, expiration_date?: Date | undefined) {
-    if (action === "wasted") this.itemWasted(index)
-    else if (action === "eaten") this.itemEaten(index)
-    else if (action === "edit") this.itemEditted(index, expiration_date)
+  modalResult(id: number, action?: string, expiration_date?: Date | undefined) {
+    if (action === "wasted") this.itemWasted(id)
+    else if (action === "eaten") this.itemEaten(id)
+    else if (action === "edit") this.itemEditted(id, expiration_date)
     else {
       this.setState({
         modal: {
           visible: false,
-          index: undefined,
+          id: undefined,
           expiration_date: undefined,
         }
       })
@@ -211,10 +211,9 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
   }
 
-  itemEditted(index: number, expiration_date: Date | undefined) {
-      console.log(expiration_date)
+  itemEditted(id: number, expiration_date: Date | undefined) {
       let momented = moment(expiration_date).add(1, 'day').format('YYYY-MM-DD')
-      return fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${index}`, {
+      return fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
         method: 'PATCH',
         headers: {
           Accept: 'application/json',
@@ -224,16 +223,15 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       })
         .then(response => response.json())
         .then(data => {
-          console.log(data)
-          let newFridge = this.state.formattedFridgeItems
-          newFridge[newFridge.findIndex(item => item.id === index)].expiration_date = expiration_date
+          let newFridge = this.state.fridgeItems
+          newFridge[newFridge.findIndex(item => item.id === id)].expiration_date = expiration_date
           this.setState({
             modal: {
               visible: false, 
-              index: undefined,
+              id: undefined,
               expiration_date: undefined
             },
-            formattedFridgeItems: newFridge
+            fridgeItems: newFridge
           })
           this.arrayholder = newFridge
         })
@@ -243,8 +241,11 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         
   }
 
-  async itemWasted(index: number) {
-    await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${index}`, {
+  async itemWasted(id: number) {
+    let find_food = this.state.fridgeItems.find((item) => item.id === id)
+    let food_group = (find_food) ? find_food.food.food_group.food_group_id : 0
+
+    await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
@@ -254,29 +255,43 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       .catch(error => {
         console.error(error);
       });
-
+    let body
+    if (food_group == 2) {
+      body = {
+        wasted_count: this.state.wasted_count + 1,
+        produce_wasted: this.state.produce_wasted + 1
+      }
+    } else if (food_group == 8) {
+      body = {
+        wasted_count: this.state.wasted_count + 1,
+        dairy_wasted: this.state.dairy_wasted + 1
+      }
+    } else if (food_group == 3) {
+      body = {
+        wasted_count: this.state.wasted_count + 1,
+        meat_wasted: this.state.meat_wasted + 1
+      }
+    }
     return await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
       method: 'PATCH',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        wasted_count: this.state.wasted_count + 1
-      })
+      body: JSON.stringify(body)
     })
       .then(response => response.json())
       .then(data => {
         this.setState({
           modal: {
             visible: false, 
-            index: undefined,
+            id: undefined,
             expiration_date: undefined
           },
-          formattedFridgeItems: this.state.formattedFridgeItems.filter(item => item.id !== index),
+          fridgeItems: this.state.fridgeItems.filter(item => item.id !== id),
           wasted_count: data.wasted_count
         })
-        this.arrayholder = this.state.formattedFridgeItems.filter(item => item.id !== index)
+        this.arrayholder = this.state.fridgeItems.filter(item => item.id !== id)
       })
       .catch(error => {
         console.error(error);
@@ -285,8 +300,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   }
 
-  async itemEaten(index: number) {
-    await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${index}`, {
+  async itemEaten(id: number) {
+    await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
@@ -312,13 +327,13 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         this.setState({
           modal: {
             visible: false, 
-            index: undefined,
+            id: undefined,
             expiration_date: undefined
           },
-          formattedFridgeItems: this.state.formattedFridgeItems.filter(item => item.id !== index),
+          fridgeItems: this.state.fridgeItems.filter(item => item.id !== id),
           eaten_count: data.eaten_count
         })
-        this.arrayholder = this.state.formattedFridgeItems.filter(item => item.id !== index)
+        this.arrayholder = this.state.fridgeItems.filter(item => item.id !== id)
       })
       .catch(error => {
         console.error(error);
@@ -354,9 +369,11 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         <ScrollView scrollEnabled={!this.state.swipingAction}>
           <FlatList
             scrollEnabled={!this.state.swipingAction}
-            data={this.state.formattedFridgeItems}
+            data={this.state.fridgeItems}
             renderItem={({ item }) => (
                 <FridgeItem
+                  selected={false}
+                  id={item.id}
                   item={item} 
                   modalUpdateFunc={this.modalUpdate}
                   swipeStart={this.OnSwipeNoScroll}

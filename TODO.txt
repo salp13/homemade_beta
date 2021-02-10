@@ -1,34 +1,36 @@
 Priority 1:
-connect full stack
-    - home screen
-    - home result screen
-    - search screen
-
-    - profile metrics
-    - profile saved recipes
+    specifiedItems query in HomeResultsScreen
 
 Priority 2:
-fridge item icon images and recipe images (backend and frontend)
-sort fridge items by days to expiration
-test unlisted_foods
-remove unlisted_foods from rendering with all foods searching
-persist shopping list reorder
-expiration date ordering for fridge items
-fix bugs
+    item icon images and recipe images (backend and frontend)
+    test unlisted_foods
+    persist shopping list reorder
 
 Priority 3:
-compatible for all iphone versions
-authorization / admin 
+    sort fridge items by days to expiration
+    remove 'unlisted_foods' from rendering with all foods searching
+    fix bugs
 
 Priority 4:
-clean up all code
-documentation
+    authorization / admin
+    compatible for all iphone versions
 
-Priority 5: 
-deployment
+Priority 5:
+    clean up all code
+    documentation
 
+Priority 6: 
+    deployment
 
-set up documentation
+Priority 7: 
+    conduct user testing on beta
+    alpha version 
+        restructure profile page to have metrics up top with fridge count 
+        toggle between Your Recipes and Saved Recipes
+        Create Recipe button and separate screen for adding recipe (public/private)
+        sorting algorithm for recipes (rating system)
+    conduct user testing on alpha
+
 
 in api: 
 python3 -m venv env
@@ -41,6 +43,16 @@ env LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip 
 pg_ctl -D /usr/local/var/postgres start
 python manage.py runserver
 
+in homemade_beta:
+psql homemade_db
+pg-start ?
+pg-stop ?
+
 in ui:
 npm install
 yarn start
+
+to stop:
+API: ^C then deactive 
+DB: pg-stop then \q 
+UI: ^C 

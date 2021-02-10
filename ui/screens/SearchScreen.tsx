@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, FlatList, Platform, TouchableWithoutFeedback, SectionList} from 'react-native';
+import { ActivityIndicator, StyleSheet, FlatList, Platform, TouchableWithoutFeedback, SectionList} from 'react-native';
 import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -7,19 +7,32 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 
 import { Text, View, SearchBar } from '../components/Themed';
-import dummyData from '../dummyData.json'
 import { SearchParamList } from '../types'
 import RecipeOverview from '../components/RecipeOverview'
 import FilterModal from '../components/FilterModal'
 
 type recipe = {
-  id: string
-  title: string
-  imageIndex: number
+  recipe_id: string
+  recipe_name: string
+  image: string
+  diets: Array<{
+    diet_id: number
+    diet: string
+  }>
+  cuisine: {
+    cuisine_id: number
+    cuisine: string
+  }
+  meal_type: {
+    meal_type_id: number
+    meal_type: string
+  }
+}
+
+type filterObject = {
+  mealType: Array<string>
   dietaryPreference: Array<string>
-  saved: boolean
-  cuisine: string
-  mealType: string
+  cuisine: Array<string>
 }
 
 interface Props {
@@ -28,18 +41,21 @@ interface Props {
 }
 
 interface State {
+  isLoading: boolean
   search: string
   recipes: Array<recipe>
-  filters: {
-    mealType: Array<string>,
-    dietaryPreference: Array<string>,
-    cuisine: Array<string>
-  }
+  dismissed: Set<string>
+  user_saved: Set<string>
+  filters: filterObject
   filterModalViewable: boolean
 }
 
+interface Arrayholder {
+  arrayholder: Array<any>
+}
 
-export default class FridgeScreen extends React.Component<Props, State> {
+export default class FridgeScreen extends React.Component<Props, State, Arrayholder> {
+  arrayholder: Array<any> = [];  
   private searchRef = React.createRef<SearchBarElement>();
   private searchBarProps = {
     placeholder: "Search for a recipe...",
@@ -56,8 +72,11 @@ export default class FridgeScreen extends React.Component<Props, State> {
     super(props);
     
     this.state = { 
+      isLoading: true,
       search: '',
       recipes: [],
+      dismissed: new Set(),
+      user_saved: new Set(),
       filters: {
         mealType: [],
         dietaryPreference: [],
@@ -65,6 +84,7 @@ export default class FridgeScreen extends React.Component<Props, State> {
       },
       filterModalViewable: false,
     };
+    this.arrayholder = [];
 
     this.OnChangeSearch = this.OnChangeSearch.bind(this)
     this.OnClearSearch = this.OnClearSearch.bind(this)
@@ -76,44 +96,59 @@ export default class FridgeScreen extends React.Component<Props, State> {
     this.modalVisibility = this.modalVisibility.bind(this)
   }
 
-  componentDidMount() {
-    const recipes = JSON.parse(JSON.stringify(dummyData.dummyRecipeOverviews)) 
-
-    this.setState({
-      recipes: recipes,
+  async componentDidMount() {
+    let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     })
-
-    // TODO: query for all recipe items
-  }
-
-
-  OnChangeSearch(text: string) {
-    let recipes = JSON.parse(JSON.stringify(dummyData.dummyRecipeOverviews)) 
-
-    if (text === '') {
-      this.setState({
-        recipes: recipes,
-        search: text
-      });
-      return
-    }
-
-    const lowerCaseText = text.toLowerCase()
-    const otherrecipes = recipes.filter((recipe) => {return recipe.title.toLowerCase().includes(lowerCaseText)}) 
-    
-    this.setState({
-      recipes: otherrecipes,
-      search: text
+    .then(response => response.json())
+    .then(data => { return data })
+    .catch(error => {
+      console.error(error);
     });
 
-    // TODO: query for all recipes that match search params
+    await fetch(`http://localhost:8000/homemade/many_saved_recipes/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      let saved_set = new Set<string>()
+      data.forEach((recipe) => {saved_set.add(recipe.recipe_id)})
+      this.arrayholder = recipe_data
+      this.setState({
+        isLoading: false,
+        recipes: recipe_data,
+        user_saved: saved_set,
+      });
+    })
+    .catch(error => {
+      console.error(error);
+    });
   }
 
-  OnClearSearch() {
-    let recipes = JSON.parse(JSON.stringify(dummyData.dummyRecipeOverviews)) 
-    
+  OnChangeSearch(text: string) {
+    const allRecipesSearched = this.arrayholder.filter(function(item: recipe) {
+      const itemData = item.recipe_name ? item.recipe_name.toUpperCase() : ''.toUpperCase();
+      const textData = text.toUpperCase();
+      return itemData.startsWith(textData);
+    });
+
     this.setState({
-      recipes: recipes,
+      recipes: allRecipesSearched,
+      search: text,
+    });
+  }
+
+  OnClearSearch() {    
+    this.setState({
+      recipes: this.arrayholder,
       search: '',
     });
   }
@@ -128,40 +163,82 @@ export default class FridgeScreen extends React.Component<Props, State> {
     }), 10)
   }
 
-  filterModalResults(filters: any) {
-    this.setState({
+  async filterModalResults(filters: any) {
+    await this.setState({
       filterModalViewable: false,
       filters: filters
     })
+    let url = `http://localhost:8000/homemade/many_recipes`
+    let query_string = "?"
 
-    // TODO: apply filters on recipes
+    this.state.filters.mealType.forEach((type) => query_string = query_string.concat(`&meal_type=${type}`))
+    this.state.filters.dietaryPreference.forEach((type) => query_string = query_string.concat(`&dietaryPreference=${type}`))
+    this.state.filters.cuisine.forEach((type) => query_string = query_string.concat(`&cuisine=${type}`))
+    if (query_string !== "?") url = url + query_string
+
+    await fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      this.arrayholder = data
+      this.setState({
+        isLoading: false,
+        recipes: data,
+      });
+    })
+    .catch(error => {
+      console.error(error);
+    });
   }
 
   navigateRecipe(recipeId: string) {
-    console.log(`navigate to recipe with id ${recipeId}`)
+    this.props.navigation.navigate('IndividualRecipeScreen', {recipe_id: recipe_id})
   }
 
-  saveRecipe(recipeId: string) {
-    const replaceRecipes = this.state.recipes
-    const recipeIndex = replaceRecipes.findIndex((recipe) => {return recipe.id === recipeId})
-    if (recipeIndex !== -1) {
-      replaceRecipes[recipeIndex].saved = !this.state.recipes[recipeIndex].saved
-    }
-    this.setState({
-      recipes: replaceRecipes
-    })
+  async saveRecipe(recipeId: string) {
+    if (this.state.user_saved.has(recipeId)) {
+      await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipeId}`, {
+        method: 'DELETE',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+        .catch(error => {
+          console.error(error);
+        });
 
-    // TODO: post recipe to user's saved
+      let assign_saved = this.state.user_saved
+      assign_saved.delete(recipeId)
+      this.setState({
+        user_saved: assign_saved
+      })
+    } else {
+      await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipeId}`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+        .catch(error => {
+          console.error(error);
+        });
+
+      this.setState({
+        user_saved: this.state.user_saved.add(recipeId)
+      })
+    }
   }
 
   dismissRecipe(recipeId: string) {
-    const replaceRecipes = this.state.recipes
-    const recipeIndex = replaceRecipes.findIndex((recipe) => {return recipe.id === recipeId})
-    if (recipeIndex !== -1) {
-      replaceRecipes.splice(recipeIndex, 1)
-    }
     this.setState({
-      recipes: replaceRecipes
+      dismissed: this.state.dismissed.add(recipeId)
     })
   }
 
@@ -173,6 +250,13 @@ export default class FridgeScreen extends React.Component<Props, State> {
 
 
   render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={{ flex: 1, paddingTop: 20 }}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
     return (
       <View style={styles.container}>
         <View style={{flexDirection: 'row'}}>
@@ -210,20 +294,17 @@ export default class FridgeScreen extends React.Component<Props, State> {
           keyboardShouldPersistTaps='always'
           horizontal={false}
           numColumns={2}
-          data={this.state.recipes} 
+          data={this.state.recipes.filter((recipe) => {return !this.state.dismissed.has(recipe.recipe_id)})} 
           renderItem={({item}) => (
             <RecipeOverview 
-              id={item.id}
-              title={item.title}
-              imageIndex={item.imageIndex}
-              dietaryPreferences={item.dietaryPreference}
-              saved={item.saved}
+              recipe={item}
+              saved={(this.state.user_saved.has(item.recipe_id)) ? true : false}
               onPressNavigate={this.navigateRecipe}
               saveRecipe={this.saveRecipe}
               dismissRecipe={this.dismissRecipe}
             />
           )}
-          keyExtractor={(item, index) => item.id}
+          keyExtractor={(item, index) => item.recipe_id}
         />        
         <FilterModal 
           modalVisible={this.state.filterModalViewable} 
@@ -270,18 +351,3 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 });
-
-
-/*
-  FE-TODO
-    DESIGN
-      - filter display
-    
-  BE-TODO
-    REQUESTS
-      - GET: all recipes
-      - GET: all recipes that match search params
-
-  FS-TODO
-    - decide how to load many recipes (backend vs frontend)
-*/

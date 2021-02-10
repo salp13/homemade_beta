@@ -13,7 +13,7 @@ type foodItem = {
   food_name: string
   default_days_to_exp: number | undefined
   food_group: {
-    food_group_id: number
+    food_group_id: string
     image: string
   }
 }
@@ -27,6 +27,7 @@ interface State {
   isLoading: boolean
   trigger: boolean
   search: string
+  total_items: number
   allFood: Array<foodItem>
   fridgeItems: Array<any>
 }
@@ -51,6 +52,7 @@ export default class FridgeScreen extends React.Component<Props, State> {
       isLoading: true, 
       trigger: false,
       search: '',
+      total_items: 0,
       allFood: [],
       fridgeItems: []
     };
@@ -59,10 +61,10 @@ export default class FridgeScreen extends React.Component<Props, State> {
     this.OnClearSearch = this.OnClearSearch.bind(this)
     this.OnPressSearch = this.OnPressSearch.bind(this)
     this.OnCancel = this.OnCancel.bind(this)
-
   }
-  componentDidMount() {
-    return fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+
+  async componentDidMount() {
+    let fridgeData = await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -70,17 +72,29 @@ export default class FridgeScreen extends React.Component<Props, State> {
       },
     })
       .then(response => response.json())
-      .then(data => {
-        this.setState(
-          {
-            isLoading: false,
-            fridgeItems: data,
-          }
-        );
-      })
+      .then(data => { return data })
       .catch(error => {
         console.error(error);
       });
+
+     await fetch('http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => response.json())
+        .then(data => {
+          this.setState({
+            isLoading: false,
+            fridgeItems: fridgeData,
+            total_items: data.total_items,
+          })
+        })
+        .catch(error => {
+          console.error(error);
+        });
   }
 
 
@@ -130,10 +144,32 @@ export default class FridgeScreen extends React.Component<Props, State> {
         'Content-Type': 'application/json',
       },
       body: body
-    })
+      })
       .catch(error => {
         console.error(error);
       });
+    
+    await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+      method: 'PATCH',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        total_items: this.state.total_items + 1,
+        eaten_count: 0, wasted_count: 0,
+      })
+      })
+      .then(response => response.json())
+      .then(data => {
+        this.setState({
+          total_items: data.total_items
+        })
+      })
+      .catch(error => {
+        console.error(error);
+      });
+
       
     this.setState({
       trigger: !this.state.trigger

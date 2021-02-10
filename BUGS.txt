@@ -1,10 +1,4 @@
 AddFridgeItemScreen: lag on updating search text due to querying database -- use arrayholder, only list first x amount
-FridgeScreen: Issues if unlisted_food -- compare to food_name always instead of maybe unlisted_food
-ShoppingListScreen: type in search bar, erase, cancel still shows, add something, return back to screen and cancel button is still visible (general: navigation to add, functionality of search bar)
 FridgeScreen: once item is added it doesn't automatically render on fridge screen
 ShoppingListScreen: adding an item from shopping list to fridge can cause duplicates in fridge -- check this before adding to database? or allow it? 
-
-
-
-Major Issues:
 persistent / not persistent states between adding items to fridge or shopping list

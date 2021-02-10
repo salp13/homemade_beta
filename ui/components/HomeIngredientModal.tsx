@@ -10,14 +10,14 @@ import { Text, View } from './Themed'
 interface Props {
   modalProperties: {
     modalVisible: boolean,
-    index: number | undefined,
+    id: number | string | undefined,
   },
   ModalResultFunc: Function
 }
 
 interface State {
   modalVisible: boolean
-  index: number | undefined
+  index: number | string | undefined
 }
 
 export default class HomeIngredientModal extends React.Component<Props, State> {
@@ -26,7 +26,7 @@ export default class HomeIngredientModal extends React.Component<Props, State> {
     super(props)
     this.state = {
       modalVisible: this.props.modalProperties.modalVisible,
-      index: this.props.modalProperties.index
+      index: this.props.modalProperties.id
     }
     this.modalRemove = this.modalRemove.bind(this)
     this.modalCancel = this.modalCancel.bind(this)
@@ -36,7 +36,7 @@ export default class HomeIngredientModal extends React.Component<Props, State> {
     if (this.props.modalProperties.modalVisible !== this.state.modalVisible) {
       this.setState({
         modalVisible: this.props.modalProperties.modalVisible,
-        index: this.props.modalProperties.index
+        index: this.props.modalProperties.id
       })
     }
   }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, SectionList, TouchableWithoutFeedback, FlatList } from 'react-native';
+import { ActivityIndicator, StyleSheet, SectionList, TouchableWithoutFeedback, FlatList } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import { Ionicons } from '@expo/vector-icons';
 // import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -9,17 +9,45 @@ import { RouteProp } from '@react-navigation/native';
 import { Text, View } from '../components/Themed';
 import RecipeOverview from '../components/RecipeOverview'
 import FilterModal from '../components/FilterModal'
-import dummyData from "../dummyData.json";
 import { HomeParamList } from '../types';
 
 type recipe = {
-  id: string
-  title: string
-  imageIndex: number
+  recipe_id: string
+  recipe_name: string
+  image: string
+  diets: Array<{
+    diet_id: number
+    diet: string
+  }>
+  cuisine: {
+    cuisine_id: number
+    cuisine: string
+  }
+  meal_type: {
+    meal_type_id: number
+    meal_type: string
+  }
+}
+
+type fridgeItem = {
+  id: number
+  user: string
+  food: {
+    food_id: string
+    food_name: string
+    food_group: {
+      food_group_id: string
+      image: string | undefined
+    }
+  }
+  unlisted_food: string | undefined
+  expiration_date: Date | undefined
+}
+
+type filterObject = {
+  mealType: Array<string>
   dietaryPreference: Array<string>
-  saved: boolean
-  cuisine: string
-  mealType: string
+  cuisine: Array<string>
 }
 
 interface Props {
@@ -28,13 +56,12 @@ interface Props {
 }
 
 interface State {
-  specifiedItems: Array<any>
+  isLoading: boolean
+  specifiedItems: Array<fridgeItem>
   recipes: Array<recipe>
-  filters: {
-    mealType: Array<string>,
-    dietaryPreference: Array<string>,
-    cuisine: Array<string>
-  }
+  dismissed: Set<string>
+  user_saved: Set<string>
+  filters: filterObject
   filterModalViewable: boolean
 }
 
@@ -43,8 +70,11 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     super(props);
     const specifiedItems = JSON.parse(JSON.stringify(this.props.route.params.specifiedItems))
     this.state = { 
+      isLoading: true,
       specifiedItems: specifiedItems,
       recipes: [],
+      dismissed: new Set(),
+      user_saved: new Set(),
       filters: {
         mealType: [],
         dietaryPreference: [],
@@ -61,12 +91,41 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     this.modalVisibility = this.modalVisibility.bind(this)
   }
 
-  componentDidMount() {
-    this.setState({
-      recipes: dummyData.dummyRecipeOverviews,
+  async componentDidMount() {
+    // TODO: get all recipes with specifiedItems
+    let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     })
+    .then(response => response.json())
+    .then(data => { return data })
+    .catch(error => {
+      console.error(error);
+    });
 
-    // get all recipes with specifiedItems
+    await fetch(`http://localhost:8000/homemade/many_saved_recipes/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      let saved_set = new Set<string>()
+      data.forEach((recipe) => {saved_set.add(recipe.recipe_id)})
+      this.setState({
+        isLoading: false,
+        recipes: recipe_data,
+        user_saved: saved_set,
+      });
+    })
+    .catch(error => {
+      console.error(error);
+    });
   }
 
   onPressFilter() {
@@ -79,38 +138,82 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     }), 10)
   }
 
-  filterModalResults(filters: any) {
-    this.setState({
+  async filterModalResults(filters: filterObject) {
+    await this.setState({
       filterModalViewable: false,
       filters: filters
     })
+    let url = `http://localhost:8000/homemade/many_recipes`
+    let query_string = "?"
 
-    // get all recipes with specifiedItems and filters
-  }
+    this.state.filters.mealType.forEach((type) => query_string = query_string.concat(`&meal_type=${type}`))
+    this.state.filters.dietaryPreference.forEach((type) => query_string = query_string.concat(`&dietaryPreference=${type}`))
+    this.state.filters.cuisine.forEach((type) => query_string = query_string.concat(`&cuisine=${type}`))
+    if (query_string !== "?") url = url + query_string
 
-  navigateRecipe(recipeId: string) {
-    console.log(`navigate to recipe with id ${recipeId}`)
-  }
-
-  saveRecipe(recipeId: string) {
-    const replaceRecipes = this.state.recipes
-    const recipeIndex = replaceRecipes.findIndex((recipe) => {return recipe.id === recipeId})
-    if (recipeIndex !== -1) {
-      replaceRecipes[recipeIndex].saved = !this.state.recipes[recipeIndex].saved
-    }
-    this.setState({
-      recipes: replaceRecipes
+    // TODO: get all recipes with specifiedItems
+    await fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     })
+    .then(response => response.json())
+    .then(data => {
+      this.setState({
+        isLoading: false,
+        recipes: data,
+      });
+    })
+    .catch(error => {
+      console.error(error);
+    });
+  }
+
+  navigateRecipe(recipe_id: string) {
+    this.props.navigation.navigate('IndividualRecipeScreen', {recipe_id: recipe_id})
+  }
+
+  async saveRecipe(recipeId: string) {
+    if (this.state.user_saved.has(recipeId)) {
+      await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipeId}`, {
+        method: 'DELETE',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+        .catch(error => {
+          console.error(error);
+        });
+
+      let assign_saved = this.state.user_saved
+      assign_saved.delete(recipeId)
+      this.setState({
+        user_saved: assign_saved
+      })
+    } else {
+      await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipeId}`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+        .catch(error => {
+          console.error(error);
+        });
+
+      this.setState({
+        user_saved: this.state.user_saved.add(recipeId)
+      })
+    }
   }
 
   dismissRecipe(recipeId: string) {
-    const replaceRecipes = this.state.recipes
-    const recipeIndex = replaceRecipes.findIndex((recipe) => {return recipe.id === recipeId})
-    if (recipeIndex !== -1) {
-      replaceRecipes.splice(recipeIndex, 1)
-    }
     this.setState({
-      recipes: replaceRecipes
+      dismissed: this.state.dismissed.add(recipeId)
     })
   }
 
@@ -121,6 +224,13 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={{ flex: 1, paddingTop: 20 }}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
     return (
       <View style={styles.container}>
         <View style={{flexDirection:'row', marginLeft: 5, marginRight: 25}}>
@@ -149,20 +259,17 @@ export default class HomeResultScreen extends React.Component<Props, State> {
         <FlatList
           horizontal={false}
           numColumns={2}
-          data={this.state.recipes} 
+          data={this.state.recipes.filter((recipe) => {return !this.state.dismissed.has(recipe.recipe_id)})} 
           renderItem={({item}) => (
             <RecipeOverview 
-            id={item.id}
-            title={item.title}
-            imageIndex={item.imageIndex}
-            dietaryPreferences={item.dietaryPreference}
-            saved={item.saved}
+            recipe={item}
+            saved={(this.state.user_saved.has(item.recipe_id)) ? true : false}
             onPressNavigate={this.navigateRecipe}
             saveRecipe={this.saveRecipe}
             dismissRecipe={this.dismissRecipe}
           />
           )}
-          keyExtractor={(item, index) => item.id}
+          keyExtractor={(item, index) => item.recipe_id}
         />        
         <FilterModal 
           modalVisible={this.state.filterModalViewable} 
@@ -185,16 +292,8 @@ const styles = StyleSheet.create({
   },
 });
 
-
-/*
-  FE-TODO
-    DESIGN
-      - filter display on top
-*/
-
 /*
   BE-TODO
     REQUESTS
       - GET: all recipes fitting ingredients specifications 
-      - GET: all recipes fitting filter specifications and ingredients specifications
 */

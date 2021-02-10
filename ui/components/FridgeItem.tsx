@@ -6,8 +6,25 @@ import Swipeable from 'react-native-swipeable';
 
 import { Text, View, Image } from './Themed';
 
+type fridgeItem = {
+  id: number
+  user: string
+  food: {
+    food_id: string
+    food_name: string
+    food_group: {
+      food_group_id: string
+      image: string | undefined
+    }
+  }
+  unlisted_food: string | undefined
+  expiration_date: Date | undefined
+}
+
 interface Props {
-  item: any
+  id: number | string
+  selected: boolean
+  item: fridgeItem
   modalUpdateFunc: Function
   swipeLeftFunc: Function
   swipeRightFunc: Function
@@ -16,8 +33,8 @@ interface Props {
 }
 
 interface State {
-  id: number
-  imageIndex: number
+  id: number | string
+  imageIndex: string | undefined
   food_name: string
   expiration_date: Date | undefined
   selected: boolean
@@ -36,22 +53,22 @@ export default class FridgeItem extends React.Component<Props, State> {
     super(props)
     
     this.state = {
-      id: this.props.item.id,
-      imageIndex: this.props.item.food.food_group.food_group_id,
+      id: this.props.id,
+      imageIndex: this.props.item.food.food_group.image,
       food_name: this.props.item.food.food_name,
       expiration_date: this.props.item.expiration_date,
-      selected: this.props.item.selected,
+      selected: this.props.selected,
     }
   }
 
   componentDidUpdate() {
     if (this.props.item.food.food_name !== this.state.food_name || this.props.item.expiration_date !== this.state.expiration_date) {
       this.setState({
-        id: this.props.item.id,
-        imageIndex: this.props.item.food.food_group.food_group_id,
+        id: this.props.id,
+        imageIndex: this.props.item.food.food_group.image,
         food_name: this.props.item.food.food_name,
         expiration_date: this.props.item.expiration_date,
-        selected: this.props.item.selected,
+        selected: this.props.selected,
       })
     }
   }
@@ -95,7 +112,8 @@ export default class FridgeItem extends React.Component<Props, State> {
       >
         <View style={styles.container}>
             <View style={this.state.selected ? styles.imageContainerBorder : styles.imageContainerNoBorder} >
-              <Image style={styles.image} source={this.state.imageIndex !== -1 ? images[this.state.imageIndex] : images[4]}/>
+              {/* <Image style={styles.image} source={this.state.imageIndex !== -1 ? images[this.state.imageIndex] : images[4]}/> */}
+              <Image style={styles.image} source={images[4]}/>
             </View>
             <Text style={styles.itemName}>{this.state.food_name + "\n"}
               <Text style={styles.secondary} lightColor="#ccc" darkColor="#ccc">{secondaryText}</Text>
@@ -173,10 +191,3 @@ const styles = StyleSheet.create({
     paddingLeft: 20
   },
 });
-
-
-/*
-  BE-TODO
-    REQUESTS
-    - GET: images to render from database
-*/
