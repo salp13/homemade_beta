@@ -45,7 +45,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   addFridge() {
-    this.props.ModalResultFunc(this.state.index, "addFridge")
+    this.props.ModalResultFunc(this.state.index, "addFridge", )
   }
 
   remove() {

@@ -185,9 +185,74 @@ url:
 send: {}  
 receive: {}  
 
-### many_shopping_list  
+### many_shopping_list
+**GET**  
+url: 
+- user_pk: UUID
+- query params: 
+    - value
+send: {}  
+receive:  
+- list:
+    - id: int
+    - user: UUID
+    - food: 
+        - food_id: UUID
+        - food_name: chars
+        - food_group:
+            - food_group_id: int
+            - image: image file
+    - unlisted_food: chars or null
+**POST**  
+url: 
+- user_pk: UUID
+send:  
+- food: UUID 
+- unlisted_food: chars (only include if unlisted_food)  
+receive:  
+- id: int
+- food: UUID
+- user: UUID
+- unlisted_food: chars or null
 
-### single_shopping_list  
+### single_shopping_list
+**GET**  
+url: 
+- user_pk: UUID
+- shopping_list_pk: int
+send: {}    
+receive:  
+- id: int
+- user: UUID
+- food: 
+    - food_id: UUID
+    - food_name: chars
+    - food_group:
+        - food_group_id: int
+        - image: image file
+- unlisted_food: chars or null
+**PATCH**  
+url: 
+- user_pk: UUID
+- shopping_list_pk: int
+send:  
+- ?
+receive:  
+- id: int
+- user: UUID
+- food: 
+    - food_id: UUID
+    - food_name: chars
+    - food_group:
+        - food_group_id: int
+        - image: image file
+- unlisted_food: chars or null
+**DELETE**  
+url: 
+- user_pk: UUID
+- shopping_list_pk: int
+send: {}  
+receive: {}
 
 ### many_saved_recipes
 

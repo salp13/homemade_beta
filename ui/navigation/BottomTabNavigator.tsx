@@ -183,6 +183,7 @@ function ShoppingListNavigator() {
         name="ShoppingListScreen"
         component={ShoppingListScreen}
         options={{ headerTitle: 'shopping list' }}
+        initialParams={{trigger: false}}
         />
       <ShoppingListStack.Screen
         name="AddShoppingListItemScreen"

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, FlatList, Platform, TouchableWithoutFeedback} from 'react-native';
+import { ActivityIndicator, StyleSheet, FlatList, Platform, TouchableWithoutFeedback} from 'react-native';
 import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -9,8 +9,13 @@ import dummyData from '../dummyData.json'
 import { ShoppingListParamList } from '../types'
 
 type foodItem = {
-  title: string,
-  id: string,
+  food_id: string
+  food_name: string
+  default_days_to_exp: number | undefined
+  food_group: {
+    food_group_id: number
+    image: string
+  }
 }
 
 interface Props {
@@ -19,6 +24,8 @@ interface Props {
 }
 
 interface State {
+  isLoading: boolean
+  trigger: boolean
   search: string
   allFood: Array<foodItem>
   shoppingListItems: Array<any>
@@ -41,6 +48,8 @@ export default class FridgeScreen extends React.Component<Props, State> {
     super(props);
     
     this.state = { 
+      isLoading: true,
+      trigger: false,
       search: '',
       allFood: [],
       shoppingListItems: []
@@ -53,40 +62,74 @@ export default class FridgeScreen extends React.Component<Props, State> {
 
   }
   componentDidMount() {
-    const shoppingListItems = JSON.parse(JSON.stringify(dummyData.dummyShoppingListItems)) 
-
-    this.setState({
-      shoppingListItems: shoppingListItems,
+    return fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     })
-
-    // TODO: query for all shopping list items
+      .then(response => response.json())
+      .then(data => {
+        this.setState({
+            isLoading: false,
+            shoppingListItems: data,
+          });
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
 
   OnChangeSearch(text: string) {
-    if (text === '') {
-      this.setState({
-        allFood: [],
-        search: text
-      });
-      return
-    }
+    // if (text === '') {
+    //   this.setState({
+    //     allFood: [],
+    //     search: text
+    //   });
+    // }
 
-    const lowerCaseText = text.toLowerCase()
-    let newFood = JSON.parse(JSON.stringify(dummyData.dummyAllFoods))
-    .filter((food) => {return food.title.includes(lowerCaseText)
-    }).filter((food) => {
-      return !this.state.shoppingListItems
-      .find((shoppingListItem) => {
-        return shoppingListItem.title === food.title})
-      })
+    // const lowerCaseText = text.toLowerCase()
+    // let newFood = JSON.parse(JSON.stringify(dummyData.dummyAllFoods))
+    // .filter((food) => {return food.title.includes(lowerCaseText)
+    // }).filter((food) => {
+    //   return !this.state.shoppingListItems
+    //   .find((shoppingListItem) => {
+    //     return shoppingListItem.title === food.title})
+    //   })
     
-    this.setState({
-      allFood: newFood,
-      search: text
-    });
+    // this.setState({
+    //   allFood: newFood,
+    //   search: text
+    // });
 
     // TODO: query for all foods that match search params
+    let lowercase = text.toLowerCase()
+    return fetch(`http://localhost:8000/homemade/many_foods?value=${lowercase}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        let filteredData = data.filter((food) => {
+          return !this.state.shoppingListItems
+          .find((shoppingListItem) => {
+            return shoppingListItem.food.food_name === food.food_name})
+          })
+        this.setState(
+          {
+            allFood: filteredData,
+            search: text
+          }
+        );
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
   OnClearSearch() {
@@ -96,20 +139,47 @@ export default class FridgeScreen extends React.Component<Props, State> {
     });
   }
 
-  OnPressSearch(id: string) {    
+  async OnPressSearch(id: string, food_name: string) {    
     console.log('add item to shopping list items in database')
 
     // TODO: post request to add food item to shopping list
-    if (this.searchRef.current?.cancel) this.searchRef.current.cancel()
+    let body
+    if (food_name === 'unlisted_food') body = JSON.stringify({food: id, unlisted_food: food_name})
+    else body = JSON.stringify({food: id})
+    await fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: body
+    })
+      .catch(error => {
+        console.error(error);
+      });
 
-    this.props.navigation.navigate('ShoppingListScreen')
+    if (this.searchRef.current?.cancel) this.searchRef.current.cancel()
+    this.setState({
+      trigger: !this.state.trigger
+    })
+    this.props.navigation.navigate('ShoppingListScreen', {trigger: this.state.trigger})
   }
 
   OnCancel() {
-    this.props.navigation.navigate("ShoppingListScreen")
+    this.setState({
+      trigger: !this.state.trigger
+    })
+    this.props.navigation.navigate("ShoppingListScreen", {trigger: this.state.trigger})
   }
 
   render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={{ flex: 1, paddingTop: 20 }}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
     return (
       <View style={styles.container}>
         <View>
@@ -127,8 +197,8 @@ export default class FridgeScreen extends React.Component<Props, State> {
           data={this.state.allFood}
           renderItem={({ item, index }) => (
             <View>
-              <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.id)}>
-                <Text style={styles.searchResultText}>{item.title}</Text>
+              <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.food_id, item.food_name)}>
+                <Text style={styles.searchResultText}>{item.food_name}</Text>
               </TouchableWithoutFeedback>
             </View>
           )}

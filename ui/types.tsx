@@ -49,7 +49,9 @@ export type FridgeParamList = {
 };
 
 export type ShoppingListParamList = {
-  ShoppingListScreen: undefined;
+  ShoppingListScreen: {
+    trigger: boolean
+  };
   AddShoppingListItemScreen: undefined
 };
 

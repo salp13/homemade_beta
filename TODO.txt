@@ -1,2 +1,46 @@
+Priority 1:
+connect full stack
+    - home screen
+    - home result screen
+    - search screen
+
+    - profile metrics
+    - profile saved recipes
+
+Priority 2:
 fridge item icon images and recipe images (backend and frontend)
 sort fridge items by days to expiration
+test unlisted_foods
+remove unlisted_foods from rendering with all foods searching
+persist shopping list reorder
+expiration date ordering for fridge items
+fix bugs
+
+Priority 3:
+compatible for all iphone versions
+authorization / admin 
+
+Priority 4:
+clean up all code
+documentation
+
+Priority 5: 
+deployment
+
+
+set up documentation
+
+in api: 
+python3 -m venv env
+source env/bin/activate
+pip install django
+pip install djangoframework
+pip install django-filter
+brew upgrade openssl
+env LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip install psycopg2
+pg_ctl -D /usr/local/var/postgres start
+python manage.py runserver
+
+in ui:
+npm install
+yarn start

@@ -120,8 +120,6 @@ export default class FridgeScreen extends React.Component<Props, State> {
   }
 
   async OnPressSearch(id: string, food_name: string) {    
-    console.log('add item to fridge items in database')
-
     let body
     if (food_name === 'unlisted_food') body = JSON.stringify({food: id, unlisted_food: food_name})
     else body = JSON.stringify({food: id})
@@ -140,7 +138,6 @@ export default class FridgeScreen extends React.Component<Props, State> {
     this.setState({
       trigger: !this.state.trigger
     })
-    console.log(this.state.trigger)
     this.props.navigation.navigate('FridgeScreen', {trigger: this.state.trigger})
   }
 
@@ -222,12 +219,3 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 });
-
-
-/*
-  BE-TODO
-    REQUESTS
-      - GET: all fridge items
-      - GET: all food items matching search params
-      - POST: add food item to fridge
-*/

@@ -33,6 +33,17 @@ class Shopping_List_Item_Serializer(ModelSerializer):
 		model = Shopping_List_Item
 		fields = '__all__'
 
+class Shopping_List_Item_D_Serializer(ModelSerializer):
+	class Meta:
+		model = Shopping_List_Item
+		fields = '__all__'
+
+class Shopping_List_Item_DN_Serializer(ModelSerializer):
+	food = Food_D_Serializer(read_only=True)
+	class Meta:
+		model = Shopping_List_Item
+		fields = '__all__'
+
 class User_POSTSerializer(ModelSerializer):
 	class Meta:
 		model = User
@@ -44,3 +55,5 @@ class User_GETSerializer(ModelSerializer):
 	class Meta:
 		model = User
 		fields = '__all__'
+
+# D = deep, S = shallow, N = nested?

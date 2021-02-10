@@ -34,7 +34,7 @@ urlpatterns = [
     path('homemade/many_fridge/<uuid:user_pk>', many_fridge),
     path('homemade/single_fridge/<uuid:user_pk>/<int:fridge_pk>', single_fridge),
     path('homemade/many_shopping_list/<uuid:user_pk>', many_shopping_list),
-    path('homemade/single_shopping_list/<uuid:user_pk>/<uuid:shopping_list_pk>', single_shopping_list),
+    path('homemade/single_shopping_list/<uuid:user_pk>/<int:shopping_list_pk>', single_shopping_list),
     path('homemade/many_saved_recipes/<uuid:user_pk>', many_saved_recipes),
     path('homemade/single_saved_recipe/<uuid:user_pk>/<uuid:recipe_pk>', single_saved_recipe),
 ]

@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import Fridge_Item_D_Serializer, Fridge_Item_DN_Serializer, Fridge_Item_SN_Serializer, Fridge_Item_DNSN_Serializer
-from .serializers import User_GETSerializer, User_POSTSerializer, Shopping_List_Item_Serializer
+from .serializers import User_GETSerializer, User_POSTSerializer, Shopping_List_Item_D_Serializer, Shopping_List_Item_DN_Serializer
 from .models import User, Fridge_Item, Shopping_List_Item
 from food.models import Food
 from recipes.serializers import RecipeOverview_GETSerializer
@@ -118,17 +118,22 @@ def single_fridge(request, user_pk, fridge_pk):
 @api_view(['get', 'post'])
 def many_shopping_list(request, user_pk):
     if request.method == 'GET':
+        # searching through shopping list 
         if request.query_params:
             listed_foods = Food.objects.filter(food_name__startswith=request.query_params.get('value')).value_list('food_name', flat=True)
             unlisted_foods = Shopping_List_Item.objects.filter(unlisted_foods__startswith=request.query_params.get('value')).value_list('unlisted_food', flat=True)
             foods = listed_foods.append(unlisted_foods)
             shopping_list = Shopping_List_Item.objects.filter(user=user_pk, food__in=foods)
         else:
+            # fetching entire shopping list
             shopping_list = Shopping_List_Item.objects.filter(user=user_pk)
-        shopping_list_serializer = Shopping_List_Item_Serializer(shopping_list, many=True)
+        shopping_list_serializer = Shopping_List_Item_DN_Serializer(shopping_list, many=True)
         return Response(shopping_list_serializer.data)
     elif request.method == 'POST':
-        shopping_list_serializer = Shopping_List_Item_Serializer(data=request.data, many=True)
+        # data given : food_id, user_id, food_name if unlisted
+        request.data['user'] = user_pk #if UI has access to it's user's pk then this is unnecessary 
+        print(request.data)
+        shopping_list_serializer = Shopping_List_Item_D_Serializer(data=request.data)
         if shopping_list_serializer.is_valid():
             shopping_list_serializer.save()
             return Response(shopping_list_serializer.data, status=status.HTTP_201_CREATED)
@@ -143,10 +148,10 @@ def single_shopping_list(request, user_pk, shopping_list_pk):
     except Shopping_List_Item.DoesNotExist:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'GET':
-        shopping_list_serializer = Shopping_List_Item_Serializer(shopping_list_item)
+        shopping_list_serializer = Shopping_List_Item_DN_Serializer(shopping_list_item)
         return Response(shopping_list_serializer.data)
     elif request.method == 'PATCH':
-        shopping_list_partial_serializer = Shopping_List_Item_Serializer(shopping_list_item, data=request.data, partial=True)
+        shopping_list_partial_serializer = Shopping_List_Item_DN_Serializer(shopping_list_item, data=request.data, partial=True)
         if shopping_list_partial_serializer.is_valid():
             shopping_list_partial_serializer.save()
             return Response(status=status.HTTP_204_NO_CONTENT)

@@ -414,12 +414,4 @@ const styles = StyleSheet.create({
         - swipe on items 
     DESIGN
       - modal 
-
-  BE-TODO
-    REQUESTS
-      - GET: all fridge items
-      - PUT: item's updated daysToExp
-      - DELETE: item in fridge from database
-      - PUT: count for wasted food item 
-      - PUT: count for eaten food item 
 */

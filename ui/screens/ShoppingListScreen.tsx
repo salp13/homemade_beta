@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Platform, TouchableWithoutFeedback, FlatList, ScrollView, Animated } from 'react-native';
+import { ActivityIndicator, StyleSheet, Platform, TouchableWithoutFeedback, FlatList, ScrollView, Animated } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { SearchBar as SearchBarElement } from 'react-native-elements'
@@ -11,18 +11,27 @@ import dummyData from "../dummyData.json";
 import { ShoppingListParamList } from '../types';
 import ShoppingListModal from '../components/ShoppingListModal'
 
-type food = {
-  id: string
-  title: string
-}
-
 interface Props {
   navigation: StackNavigationProp<ShoppingListParamList, 'ShoppingListScreen'>,
   route: RouteProp<ShoppingListParamList, 'ShoppingListScreen'>
 }
 
 interface State {
-  shoppingListItems: Array<food>
+  isLoading: boolean
+  trigger: boolean
+  shoppingListItems: Array<{
+    id: number
+    user: string
+    food: {
+      food_id: string
+      food_name: string
+      food_group: {
+        food_group_id: string
+        image: string | undefined
+      }
+    }
+    unlisted_food: string | undefined
+  }>
   search: string
   modal: {
     visible: boolean
@@ -54,6 +63,8 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     super(props);
 
     this.state = { 
+      isLoading: true,
+      trigger: false,
       shoppingListItems: [],
       search: '',
       modal: {
@@ -76,19 +87,55 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     this.stopReorder = this.stopReorder.bind(this)
   }
 
-  componentDidMount() {
-    const shoppingListDeepCopy = JSON.parse(JSON.stringify(dummyData.dummyShoppingListItems))
-    this.setState({
-      shoppingListItems: shoppingListDeepCopy,
+  async componentDidMount() {
+    await fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     })
-    this.arrayholder = shoppingListDeepCopy
-    
-    // get all items in shopping list 
+      .then(response => response.json())
+      .then(data => {
+        this.arrayholder = data
+        this.setState({
+          isLoading: false,
+          shoppingListItems: data,
+        })
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
+  componentDidUpdate() {
+    console.log(`in fridge ${this.props.route.params.trigger}`)
+    if (this.state.trigger !== this.props.route.params.trigger) {
+      console.log("updating")
+      return fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => response.json())
+        .then(data => {
+          this.arrayholder = data
+          this.setState({
+            shoppingListItems: data,
+            trigger: this.props.route.params.trigger,
+          })
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
   }
 
   SearchFilterFunction(text: string = '') {
     const filteredData = this.arrayholder.filter(function(item: any) {
-      const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
+      const itemData = item.food.food_name ? item.food.food_name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
       return itemData.indexOf(textData) > -1;
     });
@@ -99,17 +146,20 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     });
   }
 
-  modalUpdate(index: number | undefined) {
+  modalUpdate(id: number) {
     this.setState({
       modal: {
         visible: true, 
-        index: index, 
+        index: id, 
       }
     })
   }
 
   modalResult(index: number, action?: string) {
-    if (action === "addFridge") this.itemAddFridge(index)
+    if (action === "addFridge") {
+      let item = this.state.shoppingListItems.find(element => element.id == index)
+      if (item) this.itemAddFridge(index, item.food.food_name, item.food.food_id)
+    }
     else if (action === "remove") this.itemRemove(index)
     else if (action === "reorder") this.itemReorder()
     else {
@@ -150,26 +200,42 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     })
   }
 
-  itemRemove(index: number | undefined) {
-    const replaceShoppingListItems = this.state.shoppingListItems
-    if (!index) return
-    replaceShoppingListItems.splice(index, 1)
+  async itemRemove(id: number) {
     this.setState({
-      shoppingListItems: replaceShoppingListItems,
+      // shoppingListItems: replaceShoppingListItems,
       modal: {
         visible: false, 
         index: undefined,
       },
     })
     // TODO: delete item from shopping list in database
+    await fetch(`http://localhost:8000/homemade/single_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(data => {
+      this.setState({
+        modal: {
+          visible: false, 
+          index: undefined
+        },
+        shoppingListItems: this.state.shoppingListItems.filter(item => item.id !== id)
+      })
+      this.arrayholder = this.state.shoppingListItems.filter(item => item.id !== id)
+    })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
-  itemAddFridge(index: number | undefined) {
-    const replaceShoppingListItems = this.state.shoppingListItems
-    if (!index) return
-    replaceShoppingListItems.splice(index, 1)
+  async itemAddFridge(id: number, food_name: string, food_id: string) {
+    // const replaceShoppingListItems = this.state.shoppingListItems
+    // replaceShoppingListItems.splice(index, 1)
     this.setState({
-      shoppingListItems: replaceShoppingListItems,
+      // shoppingListItems: replaceShoppingListItems,
       modal: {
         visible: false, 
         index: undefined,
@@ -177,11 +243,53 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     })
 
     // TODO: delete item from shopping list in database
+    await fetch(`http://localhost:8000/homemade/single_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(data => {
+      this.setState({
+        modal: {
+          visible: false, 
+          index: undefined
+        },
+        shoppingListItems: this.state.shoppingListItems.filter(item => item.id !== id)
+      })
+      this.arrayholder = this.state.shoppingListItems.filter(item => item.id !== id)
+    })
+      .catch(error => {
+        console.error(error);
+      });
+
     // TODO: add item to fridge in database 
+    let body
+    if (food_name === 'unlisted_food') body = JSON.stringify({food: food_id, unlisted_food: food_name})
+    else body = JSON.stringify({food: food_id})
+    await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: body
+    })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
 
   render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={{ flex: 1, paddingTop: 20 }}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
     return (
       <View style={styles.container}>
         { this.state.draggable ? (
@@ -200,7 +308,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
                   <View>
                     <TouchableWithoutFeedback onLongPress={drag}>
                         <View style={{flexDirection: 'row', marginVertical: 15}}>
-                            <Text style={styles.itemName}>{item.title}</Text>
+                            <Text style={styles.itemName}>{item.food.food_name}</Text>
                             <View style={styles.menuIcon}>
                                 <Foundation name="list" size={25}/>
                             </View>
@@ -242,16 +350,17 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
                           rightActionActivationDistance={70}
                           rightContent={(<View style={[styles.rightSwipeItem, {backgroundColor: '#96FFAF'}]}></View>)}
                           leftContent={(<View style={[styles.leftSwipeItem, {backgroundColor: '#FF6A6A'}]}></View>)}
-                          onLeftActionComplete={() => this.itemRemove(index)}
-                          onRightActionComplete={() => this.itemAddFridge(index)}
+                          onLeftActionComplete={() => this.itemRemove(item.id)}
+                          onRightActionComplete={() => this.itemAddFridge(item.id, item.food.food_name, item.food.food_id)}
                           onSwipeStart={this.OnSwipeNoScroll}
                           onSwipeEnd={this.OnSwipeScroll}
                           >
                           <TouchableWithoutFeedback>
                               <View style={{flexDirection: 'row', marginVertical: 15}}>
-                                  <Text style={styles.itemName}>{item.title}</Text>
+                                {console.log(item)}
+                                  <Text style={styles.itemName}>{item.food.food_name}</Text>
                                   <View style={styles.menuIcon}>
-                                    <TouchableWithoutFeedback onPress={() => this.modalUpdate(index)}>
+                                    <TouchableWithoutFeedback onPress={() => this.modalUpdate(item.id)}>
                                       <MaterialCommunityIcons name="dots-horizontal" size={25}/>
                                     </TouchableWithoutFeedback>
                                   </View>
@@ -320,10 +429,4 @@ const styles = StyleSheet.create({
         - swipe on items 
     DESIGN
       - modal
-
-  BE-TODO
-    REQUESTS
-      - get all shopping list items
-      - delete item from shopping list in database
-      - add item to fridge in database
 */
