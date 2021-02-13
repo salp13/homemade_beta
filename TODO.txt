@@ -56,3 +56,10 @@ to stop:
 API: ^C then deactive 
 DB: pg-stop then \q 
 UI: ^C 
+
+
+Foods to Add: 
+    - tomato
+
+Diet to Remove: 
+    - sustainable

@@ -97,7 +97,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   async componentDidMount() {
-    let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes`, {
+    let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes/`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -168,11 +168,11 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       filterModalViewable: false,
       filters: filters
     })
-    let url = `http://localhost:8000/homemade/many_recipes`
+    let url = `http://localhost:8000/homemade/many_recipes/`
     let query_string = "?"
 
     this.state.filters.mealType.forEach((type) => query_string = query_string.concat(`&meal_type=${type}`))
-    this.state.filters.dietaryPreference.forEach((type) => query_string = query_string.concat(`&dietaryPreference=${type}`))
+    this.state.filters.dietaryPreference.forEach((type) => query_string = query_string.concat(`&dietary_preference=${type}`))
     this.state.filters.cuisine.forEach((type) => query_string = query_string.concat(`&cuisine=${type}`))
     if (query_string !== "?") url = url + query_string
 

@@ -20,7 +20,6 @@ def many_foods(request):
             try:
                 food_group = Food_Group.objects.get(food_group=ele['food_group'])
             except Food_Group.DoesNotExist:
-                print(ele)
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             food_group_serializer = Food_Group_Serializer(food_group)
             request.data[index]['food_group'] = food_group_serializer.data['food_group_id']

@@ -305,7 +305,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
         <Text style={styles.title}>Hello!</Text>
         <Text style={styles.title}>Which ingredients would you like to use today?</Text>
         <TouchableWithoutFeedback 
-          onPress={() => this.props.navigation.navigate('HomeResultScreen', {specifiedItems: this.state.ingredients})} 
+          onPress={() => this.props.navigation.navigate('HomeResultScreen', {specifiedItems: this.state.ingredients.map((ingredient) => {return ingredient.food.food_id})})} 
           disabled={this.state.ingredients.length < 1}
           >
           {this.state.ingredients.length < 1 ? 

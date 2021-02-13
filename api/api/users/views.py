@@ -133,7 +133,6 @@ def many_shopping_list(request, user_pk):
     elif request.method == 'POST':
         # data given : food_id, user_id, food_name if unlisted
         request.data['user'] = user_pk #if UI has access to it's user's pk then this is unnecessary 
-        print(request.data)
         shopping_list_serializer = Shopping_List_Item_D_Serializer(data=request.data)
         if shopping_list_serializer.is_valid():
             shopping_list_serializer.save()

@@ -92,20 +92,21 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    // TODO: get all recipes with specifiedItems
-    let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes`, {
-      method: 'GET',
+    let body = {"specifiedItems": this.state.specifiedItems}
+    let recipe_data = await fetch('http://localhost:8000/homemade/many_recipes/', {
+      method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify(body)
     })
     .then(response => response.json())
     .then(data => { return data })
-    .catch(error => {
-      console.error(error);
-    });
-
+      .catch(error => {
+        console.error(error);
+      });
+    
     await fetch(`http://localhost:8000/homemade/many_saved_recipes/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
       method: 'GET',
       headers: {
@@ -143,21 +144,22 @@ export default class HomeResultScreen extends React.Component<Props, State> {
       filterModalViewable: false,
       filters: filters
     })
-    let url = `http://localhost:8000/homemade/many_recipes`
+    let url = `http://localhost:8000/homemade/many_recipes/`
     let query_string = "?"
 
     this.state.filters.mealType.forEach((type) => query_string = query_string.concat(`&meal_type=${type}`))
-    this.state.filters.dietaryPreference.forEach((type) => query_string = query_string.concat(`&dietaryPreference=${type}`))
+    this.state.filters.dietaryPreference.forEach((type) => query_string = query_string.concat(`&dietary_preference=${type}`))
     this.state.filters.cuisine.forEach((type) => query_string = query_string.concat(`&cuisine=${type}`))
     if (query_string !== "?") url = url + query_string
 
-    // TODO: get all recipes with specifiedItems
+    let body = {"specifiedItems": this.state.specifiedItems}
     await fetch(url, {
-      method: 'GET',
+      method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify(body)
     })
     .then(response => response.json())
     .then(data => {
@@ -291,9 +293,3 @@ const styles = StyleSheet.create({
     paddingRight: 15,
   },
 });
-
-/*
-  BE-TODO
-    REQUESTS
-      - GET: all recipes fitting ingredients specifications 
-*/
