@@ -34,19 +34,11 @@ interface Props {
 
 interface State {
   id: number | string
-  imageIndex: string | undefined
+  image: string | undefined
   food_name: string
   expiration_date: Date | undefined
   selected: boolean
 }
-
-const images = [
-  require("./vegetable.png"),
-  require("./protein.png"),
-  require("./milk.png"),
-  require("./sauce.png"),
-  require("./corn.png"),
-]
 
 export default class FridgeItem extends React.Component<Props, State> {
   constructor(props:Props) {
@@ -54,7 +46,7 @@ export default class FridgeItem extends React.Component<Props, State> {
     
     this.state = {
       id: this.props.id,
-      imageIndex: this.props.item.food.food_group.image,
+      image: this.props.item.food.food_group.image,
       food_name: this.props.item.food.food_name,
       expiration_date: this.props.item.expiration_date,
       selected: this.props.selected,
@@ -65,7 +57,7 @@ export default class FridgeItem extends React.Component<Props, State> {
     if (this.props.item.food.food_name !== this.state.food_name || this.props.item.expiration_date !== this.state.expiration_date) {
       this.setState({
         id: this.props.id,
-        imageIndex: this.props.item.food.food_group.image,
+        image: this.props.item.food.food_group.image,
         food_name: this.props.item.food.food_name,
         expiration_date: this.props.item.expiration_date,
         selected: this.props.selected,
@@ -96,6 +88,8 @@ export default class FridgeItem extends React.Component<Props, State> {
       else secondaryText = `this expires in ${daysToExp} days`
     }
 
+    let loadimage = this.state.image ? `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}` : `corn.png`
+
     return (
       <Swipeable
         leftActionActivationDistance={70}
@@ -112,8 +106,7 @@ export default class FridgeItem extends React.Component<Props, State> {
       >
         <View style={styles.container}>
             <View style={this.state.selected ? styles.imageContainerBorder : styles.imageContainerNoBorder} >
-              {/* <Image style={styles.image} source={this.state.imageIndex !== -1 ? images[this.state.imageIndex] : images[4]}/> */}
-              <Image style={styles.image} source={images[4]}/>
+                <Image style={styles.image} source={{uri: loadimage}}/>
             </View>
             <Text style={styles.itemName}>{this.state.food_name + "\n"}
               <Text style={styles.secondary} lightColor="#ccc" darkColor="#ccc">{secondaryText}</Text>

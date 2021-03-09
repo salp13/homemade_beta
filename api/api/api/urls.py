@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from food.views import many_foods, single_food, admin_food_group
+from food.views import many_foods, single_food, admin_food_group, single_food_group
 from recipes.views import many_recipes, single_recipe, admin_post
 from users.views import many_users, single_user, metric_data, many_fridge, single_fridge, many_shopping_list, single_shopping_list, many_saved_recipes, single_saved_recipe
 
@@ -24,6 +24,7 @@ urlpatterns = [
     path('homemade/admin/', admin.site.urls),
     path('homemade/many_foods/', many_foods),
     path('homemade/single_food/<uuid:pk>', single_food),
+    path('homemade/single_food_group/<int:pk>', single_food_group),
     path('homemade/admin_food_group', admin_food_group),
     path('homemade/many_recipes/', many_recipes),
     path('homemade/single_recipe/<uuid:pk>', single_recipe),

@@ -25,7 +25,7 @@ class Meal_Type(models.Model):
 class Recipe(models.Model):
     recipe_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     recipe_name = models.CharField(max_length=128)
-    image = models.CharField(max_length=128, null=True)
+    image = models.ImageField(upload_to='recipes', null=True)
     description = models.TextField()
     instructions = models.TextField()
     diets = models.ManyToManyField(Diet)

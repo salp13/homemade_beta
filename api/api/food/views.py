@@ -69,3 +69,11 @@ def admin_food_group(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['get'])
+def single_food_group(request, pk):
+    if request.method=='GET':
+        food_group = Food_Group.objects.get(pk=pk)
+        serializer = Food_Group_Serializer(food_group)
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

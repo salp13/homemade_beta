@@ -54,15 +54,10 @@ interface State {
   isLoading: boolean
   toggle: boolean
   user_data: user_data
+  most_wasted_image: string
 }
 
-const images = [
-  require("../components/vegetable.png"),
-  require("../components/protein.png"),
-  require("../components/milk.png"),
-  require("../components/sauce.png"),
-  require("../components/corn.png"),
-]
+const image = require("../components/corn.png")
 
 export default class HomeScreen extends React.Component<Props, State> {
   
@@ -86,10 +81,12 @@ export default class HomeScreen extends React.Component<Props, State> {
         total_items: 0,
         shopping_list: [],
         fridge: []
-      }
+      },
+      most_wasted_image: ""
     }
 
     this.unsaveRecipe = this.unsaveRecipe.bind(this)
+    this.wastedFoodGroup = this.wastedFoodGroup.bind(this)
     this.navigateRecipe = this.navigateRecipe.bind(this)
     this.onPressSettings = this.onPressSettings.bind(this)
     this.toggle = this.toggle.bind(this)
@@ -97,7 +94,7 @@ export default class HomeScreen extends React.Component<Props, State> {
 
 
   async componentDidMount() {
-    await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+    const user_data = await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -106,9 +103,34 @@ export default class HomeScreen extends React.Component<Props, State> {
     })
     .then(response => response.json())
     .then(data => {
+      return data
+    })
+    .catch(error => {
+      console.error(error);
+    });
+
+    let id = 0
+    if (this.state.user_data.produce_wasted >= this.state.user_data.meat_wasted && this.state.user_data.produce_wasted >= this.state.user_data.dairy_wasted) {
+      id = 2
+    } else if (this.state.user_data.meat_wasted >= this.state.user_data.dairy_wasted && this.state.user_data.meat_wasted > this.state.user_data.produce_wasted) {
+      id = 3
+    } else {
+      id = 8
+    } 
+    await fetch(`http://localhost:8000/homemade/single_food_group/${id}`, {      
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
       this.setState({
         isLoading: false,
-        user_data: data,
+        user_data: user_data,
+        most_wasted_image: data.image
       });
     })
     .catch(error => {
@@ -133,6 +155,35 @@ export default class HomeScreen extends React.Component<Props, State> {
     assign_user_data.saved_recipes = assign_saved_recipes
     this.setState({
       user_data: assign_user_data,
+    });
+  }
+
+  wastedFoodGroup() {
+    let id = 0
+    if (this.state.user_data.produce_wasted >= this.state.user_data.meat_wasted && this.state.user_data.produce_wasted >= this.state.user_data.dairy_wasted) {
+      id = 2
+    } else if (this.state.user_data.meat_wasted >= this.state.user_data.dairy_wasted && this.state.user_data.meat_wasted > this.state.user_data.produce_wasted) {
+      id = 3
+    } else {
+      id = 8
+    } 
+
+    fetch(`http://localhost:8000/homemade/single_food_group/${id}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      this.setState({
+        isLoading: false,
+        user_data: data,
+      });
+    })
+    .catch(error => {
+      console.error(error);
     });
   }
 
@@ -170,6 +221,7 @@ export default class HomeScreen extends React.Component<Props, State> {
     let placehold = new Date(this.state.user_data.origin_account_date)
     let total_days = Math.ceil((currentDate.valueOf() - placehold.valueOf())/(24 * 60 * 60 * 1000))
     let avg_items = Math.round((this.state.user_data.total_items / total_days) * 100)
+
     return (
       <View style={styles.container}>
         <View style={{marginTop: 30, marginBottom: 50}}>
@@ -211,7 +263,7 @@ export default class HomeScreen extends React.Component<Props, State> {
               </View>
               <View style={{flexDirection: 'row'}}>
                 <View style={styles.imageContainer}>
-                  <Image style={styles.image} source={images[0]}/>
+                  <Image style={styles.image} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.most_wasted_image}`}}/>
                 </View>
                 <Text style={{marginTop: 40, marginLeft: 30, fontSize: 15}}>food group wasted the most often</Text>
               </View>
@@ -225,7 +277,7 @@ export default class HomeScreen extends React.Component<Props, State> {
                   <SavedRecipe 
                   recipe_id={item.recipe_id}
                   recipe_name={item.recipe_name}
-                  imageIndex={item.image}
+                  image={item.image}
                   dietaryPreferences={item.diets}
                   saved={true}
                   onPressNavigate={this.navigateRecipe}

@@ -9,7 +9,7 @@ import { FlatList, TouchableWithoutFeedback } from 'react-native-gesture-handler
 interface Props {
   recipe_id: string
   recipe_name: string
-  imageIndex: string
+  image: string
   dietaryPreferences: Array<{
     diet_id: number
     diet: string
@@ -22,23 +22,13 @@ interface Props {
 interface State {
   recipe_id: string
   recipe_name: string
-  imageIndex: string
+  image: string
   dietaryPreferences: Array<{
     diet_id: number
     diet: string
   }>
   saved: boolean
 }
-
-const images = [
-  require("./CurryGroundTurkey.jpg"),
-  require("./GroundTurkeyEmpanada.jpg"),
-  require("./GroundTurkeyPasta.jpeg"),
-  require("./GroundTurkeyPastaDinner.jpg"),
-  require("./GroundTurkeySloppyJoes.jpg"),
-  require("./GroundTurkeyStroganoff.jpg"),
-  require("./GroundTurkeyTacoZoodles.jpg")
-]
 
 export default class RecipeOverview extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -47,7 +37,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
     this.state = {
       recipe_id: this.props.recipe_id,
       recipe_name: this.props.recipe_name,
-      imageIndex: this.props.imageIndex,
+      image: this.props.image,
       dietaryPreferences: this.props.dietaryPreferences,
       saved: this.props.saved
     }
@@ -61,7 +51,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
       this.setState({
         recipe_id: this.props.recipe_id,
         recipe_name: this.props.recipe_name,
-        imageIndex: this.props.imageIndex,
+        image: this.props.image,
         dietaryPreferences: this.props.dietaryPreferences,
         saved: this.props.saved
       })
@@ -88,7 +78,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
           <View style={{flexDirection:'row'}}>
             <TouchableWithoutFeedback onPress={this.OnPressNavigate}>
                 <View style ={{flexDirection: 'row'}}>
-                    <Image style={styles.image} source={images[0]}/>
+                    <Image style={styles.image} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`}}/>
                     <View style={{marginLeft: 20, marginTop: 20}}>
                         <Text style={{fontWeight: 'bold', marginBottom: 4}}>{this.state.recipe_name}</Text>
                         <Text style={{marginBottom: 4}}>{dietaryPrefs}</Text>

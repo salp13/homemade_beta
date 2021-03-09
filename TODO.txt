@@ -1,21 +1,17 @@
-Priority 1:
-    specifiedItems query in HomeResultsScreen
-
-Priority 2:
-    item icon images and recipe images (backend and frontend)
+Priority 2: (2 hours)
     test unlisted_foods
     persist shopping list reorder
 
-Priority 3:
+Priority 3: (3 hours)
     sort fridge items by days to expiration
     remove 'unlisted_foods' from rendering with all foods searching
     fix bugs
 
-Priority 4:
+Priority 4: (1 day)
     authorization / admin
     compatible for all iphone versions
 
-Priority 5:
+Priority 5: (2 hours)
     clean up all code
     documentation
 
@@ -37,6 +33,7 @@ python3 -m venv env
 source env/bin/activate
 pip install django
 pip install djangoframework
+python -m pip install Pillow
 pip install django-filter
 brew upgrade openssl
 env LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip install psycopg2

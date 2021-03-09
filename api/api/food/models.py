@@ -6,7 +6,7 @@ from uuid import uuid4
 class Food_Group(models.Model):
     food_group_id = models.AutoField(primary_key=True)
     food_group = models.CharField(max_length=128)
-    image = models.CharField(max_length=128, null=True)
+    image = models.ImageField(upload_to='food_groups', null=True)
 
     class Meta:
         db_table = 'food_group'

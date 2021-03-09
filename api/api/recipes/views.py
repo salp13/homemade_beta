@@ -11,7 +11,6 @@ from food.serializers import Food_GETSerializer
 
 @api_view(['get', 'post', 'delete'])
 def many_recipes(request):
-    print(request.method)
     if request.method == 'GET':
         if request.query_params:
             all_meal_types = Meal_Type.objects.values_list('meal_type', flat=True)

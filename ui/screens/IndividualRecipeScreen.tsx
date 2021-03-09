@@ -59,16 +59,6 @@ interface State {
     saved: boolean
 }
 
-const images = [
-    require("../components/CurryGroundTurkey.jpg"),
-    require("../components/GroundTurkeyEmpanada.jpg"),
-    require("../components/GroundTurkeyPasta.jpeg"),
-    require("../components/GroundTurkeyPastaDinner.jpg"),
-    require("../components/GroundTurkeySloppyJoes.jpg"),
-    require("../components/GroundTurkeyStroganoff.jpg"),
-    require("../components/GroundTurkeyTacoZoodles.jpg")
-  ]
-
 export default class IndividualRecipeScreen extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
@@ -181,7 +171,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
               </TouchableWithoutFeedback>
           </View>
           
-          <Image style={styles.image} source={images[0]}/>
+          <Image style={styles.image} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.recipe.image}`}}/>
           <View style={{marginHorizontal: 20, flex: 1}}>
               <View style={{flexDirection: 'row', marginVertical: 10}}>
                   <Text style={{fontSize: 25, flex: 1, flexWrap: "wrap"}}>{this.state.recipe.recipe_name}</Text>

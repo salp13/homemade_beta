@@ -35,23 +35,13 @@ interface Props {
 interface State {
   recipe_id: string
   recipe_name: string
-  imageIndex: string
+  image: string
   dietaryPreferences: Array<{
     diet_id: number,
     diet: string
   }>
   saved: boolean
 }
-
-const images = [
-  require("./CurryGroundTurkey.jpg"),
-  require("./GroundTurkeyEmpanada.jpg"),
-  require("./GroundTurkeyPasta.jpeg"),
-  require("./GroundTurkeyPastaDinner.jpg"),
-  require("./GroundTurkeySloppyJoes.jpg"),
-  require("./GroundTurkeyStroganoff.jpg"),
-  require("./GroundTurkeyTacoZoodles.jpg")
-]
 
 export default class RecipeOverview extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -60,7 +50,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
     this.state = {
       recipe_id: this.props.recipe.recipe_id,
       recipe_name: this.props.recipe.recipe_name,
-      imageIndex: this.props.recipe.image,
+      image: this.props.recipe.image,
       dietaryPreferences: this.props.recipe.diets,
       saved: this.props.saved
     }
@@ -75,7 +65,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
       this.setState({
         recipe_id: this.props.recipe.recipe_id,
         recipe_name: this.props.recipe.recipe_name,
-        imageIndex: this.props.recipe.image,
+        image: this.props.recipe.image,
         dietaryPreferences: this.props.recipe.diets,
         saved: this.props.saved
       })
@@ -104,7 +94,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
     return (
       <View style={styles.container}>
         <TouchableWithoutFeedback onPress={this.OnPressNavigate}>
-          <Image style={styles.image} source={images[this.state.imageIndex]}/>
+          <Image style={styles.image} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`}}/>
           <View>
             <Text style={{fontWeight: 'bold', marginBottom: 4}}>{this.state.recipe_name}</Text>
             <Text style={{marginBottom: 4}}>{dietaryPrefs}</Text>
