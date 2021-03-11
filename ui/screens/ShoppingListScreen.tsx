@@ -13,6 +13,7 @@ import ShoppingListModal from '../components/ShoppingListModal'
 
 type shoppingListItem = {
   id: number
+  order_index: number
   user: string
   food: {
     food_id: string
@@ -99,6 +100,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     })
       .then(response => response.json())
       .then(data => {
+        data.sort((a,b) => (a.order_index > b.order_index) ? 1 : -1)
         this.arrayholder = data
         this.setState({
           isLoading: false,
@@ -121,6 +123,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
       })
         .then(response => response.json())
         .then(data => {
+          data.sort((a,b) => (a.order_index > b.order_index) ? 1 : -1)
           this.arrayholder = data
           this.setState({
             shoppingListItems: data,
@@ -195,18 +198,40 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   }
 
   stopReorder() {
-    this.setState({
-      draggable: false,
+    // iterate over this.state.shoppingListItems and assign order_index to the index in the array
+    let placeholderListItems = this.state.shoppingListItems.map((value, index) => {
+      value.order_index = index
+      return value
     })
+
+    fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(placeholderListItems)
+      })
+        .catch(error => {
+          console.error(error);
+        });
+
+      this.arrayholder = placeholderListItems
+      this.setState({
+        draggable: false,
+        shoppingListItems: placeholderListItems
+      })
   }
 
   async itemRemove(id: number) {
-    this.setState({
-      modal: {
-        visible: false, 
-        index: undefined,
-      },
+    let deleteIndex = this.state.shoppingListItems.findIndex((value) => value.id === id)
+    let placeholderListItems = this.state.shoppingListItems.map((value, index) => {
+      if (index > deleteIndex) {
+        value.order_index--
+      }
+      return value
     })
+
     await fetch(`http://localhost:8000/homemade/single_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
       method: 'DELETE',
       headers: {
@@ -214,53 +239,38 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
         'Content-Type': 'application/json',
       },
     })
-    .then(data => {
-      this.setState({
-        modal: {
-          visible: false, 
-          index: undefined
-        },
-        shoppingListItems: this.state.shoppingListItems.filter(item => item.id !== id)
-      })
-      this.arrayholder = this.state.shoppingListItems.filter(item => item.id !== id)
+      .catch(error => {
+        console.error(error);
+      });
+
+    placeholderListItems = placeholderListItems.filter(item => item.id !== id)
+
+    await fetch(`http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+      method: 'PATCH',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(placeholderListItems)
     })
       .catch(error => {
         console.error(error);
       });
+
+    this.setState({
+      modal: {
+        visible: false, 
+        index: undefined
+      },
+      shoppingListItems: placeholderListItems
+    })
+    this.arrayholder = placeholderListItems
   }
 
-  async itemAddFridge(id: number, food_name: string, food_id: string) {
-    this.setState({
-      modal: {
-        visible: false, 
-        index: undefined,
-      },
-    })
-
-    await fetch(`http://localhost:8000/homemade/single_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(data => {
-      this.setState({
-        modal: {
-          visible: false, 
-          index: undefined
-        },
-        shoppingListItems: this.state.shoppingListItems.filter(item => item.id !== id)
-      })
-      this.arrayholder = this.state.shoppingListItems.filter(item => item.id !== id)
-    })
-      .catch(error => {
-        console.error(error);
-      });
-
-    let body
-    if (food_name === 'unlisted_food') body = JSON.stringify({food: food_id, unlisted_food: food_name})
-    else body = JSON.stringify({food: food_id})
+  async itemAddFridge(id: number, unlisted_food: string | undefined, food_id: string) {
+    await this.itemRemove(id)
+    
+    let body = (unlisted_food) ? JSON.stringify({food: food_id, unlisted_food: unlisted_food}) : JSON.stringify({food: food_id})
     await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'POST',
       headers: {
@@ -301,7 +311,9 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
                   <View>
                     <TouchableWithoutFeedback onLongPress={drag}>
                         <View style={{flexDirection: 'row', marginVertical: 15}}>
-                            <Text style={styles.itemName}>{item.food.food_name}</Text>
+                          {item.unlisted_food ? 
+                          <Text style={styles.itemName}>{item.unlisted_food}</Text> : 
+                          <Text style={styles.itemName}>{item.food.food_name}</Text>}
                             <View style={styles.menuIcon}>
                                 <Foundation name="list" size={25}/>
                             </View>
@@ -344,13 +356,15 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
                           rightContent={(<View style={[styles.rightSwipeItem, {backgroundColor: '#96FFAF'}]}></View>)}
                           leftContent={(<View style={[styles.leftSwipeItem, {backgroundColor: '#FF6A6A'}]}></View>)}
                           onLeftActionComplete={() => this.itemRemove(item.id)}
-                          onRightActionComplete={() => this.itemAddFridge(item.id, item.food.food_name, item.food.food_id)}
+                          onRightActionComplete={() => this.itemAddFridge(item.id, item.unlisted_food, item.food.food_id)}
                           onSwipeStart={this.OnSwipeNoScroll}
                           onSwipeEnd={this.OnSwipeScroll}
                           >
                           <TouchableWithoutFeedback>
                               <View style={{flexDirection: 'row', marginVertical: 15}}>
-                                  <Text style={styles.itemName}>{item.food.food_name}</Text>
+                              {item.unlisted_food ? 
+                                <Text style={styles.itemName}>{item.unlisted_food}</Text> : 
+                                <Text style={styles.itemName}>{item.food.food_name}</Text>}
                                   <View style={styles.menuIcon}>
                                     <TouchableWithoutFeedback onPress={() => this.modalUpdate(item.id)}>
                                       <MaterialCommunityIcons name="dots-horizontal" size={25}/>
@@ -410,15 +424,3 @@ const styles = StyleSheet.create({
     paddingLeft: 20
   },
 });
-
-
-/*
-  FE-TODO
-    FUNCTIONALITY
-      - go to add item page should already have keyboard up and ready to search 
-      - searching through list should be able to:
-        - click on three dots and go to modal when keyboard was up
-        - swipe on items 
-    DESIGN
-      - modal
-*/

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, StyleSheet, FlatList, Platform, TouchableWithoutFeedback} from 'react-native';
+import { ActivityIndicator, StyleSheet, FlatList, Platform, TouchableWithoutFeedback, TextInputKeyPressEventData} from 'react-native';
 import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -31,7 +31,12 @@ interface State {
   shoppingListItems: Array<any>
 }
 
-export default class FridgeScreen extends React.Component<Props, State> {
+interface Arrayholder {
+  arrayholder: Array<any>
+}
+
+export default class FridgeScreen extends React.Component<Props, State, Arrayholder> {
+  arrayholder: Array<any> = [];
   private searchRef = React.createRef<SearchBarElement>();
   private searchBarProps = {
     placeholder: "Add item to fridge...",
@@ -54,15 +59,17 @@ export default class FridgeScreen extends React.Component<Props, State> {
       allFood: [],
       shoppingListItems: []
     };
+    this.arrayholder = []
 
     this.OnChangeSearch = this.OnChangeSearch.bind(this)
     this.OnClearSearch = this.OnClearSearch.bind(this)
     this.OnPressSearch = this.OnPressSearch.bind(this)
     this.OnCancel = this.OnCancel.bind(this)
+    this.OnSubmit = this.OnSubmit.bind(this)
 
   }
-  componentDidMount() {
-    return fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+  async componentDidMount() {
+    let shoppingListItemsData = await fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -70,11 +77,25 @@ export default class FridgeScreen extends React.Component<Props, State> {
       },
     })
       .then(response => response.json())
+      .then(data => { return data })
+      .catch(error => {
+        console.error(error);
+      });
+
+    await fetch(`http://localhost:8000/homemade/many_foods`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => response.json())
       .then(data => {
+        this.arrayholder = data.filter(item => item.food_name !== 'unlisted_food')
         this.setState({
-            isLoading: false,
-            shoppingListItems: data,
-          });
+          isLoading: false,
+          shoppingListItems: shoppingListItemsData
+        });
       })
       .catch(error => {
         console.error(error);
@@ -83,52 +104,16 @@ export default class FridgeScreen extends React.Component<Props, State> {
 
 
   OnChangeSearch(text: string) {
-    // if (text === '') {
-    //   this.setState({
-    //     allFood: [],
-    //     search: text
-    //   });
-    // }
+    const allFoodSearched = this.arrayholder.filter(function(item: foodItem) {
+      const itemData = item.food_name ? item.food_name.toUpperCase() : ''.toUpperCase();
+      const textData = text.toUpperCase();
+      return itemData.startsWith(textData);
+    });
 
-    // const lowerCaseText = text.toLowerCase()
-    // let newFood = JSON.parse(JSON.stringify(dummyData.dummyAllFoods))
-    // .filter((food) => {return food.title.includes(lowerCaseText)
-    // }).filter((food) => {
-    //   return !this.state.shoppingListItems
-    //   .find((shoppingListItem) => {
-    //     return shoppingListItem.title === food.title})
-    //   })
-    
-    // this.setState({
-    //   allFood: newFood,
-    //   search: text
-    // });
-
-    let lowercase = text.toLowerCase()
-    return fetch(`http://localhost:8000/homemade/many_foods?value=${lowercase}`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-      .then(response => response.json())
-      .then(data => {
-        let filteredData = data.filter((food) => {
-          return !this.state.shoppingListItems
-          .find((shoppingListItem) => {
-            return shoppingListItem.food.food_name === food.food_name})
-          })
-        this.setState(
-          {
-            allFood: filteredData,
-            search: text
-          }
-        );
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    this.setState({
+      allFood: allFoodSearched,
+      search: text,
+    });
   }
 
   OnClearSearch() {
@@ -139,9 +124,10 @@ export default class FridgeScreen extends React.Component<Props, State> {
   }
 
   async OnPressSearch(id: string, food_name: string) {    
-    let body
-    if (food_name === 'unlisted_food') body = JSON.stringify({food: id, unlisted_food: food_name})
-    else body = JSON.stringify({food: id})
+    let body = JSON.stringify({food: id})
+    if (food_name === "unlisted_food") {
+      body = JSON.stringify({food: id, unlisted_food: this.state.search})
+    } 
     await fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'POST',
       headers: {
@@ -168,6 +154,15 @@ export default class FridgeScreen extends React.Component<Props, State> {
     this.props.navigation.navigate("ShoppingListScreen", {trigger: this.state.trigger})
   }
 
+  async OnSubmit() {
+    let food_item = this.arrayholder.find(item => item.food_name.toUpperCase() === this.state.search.toUpperCase())
+    if (food_item) {
+      await this.OnPressSearch(food_item.food_id, food_item.food_name)
+    } else {
+      await this.OnPressSearch("0508cd76-8fec-4739-b996-c7001763c98f", "unlisted_food")
+    }
+  }
+
   render() {
     if (this.state.isLoading) {
       return (
@@ -183,6 +178,7 @@ export default class FridgeScreen extends React.Component<Props, State> {
             onChangeText={text => this.OnChangeSearch(text)}
             onClear={this.OnClearSearch}
             onCancel={this.OnCancel}
+            onSubmitEditing={this.OnSubmit}
             value={this.state.search}
             platform={Platform.OS === "android" || Platform.OS === "ios" ? Platform.OS : "default"}
             {...this.searchBarProps}

@@ -35,6 +35,7 @@ class Shopping_List_Item(models.Model):
     food = models.ForeignKey('food.Food', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     unlisted_food = models.CharField(max_length=128, null=True)
+    order_index = models.PositiveIntegerField(default=0)
 
     class Meta:
         db_table = 'shopping_list'

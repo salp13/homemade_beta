@@ -109,6 +109,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
       .then(response => response.json())
       .then(data => {
+        data.sort((a, b) => (!b.expiration_date) ? 1 : ((!a.expiration_date) ? -1 : (a.expiration_date > b.expiration_date) ? 1 : -1))
         this.arrayholder = data
         return data
       })
@@ -148,6 +149,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       })
         .then(response => response.json())
         .then(data => {
+          data.sort((a, b) => (!b.expiration_date) ? 1 : ((!a.expiration_date) ? -1 : (a.expiration_date > b.expiration_date) ? 1 : -1))
           this.arrayholder = data
           this.setState({
             fridgeItems: data,
@@ -184,10 +186,10 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
   }
 
-  modalResult(id: number, action?: string, expiration_date?: Date | undefined) {
+  async modalResult(id: number, action?: string, expiration_date?: Date | undefined) {
     if (action === "wasted") this.itemWasted(id)
     else if (action === "eaten") this.itemEaten(id)
-    else if (action === "edit") this.itemEditted(id, expiration_date)
+    else if (action === "edit") await this.itemEditted(id, expiration_date)
     else {
       this.setState({
         modal: {
@@ -211,33 +213,44 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
   }
 
-  itemEditted(id: number, expiration_date: Date | undefined) {
-      let momented = moment(expiration_date).add(1, 'day').format('YYYY-MM-DD')
-      return fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
-        method: 'PATCH',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ expiration_date: momented })
-      })
-        .then(response => response.json())
-        .then(data => {
-          let newFridge = this.state.fridgeItems
-          newFridge[newFridge.findIndex(item => item.id === id)].expiration_date = expiration_date
-          this.setState({
-            modal: {
-              visible: false, 
-              id: undefined,
-              expiration_date: undefined
-            },
-            fridgeItems: newFridge
-          })
-          this.arrayholder = newFridge
+  async itemEditted(id: number, expiration_date: Date | undefined) {
+    let momented = (!expiration_date) ? undefined : moment(expiration_date).add(1, 'day').format('YYYY-MM-DD')
+
+    await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
+      method: 'PATCH',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ expiration_date: momented })
+    })
+      .catch(error => {
+        console.error(error);
+      });
+
+      return fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        data.sort((a, b) => (!b.expiration_date) ? 1 : ((!a.expiration_date) ? -1 : (a.expiration_date > b.expiration_date) ? 1 : -1))
+        this.arrayholder = data
+        this.setState({
+          modal: {
+            visible: false, 
+            id: undefined,
+            expiration_date: undefined
+          },
+          fridgeItems: data
         })
-        .catch(error => {
-          console.error(error);
-        });
+      })
+      .catch(error => {
+        console.error(error);
+      });
         
   }
 
@@ -255,7 +268,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       .catch(error => {
         console.error(error);
       });
-    let body
+    
+      let body
     if (food_group == 2) {
       body = {
         wasted_count: this.state.wasted_count + 1,
@@ -419,16 +433,3 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 });
-
-
-
-/*
-  FE-TODO
-    FUNCTIONALITY
-      - go to add item page should already have keyboard up and ready to search 
-      - searching through list should be able to:
-        - click on three dots and go to modal when keyboard was up
-        - swipe on items 
-    DESIGN
-      - modal 
-*/

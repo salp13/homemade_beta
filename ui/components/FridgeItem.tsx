@@ -36,6 +36,7 @@ interface State {
   id: number | string
   image: string | undefined
   food_name: string
+  unlisted_food: string | undefined
   expiration_date: Date | undefined
   selected: boolean
 }
@@ -48,6 +49,7 @@ export default class FridgeItem extends React.Component<Props, State> {
       id: this.props.id,
       image: this.props.item.food.food_group.image,
       food_name: this.props.item.food.food_name,
+      unlisted_food: this.props.item.unlisted_food,
       expiration_date: this.props.item.expiration_date,
       selected: this.props.selected,
     }
@@ -59,6 +61,7 @@ export default class FridgeItem extends React.Component<Props, State> {
         id: this.props.id,
         image: this.props.item.food.food_group.image,
         food_name: this.props.item.food.food_name,
+        unlisted_food: this.props.item.unlisted_food,
         expiration_date: this.props.item.expiration_date,
         selected: this.props.selected,
       })
@@ -108,9 +111,15 @@ export default class FridgeItem extends React.Component<Props, State> {
             <View style={this.state.selected ? styles.imageContainerBorder : styles.imageContainerNoBorder} >
                 <Image style={styles.image} source={{uri: loadimage}}/>
             </View>
-            <Text style={styles.itemName}>{this.state.food_name + "\n"}
+            {this.state.unlisted_food ? 
+            <Text style={styles.itemName}>{this.state.unlisted_food + "\n"}
               <Text style={styles.secondary} lightColor="#ccc" darkColor="#ccc">{secondaryText}</Text>
-            </Text>
+            </Text> :
+            <Text style={styles.itemName}>{this.state.food_name + "\n"}
+            <Text style={styles.secondary} lightColor="#ccc" darkColor="#ccc">{secondaryText}</Text>
+          </Text>
+            }
+            
             <View style={styles.menuIcon}>
               <TouchableWithoutFeedback onPress={this.updateModalVisible}>
                 <MaterialCommunityIcons name="dots-horizontal" size={25}/>

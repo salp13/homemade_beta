@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Platform, TouchableWithoutFeedback} from 'react-native';
+import { StyleSheet, FlatList, ActivityIndicator, Platform, TouchableWithoutFeedback, TouchableHighlightBase} from 'react-native';
 import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 
 import { Text, View, SearchBar } from '../components/Themed';
-import dummyData from '../dummyData.json'
 import { FridgeParamList } from '../types'
 
 type foodItem = {
@@ -32,7 +31,12 @@ interface State {
   fridgeItems: Array<any>
 }
 
-export default class FridgeScreen extends React.Component<Props, State> {
+interface Arrayholder {
+  arrayholder: Array<any>
+}
+
+export default class FridgeScreen extends React.Component<Props, State, Arrayholder> {
+  arrayholder: Array<any> = [];
   private searchRef = React.createRef<SearchBarElement>();
   private searchBarProps = {
     placeholder: "Add item to fridge...",
@@ -56,11 +60,13 @@ export default class FridgeScreen extends React.Component<Props, State> {
       allFood: [],
       fridgeItems: []
     };
+    this.arrayholder = []
 
     this.OnChangeSearch = this.OnChangeSearch.bind(this)
     this.OnClearSearch = this.OnClearSearch.bind(this)
     this.OnPressSearch = this.OnPressSearch.bind(this)
     this.OnCancel = this.OnCancel.bind(this)
+    this.OnSubmit = this.OnSubmit.bind(this)
   }
 
   async componentDidMount() {
@@ -95,35 +101,35 @@ export default class FridgeScreen extends React.Component<Props, State> {
         .catch(error => {
           console.error(error);
         });
+    
+      await fetch(`http://localhost:8000/homemade/many_foods`, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          this.arrayholder = data.filter(item => item.food_name !== 'unlisted_food')
+        })
+        .catch(error => {
+          console.error(error);
+        });
   }
 
 
   OnChangeSearch(text: string) {
-    let lowercase = text.toLowerCase()
-    return fetch(`http://localhost:8000/homemade/many_foods?value=${lowercase}`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-      .then(response => response.json())
-      .then(data => {
-        let filteredData = data.filter((food) => {
-          return !this.state.fridgeItems
-          .find((fridgeItem) => {
-            return fridgeItem.food.food_name === food.food_name})
-          })
-        this.setState(
-          {
-            allFood: filteredData,
-            search: text
-          }
-        );
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    const allFoodSearched = this.arrayholder.filter(function(item: foodItem) {
+      const itemData = item.food_name ? item.food_name.toUpperCase() : ''.toUpperCase();
+      const textData = text.toUpperCase();
+      return itemData.startsWith(textData);
+    });
+
+    this.setState({
+      allFood: allFoodSearched,
+      search: text,
+    });
   }
 
   OnClearSearch() {
@@ -133,10 +139,8 @@ export default class FridgeScreen extends React.Component<Props, State> {
     });
   }
 
-  async OnPressSearch(id: string, food_name: string) {    
-    let body
-    if (food_name === 'unlisted_food') body = JSON.stringify({food: id, unlisted_food: food_name})
-    else body = JSON.stringify({food: id})
+  async OnPressSearch(id: string, food_name: string) {   
+    let body = (food_name === "unlisted_food") ? JSON.stringify({food: id, unlisted_food: this.state.search}) : JSON.stringify({food: id})
     await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'POST',
       headers: {
@@ -157,7 +161,8 @@ export default class FridgeScreen extends React.Component<Props, State> {
       },
       body: JSON.stringify({
         total_items: this.state.total_items + 1,
-        eaten_count: 0, wasted_count: 0,
+        eaten_count: 0, 
+        wasted_count: 0,
       })
       })
       .then(response => response.json())
@@ -169,7 +174,6 @@ export default class FridgeScreen extends React.Component<Props, State> {
       .catch(error => {
         console.error(error);
       });
-
       
     this.setState({
       trigger: !this.state.trigger
@@ -182,6 +186,15 @@ export default class FridgeScreen extends React.Component<Props, State> {
       trigger: !this.state.trigger
     })
     this.props.navigation.navigate("FridgeScreen", {trigger: this.state.trigger})
+  }
+
+  async OnSubmit() {
+    let food_item = this.arrayholder.find(item => item.food_name.toUpperCase() === this.state.search.toUpperCase())
+    if (food_item) {
+      await this.OnPressSearch(food_item.food_id, food_item.food_name)
+    } else {
+      await this.OnPressSearch("0508cd76-8fec-4739-b996-c7001763c98f", "unlisted_food")
+    }
   }
 
   render() {
@@ -199,6 +212,7 @@ export default class FridgeScreen extends React.Component<Props, State> {
             onChangeText={text => this.OnChangeSearch(text)}
             onClear={this.OnClearSearch}
             onCancel={this.OnCancel}
+            onSubmitEditing={this.OnSubmit}
             value={this.state.search}
             platform={Platform.OS === "android" || Platform.OS === "ios" ? Platform.OS : "default"}
             {...this.searchBarProps}
@@ -228,7 +242,6 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingLeft: 20,
     paddingRight:20,
-
   },
   title: {
     fontSize: 30,

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, ActivityIndicator, Platform, SectionList, FlatList, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-// import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -119,12 +118,14 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
   }
 
   async componentDidMount() {
-    const fridgeData = await fetch('http://127.0.0.1:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea')
+    let fridgeData = await fetch('http://127.0.0.1:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea')
       .then(response => response.json())
       .then(data => {return data})
       .catch(error => {
         console.error(error);
       });
+
+    fridgeData = fridgeData.filter(item => item.food.food_name !== 'unlisted_food')
 
     await fetch(`http://localhost:8000/homemade/many_foods`, {
       method: 'GET',
@@ -135,10 +136,10 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     })
     .then(response => response.json())
     .then(data => {
-      this.arrayholder = data
+      this.arrayholder = data.filter(item => item.food_name !== 'unlisted_food')
       this.setState({
         isLoading: false,
-        fridgeItems: fridgeData,
+        fridgeItems: fridgeData.sort((a, b) => (!b.expiration_date) ? 1 : ((!a.expiration_date) ? -1 : (a.expiration_date > b.expiration_date) ? 1 : -1)),
       });
     })
     .catch(error => {
@@ -252,7 +253,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     }
   }
 
-  FridgeToIngredient(food_id: string) {
+  FridgeToIngredient(food_id: string) { 
     const item = this.state.fridgeItems.find((fridgeItem) => {return fridgeItem.food.food_id === food_id})
     this.setState({
       not_viewable: this.state.not_viewable.add(food_id),
@@ -397,13 +398,3 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 });
-
-
-/*
-  FE-TODO
-    DESIGN
-    - change highlight border color
-    - make image background lighter
-    - make secondary text color darker
-    - modal options design (add icon and fix layout)
-*/

@@ -31,7 +31,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     const propValues = JSON.parse(JSON.stringify(this.props.modalProperties))
-    let daysDiff = Math.ceil((new Date(propValues.expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000))
+    let daysDiff = (propValues.expiration_date) ? Math.ceil((new Date(propValues.expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000)) : 0
     this.state = {
       visible: propValues.visible,
       id: propValues.id,
@@ -53,7 +53,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   componentDidUpdate() {
     if (this.props.modalProperties.visible !== this.state.visible) {
       const propValues = JSON.parse(JSON.stringify(this.props.modalProperties))
-      let daysDiff = Math.ceil((new Date(propValues.expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000))
+      let daysDiff = (propValues.expiration_date) ? Math.ceil((new Date(propValues.expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000)) : 0
       this.setState({
         visible: propValues.visible,
         id: propValues.id,
@@ -78,7 +78,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
 
   cancelEdit() {
     const expiration_date = JSON.parse(JSON.stringify(this.props.modalProperties.expiration_date))
-    let daysDiff = Math.ceil((new Date(expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000))
+    let daysDiff = (expiration_date) ? Math.ceil((new Date(expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000)) : 0
     this.setState({
       editting: false,
       expiration_date: expiration_date,
@@ -90,9 +90,13 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   editPlus() {
     let updateDays = JSON.parse(JSON.stringify(this.state.daysToExp))
     let exp_date = JSON.parse(JSON.stringify(this.state.expiration_date))
-    if (updateDays !== undefined) {
+    if (exp_date) {
       updateDays = updateDays + 1
       exp_date = new Date(new Date(exp_date).valueOf() + 1000*60*60*24)
+    } else {
+      updateDays = 1
+      exp_date = moment().add(1, 'days').format('YYYY-MM-DD')
+      console.log(exp_date)
     }
     this.setState({
       expiration_date: exp_date,
@@ -103,14 +107,14 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   editMinus() {
     let updateDays = JSON.parse(JSON.stringify(this.state.daysToExp))
     let exp_date = JSON.parse(JSON.stringify(this.state.expiration_date))
-    if (updateDays !== undefined) {
+    if (exp_date) {
       updateDays = updateDays - 1
       exp_date = new Date(new Date(exp_date).valueOf() - 1000*60*60*24)
-    }
-    this.setState({
-      expiration_date: exp_date,
-      daysToExp: updateDays
-    })
+      this.setState({
+        expiration_date: exp_date,
+        daysToExp: updateDays
+      })
+    } 
   }
 
 

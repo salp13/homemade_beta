@@ -1,24 +1,19 @@
-Priority 2: (2 hours)
-    test unlisted_foods
-    persist shopping list reorder
-
-Priority 3: (3 hours)
-    sort fridge items by days to expiration
-    remove 'unlisted_foods' from rendering with all foods searching
-    fix bugs
-
 Priority 4: (1 day)
-    authorization / admin
+    clean up all code
     compatible for all iphone versions
+    authorization / admin
 
 Priority 5: (2 hours)
-    clean up all code
     documentation
 
-Priority 6: 
+Priority 6: (3 hours)
     deployment
 
 Priority 7: 
+    fix issues in BUGS.txt
+    usability testing  
+
+Priority 8: 
     conduct user testing on beta
     alpha version 
         restructure profile page to have metrics up top with fridge count 

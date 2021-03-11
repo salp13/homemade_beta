@@ -348,14 +348,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#ccc"
   },
 });
-
-
-/*
-  FE-TODO
-    FUNCTIONALITY
-      - metric visuals
-
-  BE-TODO
-    REQUESTS
-      - GET: user data
-*/

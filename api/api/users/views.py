@@ -116,7 +116,7 @@ def single_fridge(request, user_pk, fridge_pk):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['get', 'post'])
+@api_view(['get', 'patch', 'post'])
 def many_shopping_list(request, user_pk):
     if request.method == 'GET':
         # searching through shopping list 
@@ -131,13 +131,27 @@ def many_shopping_list(request, user_pk):
         shopping_list_serializer = Shopping_List_Item_DN_Serializer(shopping_list, many=True)
         return Response(shopping_list_serializer.data)
     elif request.method == 'POST':
-        # data given : food_id, user_id, food_name if unlisted
         request.data['user'] = user_pk #if UI has access to it's user's pk then this is unnecessary 
         shopping_list_serializer = Shopping_List_Item_D_Serializer(data=request.data)
         if shopping_list_serializer.is_valid():
             shopping_list_serializer.save()
             return Response(shopping_list_serializer.data, status=status.HTTP_201_CREATED)
         return Response(shopping_list_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'PATCH':
+        arr_to_save = []
+        for ele in request.data:
+            try:
+                shopping_list_item = Shopping_List_Item.objects.get(pk=ele['id'])
+            except Shopping_List_Item.DoesNotExist:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            shopping_list_partial_serializer = Shopping_List_Item_DN_Serializer(shopping_list_item, data=ele, partial=True) # cannot do many=True -- loop over data? put them all? 
+            if shopping_list_partial_serializer.is_valid():
+                arr_to_save.append(shopping_list_partial_serializer)
+            else:
+                return Response(shopping_list_partial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        for ele in arr_to_save:
+            ele.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
