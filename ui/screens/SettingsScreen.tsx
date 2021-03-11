@@ -1,14 +1,10 @@
 import * as React from 'react';
-import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-// import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-
-import { Text, View } from '../components/Themed';
-import dummyData from "../dummyData.json";
 import { ProfileParamList } from '../types'
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { Text, View } from '../components/Themed';
 
 type SettingsScreenNavigationProp = StackNavigationProp<ProfileParamList, 'SettingsScreen'>;
 type SettingsScreenRouteProp = RouteProp<ProfileParamList, 'SettingsScreen'>;

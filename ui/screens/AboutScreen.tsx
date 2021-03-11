@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-
-import { Text, View } from '../components/Themed';
 import { ProfileParamList } from '../types'
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { StyleSheet } from 'react-native';
+import { Text, View } from '../components/Themed';
 
 type AboutScreenNavigationProp = StackNavigationProp<ProfileParamList, 'AboutScreen'>;
 type AboutScreenRouteProp = RouteProp<ProfileParamList, 'AboutScreen'>;

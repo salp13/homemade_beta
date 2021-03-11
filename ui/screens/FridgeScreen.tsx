@@ -1,30 +1,15 @@
 import * as React from 'react';
 import moment from 'moment';
-import { StyleSheet, FlatList, ActivityIndicator, Platform, ScrollView, TouchableWithoutFeedback} from 'react-native';
-import {SearchBar as SearchBarElement} from 'react-native-elements'
+import { ActivityIndicator, FlatList, Platform, ScrollView, StyleSheet, TouchableWithoutFeedback} from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-
-import { Text, View, SearchBar } from '../components/Themed';
 import FridgeItem from '../components/FridgeItem'
+import { fridgeItemType } from '../objectTypes'
 import FridgeModal from '../components/FridgeModal'
 import { FridgeParamList } from '../types'
-
-type fridgeItem = {
-  id: number
-  user: string
-  food: {
-    food_id: string
-    food_name: string
-    food_group: {
-      food_group_id: string
-      image: string | undefined
-    }
-  }
-  unlisted_food: string | undefined
-  expiration_date: Date | undefined
-}
+import { RouteProp } from '@react-navigation/native';
+import {SearchBar as SearchBarElement} from 'react-native-elements'
+import { SearchBar, View } from '../components/Themed';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 interface Props {
   navigation: StackNavigationProp<FridgeParamList, 'FridgeScreen'>,
@@ -40,7 +25,7 @@ interface State {
   produce_wasted: number
   dairy_wasted: number
   meat_wasted: number
-  fridgeItems: Array<fridgeItem>
+  fridgeItems: Array<fridgeItemType>
   modal: {
     visible: boolean
     id: number | undefined

@@ -1,21 +1,11 @@
 import * as React from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Platform, TouchableWithoutFeedback, TouchableHighlightBase} from 'react-native';
-import {SearchBar as SearchBarElement} from 'react-native-elements'
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-
-import { Text, View, SearchBar } from '../components/Themed';
+import { ActivityIndicator, FlatList, Platform, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { foodItemType } from '../objectTypes'
 import { FridgeParamList } from '../types'
-
-type foodItem = {
-  food_id: string
-  food_name: string
-  default_days_to_exp: number | undefined
-  food_group: {
-    food_group_id: string
-    image: string
-  }
-}
+import { RouteProp } from '@react-navigation/native';
+import {SearchBar as SearchBarElement} from 'react-native-elements'
+import { SearchBar, Text, View } from '../components/Themed';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 interface Props {
   navigation: StackNavigationProp<FridgeParamList, 'AddFridgeItemScreen'>,
@@ -27,7 +17,7 @@ interface State {
   trigger: boolean
   search: string
   total_items: number
-  allFood: Array<foodItem>
+  allFood: Array<foodItemType>
   fridgeItems: Array<any>
 }
 
@@ -120,7 +110,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
 
   OnChangeSearch(text: string) {
-    const allFoodSearched = this.arrayholder.filter(function(item: foodItem) {
+    const allFoodSearched = this.arrayholder.filter(function(item: foodItemType) {
       const itemData = item.food_name ? item.food_name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
       return itemData.startsWith(textData);

@@ -1,6 +1,3 @@
-import { StackNavigationProp } from '@react-navigation/stack';
-
-
 export type RootStackParamList = {
   Root: undefined;
   NotFound: undefined;

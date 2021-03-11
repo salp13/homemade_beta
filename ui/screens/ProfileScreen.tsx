@@ -1,50 +1,16 @@
 import * as React from 'react';
-import { ActivityIndicator, StyleSheet, FlatList } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-import Swiper from 'react-native-swiper'
-
-import { Text, View, Image } from '../components/Themed';
-import SavedRecipe from '../components/SavedRecipe'
+import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
+import { Image, Text, View } from '../components/Themed';
 import { ProfileParamList } from '../types'
-import dummyData from '../dummyData.json'
+import { RouteProp } from '@react-navigation/native';
+import SavedRecipe from '../components/SavedRecipe'
+import { StackNavigationProp } from '@react-navigation/stack';
+import Swiper from 'react-native-swiper'
+import { userDataType } from '../objectTypes'
 
 type ProfileScreenNavigationProp = StackNavigationProp<ProfileParamList, 'ProfileScreen'>;
 type ProfileScreenRouteProp = RouteProp<ProfileParamList, 'ProfileScreen'>;
 
-type recipe = {
-  recipe_id: string
-  recipe_name: string
-  image: string
-  diets: Array<{
-    diet_id: number
-    diet: string
-  }>
-  cuisine: {
-    cuisine_id: number
-    cuisine: string
-  }
-  meal_type: {
-    meal_type_id: number
-    meal_type: string
-  }
-}
-
-type user_data = {
-  user_id: string
-  saved_recipes: Array<recipe>
-  username: string
-  name: string
-  origin_account_date: string
-  waste_count: number
-  eaten_count: number
-  produce_wasted: number
-  meat_wasted: number
-  dairy_wasted: number
-  total_items: number
-  shopping_list: Array<string>
-  fridge: Array<string>
-}
 interface Props {
   navigation: ProfileScreenNavigationProp,
   route: ProfileScreenRouteProp
@@ -53,11 +19,9 @@ interface Props {
 interface State {
   isLoading: boolean
   toggle: boolean
-  user_data: user_data
+  user_data: userDataType
   most_wasted_image: string
 }
-
-const image = require("../components/corn.png")
 
 export default class HomeScreen extends React.Component<Props, State> {
   

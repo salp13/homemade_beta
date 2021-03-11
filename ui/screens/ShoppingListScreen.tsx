@@ -1,30 +1,15 @@
 import * as React from 'react';
-import { ActivityIndicator, StyleSheet, Platform, TouchableWithoutFeedback, FlatList, ScrollView, Animated } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { ActivityIndicator, Platform, FlatList, ScrollView, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { AntDesign, Foundation, MaterialCommunityIcons } from '@expo/vector-icons'
+import DraggableFlatList from 'react-native-draggable-flatlist'
 import { RouteProp } from '@react-navigation/native';
 import { SearchBar as SearchBarElement } from 'react-native-elements'
-import Swipeable from 'react-native-swipeable';
-import { MaterialCommunityIcons, AntDesign, Foundation } from '@expo/vector-icons'
-import DraggableFlatList from 'react-native-draggable-flatlist'
-import { Text, View, SearchBar } from '../components/Themed';
-import dummyData from "../dummyData.json";
-import { ShoppingListParamList } from '../types';
+import { SearchBar, Text, View } from '../components/Themed';
+import { shoppingListItemType } from '../objectTypes'
 import ShoppingListModal from '../components/ShoppingListModal'
-
-type shoppingListItem = {
-  id: number
-  order_index: number
-  user: string
-  food: {
-    food_id: string
-    food_name: string
-    food_group: {
-      food_group_id: string
-      image: string | undefined
-    }
-  }
-  unlisted_food: string | undefined
-}
+import { ShoppingListParamList } from '../types';
+import { StackNavigationProp } from '@react-navigation/stack';
+import Swipeable from 'react-native-swipeable';
 
 interface Props {
   navigation: StackNavigationProp<ShoppingListParamList, 'ShoppingListScreen'>,
@@ -36,7 +21,7 @@ interface State {
   trigger: boolean
   draggable: boolean
   swipingAction: boolean
-  shoppingListItems: Array<shoppingListItem>
+  shoppingListItems: Array<shoppingListItemType>
   search: string
   modal: {
     visible: boolean
@@ -283,7 +268,6 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
         console.error(error);
       });
   }
-
 
   render() {
     if (this.state.isLoading) {

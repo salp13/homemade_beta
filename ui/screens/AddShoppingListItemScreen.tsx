@@ -1,22 +1,11 @@
 import * as React from 'react';
-import { ActivityIndicator, StyleSheet, FlatList, Platform, TouchableWithoutFeedback, TextInputKeyPressEventData} from 'react-native';
-import {SearchBar as SearchBarElement} from 'react-native-elements'
-import { StackNavigationProp } from '@react-navigation/stack';
+import { ActivityIndicator, StyleSheet, FlatList, Platform, TouchableWithoutFeedback } from 'react-native';
+import { foodItemType } from '../objectTypes'
 import { RouteProp } from '@react-navigation/native';
-
-import { Text, View, SearchBar } from '../components/Themed';
-import dummyData from '../dummyData.json'
+import {SearchBar as SearchBarElement} from 'react-native-elements'
+import { SearchBar, Text, View } from '../components/Themed';
 import { ShoppingListParamList } from '../types'
-
-type foodItem = {
-  food_id: string
-  food_name: string
-  default_days_to_exp: number | undefined
-  food_group: {
-    food_group_id: string
-    image: string
-  }
-}
+import { StackNavigationProp } from '@react-navigation/stack';
 
 interface Props {
   navigation: StackNavigationProp<ShoppingListParamList, 'AddShoppingListItemScreen'>,
@@ -27,7 +16,7 @@ interface State {
   isLoading: boolean
   trigger: boolean
   search: string
-  allFood: Array<foodItem>
+  allFood: Array<foodItemType>
   shoppingListItems: Array<any>
 }
 
@@ -104,7 +93,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
 
   OnChangeSearch(text: string) {
-    const allFoodSearched = this.arrayholder.filter(function(item: foodItem) {
+    const allFoodSearched = this.arrayholder.filter(function(item: foodItemType) {
       const itemData = item.food_name ? item.food_name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
       return itemData.startsWith(textData);

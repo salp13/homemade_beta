@@ -1,44 +1,18 @@
 import * as React from 'react';
-import { StyleSheet, ActivityIndicator, Platform, SectionList, FlatList, TouchableWithoutFeedback } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-
-import { Text, View, SearchBar } from '../components/Themed';
+import { ActivityIndicator, FlatList, Platform, SectionList, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { foodItemType, fridgeItemType } from '../objectTypes'
 import FridgeItem from '../components/FridgeItem'
 import HomeFridgeModal from '../components/HomeFridgeModal'
 import HomeIngredientModal from '../components/HomeIngredientModal'
-import { SearchBar as SearchBarElement } from 'react-native-elements';
 import { HomeParamList } from '../types'
+import { Ionicons } from '@expo/vector-icons';
+import { RouteProp } from '@react-navigation/native';
+import { SearchBar as SearchBarElement } from 'react-native-elements';
+import { SearchBar, Text, View } from '../components/Themed';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 type HomeScreenNavigationProp = StackNavigationProp<HomeParamList, 'HomeScreen'>;
 type HomeScreenRouteProp = RouteProp<HomeParamList, 'HomeScreen'>;
-
-type foodItem = {
-  food_id: string
-  food_name: string
-  default_days_to_exp: number | undefined
-  food_group: {
-    food_group_id: string
-    image: string
-  }
-}
-
-type fridgeItem = {
-  id: number
-  user: string
-  food: {
-    food_id: string
-    food_name: string
-    food_group: {
-      food_group_id: string
-      image: string | undefined
-    }
-  }
-  unlisted_food: string | undefined
-  expiration_date: Date | undefined
-}
 
 interface Props {
   navigation: HomeScreenNavigationProp,
@@ -48,9 +22,9 @@ interface Props {
 interface State {
   isLoading: boolean
   search: string
-  allFood: Array<foodItem>
-  fridgeItems: Array<fridgeItem>
-  ingredients: Array<fridgeItem>
+  allFood: Array<foodItemType>
+  fridgeItems: Array<fridgeItemType>
+  ingredients: Array<fridgeItemType>
   not_viewable: Set<string>
   selected: Set<string>
   modalFridge: {
@@ -115,18 +89,23 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     this.FridgeToIngredient = this.FridgeToIngredient.bind(this)
     this.IngredientRemove = this.IngredientRemove.bind(this)
     this.FridgeDismiss = this.FridgeDismiss.bind(this)
+    this.SearchRender = this.SearchRender.bind(this)
+    this.FoodRender = this.FoodRender.bind(this)
   }
 
   async componentDidMount() {
+    // Load all items in user's fridge
     let fridgeData = await fetch('http://127.0.0.1:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea')
       .then(response => response.json())
       .then(data => {return data})
       .catch(error => {
         console.error(error);
       });
-
+    
+    // Filter out unlisted foods from user's fridge as they won't apply to existing recipes
     fridgeData = fridgeData.filter(item => item.food.food_name !== 'unlisted_food')
-
+    
+    // Load all foods and store in the arrayholder for search filtering
     await fetch(`http://localhost:8000/homemade/many_foods`, {
       method: 'GET',
       headers: {
@@ -148,10 +127,13 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
   }
 
   OnChangeSearch(text: string) {
-    const allFoodSearched = this.arrayholder.filter(function(item: foodItem) {
+    // Filter arrayholder for foods with search text and foods that are not already in ingredient list
+    const ingredients = this.state.ingredients
+    const allFoodSearched = this.arrayholder.filter(function(item: foodItemType) {
       const itemData = item.food_name ? item.food_name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
-      return itemData.startsWith(textData);
+      let found = ingredients.find((ingredient) => { return ingredient.food.food_id === item.food_id })
+      return itemData.startsWith(textData) && !found;
     });
 
     this.setState({
@@ -161,6 +143,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
   }
 
   OnClearSearch() {
+    // Reset search values
     this.setState({
       allFood: [],
       search: '',
@@ -168,8 +151,10 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
   }
 
   async OnPressSearch(food_id: string) {  
+    // Check if the searched item is already in the fridge
     let item_to_add = this.state.fridgeItems.find((fridgeItem) => {return fridgeItem.food.food_id === food_id})
     if (!item_to_add) {
+      // If item is not in fridge, load it from api
       let food_item = await fetch(`http://localhost:8000/homemade/single_food/${food_id}`, {
         method: 'GET',
         headers: {
@@ -183,90 +168,68 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
       item_to_add = {
         id: -1,
         user: "unowned_food_item",
-        food: {
-          food_id: food_id,
-          food_name: food_item.food_name,
-          food_group: {
-            food_group_id: food_item.food_group.food_group_id,
-            image: food_item.food_group.image,
-          }
-        },
+        food: food_item,
         unlisted_food: undefined,
         expiration_date: undefined,
       }
     }
+    // modify state to accomodate for added ingredient
     this.setState({
       allFood: [],
       search: '',
       not_viewable: this.state.not_viewable.add(food_id),
       selected: this.state.selected.add(food_id),
-      ingredients: (item_to_add) ? this.state.ingredients.concat([item_to_add]) : this.state.ingredients,
+      ingredients: this.state.ingredients.concat([item_to_add]),
     })
     if (this.searchRef.current?.cancel) this.searchRef.current.cancel()
   }
 
   OnSwipeNoScroll() {
-    this.setState({
-      swipingAction: true,
-    })
+    this.setState({ swipingAction: true })
   }
 
   OnSwipeScroll() {
-    this.setState({
-      swipingAction: false,
-    })
+    this.setState({ swipingAction: false })
   }
 
   modalUpdate(id: number, selected: boolean) {
-    if (selected) {
-      this.setState({
-        modalIngredient: {
-          modalVisible: true, 
-          id: id
-        }
-      })
-    } else {
-      this.setState({
-        modalFridge: {
-          modalVisible: true, 
-          id: id
-        }
-      })
+    // set state's modal information (differs when the item is an ingredient vs just in the fridge)
+    const object = { 
+      modalVisible: true,
+      id: id
     }
+    if (selected) this.setState({ modalIngredient: object })
+    else this.setState({ modalFridge: object })
   }
 
   modalResult(food_id: string, action?: string) {
+    this.setState({
+      modalFridge: {
+        modalVisible: false,
+        id: undefined
+      },
+      modalIngredient: {
+        modalVisible: false,
+        id: undefined
+      }
+    })
     if (action === "add") this.FridgeToIngredient(food_id)
     else if (action === "dismiss") this.FridgeDismiss(food_id)
     else if (action === "remove") this.IngredientRemove(food_id)
-    else {
-      this.setState({
-        modalFridge: {
-          modalVisible: false,
-          id: undefined
-        },
-        modalIngredient: {
-          modalVisible: false,
-          id: undefined
-        }
-      })
-    }
   }
 
   FridgeToIngredient(food_id: string) { 
-    const item = this.state.fridgeItems.find((fridgeItem) => {return fridgeItem.food.food_id === food_id})
+    // find the ingredient in the fridge and add it as an ingredient
+    const item = this.state.fridgeItems.find((fridgeItem) => { return fridgeItem.food.food_id === food_id })
     this.setState({
       not_viewable: this.state.not_viewable.add(food_id),
       selected: this.state.selected.add(food_id),
       ingredients: (item) ? this.state.ingredients.concat([item]) : this.state.ingredients,
-      modalFridge: {
-        modalVisible: false, 
-        id: undefined
-      },
     })
   }
 
   IngredientRemove(food_id: string) {
+    // remove ingredient from ingredients list
     const assign_not_viewable = this.state.not_viewable
     assign_not_viewable.delete(food_id)
     const assign_selected = this.state.selected
@@ -275,22 +238,39 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     this.setState({
       not_viewable: assign_not_viewable,
       selected: assign_selected,
-      ingredients: this.state.ingredients.filter((ingredient) => {return ingredient.food.food_id !== food_id}),
-      modalIngredient: {
-        modalVisible: false, 
-        id: undefined
-      }
+      ingredients: this.state.ingredients.filter((ingredient) => { return ingredient.food.food_id !== food_id }),
     })
   }
 
   FridgeDismiss(food_id: string) {
-    this.setState({
-      not_viewable: this.state.not_viewable.add(food_id),
-      modalFridge: {
-        modalVisible: false, 
-        id: undefined 
-      },
-    })
+    // dismiss a certain food 
+    this.setState({ not_viewable: this.state.not_viewable.add(food_id) })
+  }
+
+  SearchRender(item) {
+    // rendering for search items
+    return (
+      <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.food_id)}>
+        <Text style={styles.searchResultText}>{item.food_name}</Text>
+      </TouchableWithoutFeedback>
+    )
+  }
+
+  FoodRender(item, section) {
+    // rendering for sectionlist ingredient/fridge items
+    if (this.state.not_viewable.has(item.food.food_id) && section.title === "fridgeItems") return (<Text style={{marginTop: -20}}></Text>)
+    return (
+    <FridgeItem
+      selected={(section.title === "Ingredients") ? true : false}
+      id={item.food.food_id}
+      item={item} 
+      modalUpdateFunc={this.modalUpdate}
+      swipeStart={this.OnSwipeNoScroll}
+      swipeEnd={this.OnSwipeScroll}
+      swipeLeftFunc={this.state.selected.has(item.food.food_id) ? this.IngredientRemove : this.FridgeDismiss}
+      swipeRightFunc={this.state.selected.has(item.food.food_id) ? () => { return item } : this.FridgeToIngredient}
+    />
+  )
   }
 
   render() {
@@ -327,11 +307,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
         (<FlatList
           keyboardShouldPersistTaps='always'
           data={this.state.allFood}
-          renderItem={({item, index}) => (
-            <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.food_id)}>
-              <Text style={styles.searchResultText}>{item.food_name}</Text>
-            </TouchableWithoutFeedback>
-          )}
+          renderItem={({item, index}) => this.SearchRender(item)}
           keyExtractor={(item, index) => index.toString()}
         />) :
         (
@@ -339,20 +315,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
             scrollEnabled={!this.state.swipingAction}
             sections={[ {title: "Ingredients", data: this.state.ingredients}, 
               {title: "fridgeItems", data: this.state.fridgeItems} ]}
-            renderItem={({item, section, index}) => {
-              if (this.state.not_viewable.has(item.food.food_id) && section.title === "fridgeItems") return (<Text style={{marginTop: -20}}></Text>)
-              return (
-              <FridgeItem
-                selected={(section.title === "Ingredients") ? true : false}
-                id={item.food.food_id}
-                item={item} 
-                modalUpdateFunc={this.modalUpdate}
-                swipeStart={this.OnSwipeNoScroll}
-                swipeEnd={this.OnSwipeScroll}
-                swipeLeftFunc={this.state.selected.has(item.food.food_id) ? this.IngredientRemove : this.FridgeDismiss}
-                swipeRightFunc={this.state.selected.has(item.food.food_id) ? (index: number) => { return item } : this.FridgeToIngredient}
-              />
-            )}}
+            renderItem={({item, section, index}) => this.FoodRender(item, section)}
             renderSectionHeader={() => ( <View style={{marginTop: 10}}/> )}
             /> 
         )}

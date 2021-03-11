@@ -1,39 +1,14 @@
 import * as React from 'react';
 import { ActivityIndicator, StyleSheet, FlatList, Platform, TouchableWithoutFeedback, SectionList} from 'react-native';
-import {SearchBar as SearchBarElement} from 'react-native-elements'
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-import { MaterialIcons } from '@expo/vector-icons'; 
-
-
-import { Text, View, SearchBar } from '../components/Themed';
-import { SearchParamList } from '../types'
-import RecipeOverview from '../components/RecipeOverview'
 import FilterModal from '../components/FilterModal'
-
-type recipe = {
-  recipe_id: string
-  recipe_name: string
-  image: string
-  diets: Array<{
-    diet_id: number
-    diet: string
-  }>
-  cuisine: {
-    cuisine_id: number
-    cuisine: string
-  }
-  meal_type: {
-    meal_type_id: number
-    meal_type: string
-  }
-}
-
-type filterObject = {
-  mealType: Array<string>
-  dietaryPreference: Array<string>
-  cuisine: Array<string>
-}
+import { filterObjectType, recipeType } from '../objectTypes'
+import { MaterialIcons } from '@expo/vector-icons'; 
+import RecipeOverview from '../components/RecipeOverview'
+import { RouteProp } from '@react-navigation/native';
+import {SearchBar as SearchBarElement} from 'react-native-elements'
+import { SearchBar, Text, View } from '../components/Themed';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { SearchParamList } from '../types'
 
 interface Props {
   navigation: StackNavigationProp<SearchParamList, 'SearchScreen'>,
@@ -43,10 +18,10 @@ interface Props {
 interface State {
   isLoading: boolean
   search: string
-  recipes: Array<recipe>
+  recipes: Array<recipeType>
   dismissed: Set<string>
   user_saved: Set<string>
-  filters: filterObject
+  filters: filterObjectType
   filterModalViewable: boolean
 }
 
@@ -134,7 +109,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   OnChangeSearch(text: string) {
-    const allRecipesSearched = this.arrayholder.filter(function(item: recipe) {
+    const allRecipesSearched = this.arrayholder.filter(function(item: recipeType) {
       const itemData = item.recipe_name ? item.recipe_name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
       return itemData.startsWith(textData);

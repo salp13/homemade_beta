@@ -1,54 +1,14 @@
 import * as React from 'react';
-import { ActivityIndicator, StyleSheet, SectionList, TouchableWithoutFeedback, FlatList } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; 
-import { Ionicons } from '@expo/vector-icons';
-// import Ionicons from 'react-native-vector-icons/Ionicons';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-
-import { Text, View } from '../components/Themed';
-import RecipeOverview from '../components/RecipeOverview'
+import { ActivityIndicator, FlatList, SectionList, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import FilterModal from '../components/FilterModal'
+import { filterObjectType, fridgeItemType, recipeType } from '../objectTypes'
 import { HomeParamList } from '../types';
-
-type recipe = {
-  recipe_id: string
-  recipe_name: string
-  image: string
-  diets: Array<{
-    diet_id: number
-    diet: string
-  }>
-  cuisine: {
-    cuisine_id: number
-    cuisine: string
-  }
-  meal_type: {
-    meal_type_id: number
-    meal_type: string
-  }
-}
-
-type fridgeItem = {
-  id: number
-  user: string
-  food: {
-    food_id: string
-    food_name: string
-    food_group: {
-      food_group_id: string
-      image: string | undefined
-    }
-  }
-  unlisted_food: string | undefined
-  expiration_date: Date | undefined
-}
-
-type filterObject = {
-  mealType: Array<string>
-  dietaryPreference: Array<string>
-  cuisine: Array<string>
-}
+import { Ionicons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons'; 
+import RecipeOverview from '../components/RecipeOverview'
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { Text, View } from '../components/Themed';
 
 interface Props {
   navigation: StackNavigationProp<HomeParamList, 'HomeResultScreen'>,
@@ -57,11 +17,11 @@ interface Props {
 
 interface State {
   isLoading: boolean
-  specifiedItems: Array<fridgeItem>
-  recipes: Array<recipe>
+  specifiedItems: Array<fridgeItemType>
+  recipes: Array<recipeType>
   dismissed: Set<string>
   user_saved: Set<string>
-  filters: filterObject
+  filters: filterObjectType
   filterModalViewable: boolean
 }
 
@@ -139,7 +99,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     }), 10)
   }
 
-  async filterModalResults(filters: filterObject) {
+  async filterModalResults(filters: filterObjectType) {
     await this.setState({
       filterModalViewable: false,
       filters: filters

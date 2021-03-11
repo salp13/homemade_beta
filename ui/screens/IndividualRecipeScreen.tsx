@@ -1,15 +1,12 @@
 import * as React from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Fontisto, Ionicons } from '@expo/vector-icons';
-// import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import { StackNavigationProp } from '@react-navigation/stack';
+import { HomeParamList, ProfileParamList, SearchParamList } from '../types'
+import { Image, Text, View } from '../components/Themed';
+import { recipeEntireType } from '../objectTypes'
 import { RouteProp } from '@react-navigation/native';
-import { TouchableWithoutFeedback, SectionList } from 'react-native'
-
-import { Text, View, Image } from '../components/Themed';
-import dummyData from "../dummyData.json";
-import { HomeParamList, SearchParamList, ProfileParamList } from '../types'
+import { SectionList, TouchableWithoutFeedback } from 'react-native'
+import { StackNavigationProp } from '@react-navigation/stack';
 
 type HomeNavigationProp = StackNavigationProp<HomeParamList, 'IndividualRecipeScreen'>;
 type HomeRouteProp = RouteProp<HomeParamList, 'IndividualRecipeScreen'>;
@@ -18,36 +15,6 @@ type SearchRouteProp = RouteProp<SearchParamList, 'IndividualRecipeScreen'>;
 type ProfileNavigationProp = StackNavigationProp<ProfileParamList, 'IndividualRecipeScreen'>;
 type ProfileRouteProp = RouteProp<ProfileParamList, 'IndividualRecipeScreen'>;
 
-type ingredient = {
-    description: string
-    food: {
-        food_id: string
-        food_name: string
-    }
-    unlisted_food: string | undefined
-}
-
-type recipe = {
-    recipe_id: string
-    recipe_name: string
-    image: string
-    diets: Array<{
-        diet_id: number
-        diet: string
-    }>
-    cuisine: {
-        cuisine_id: number
-        cuisine: string
-    } | undefined
-    meal_type: {
-        meal_type_id: number
-        cuisine: string
-    } | undefined
-    instructions: string
-    description: string
-    ingredients: Array<ingredient>
-}
-
 interface Props {
   navigation: HomeNavigationProp | SearchNavigationProp | ProfileNavigationProp,
   route: HomeRouteProp | SearchRouteProp | ProfileRouteProp
@@ -55,7 +22,7 @@ interface Props {
 
 interface State {
     isLoading: boolean
-    recipe: recipe
+    recipe: recipeEntireType
     saved: boolean
 }
 

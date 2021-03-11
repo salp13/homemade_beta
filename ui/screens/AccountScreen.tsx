@@ -1,11 +1,9 @@
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-
-import { Text, View } from '../components/Themed';
-import dummyData from "../dummyData.json";
 import { ProfileParamList } from '../types'
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { StyleSheet } from 'react-native';
+import { View } from '../components/Themed';
 
 type AccountScreenNavigationProp = StackNavigationProp<ProfileParamList, 'AccountScreen'>;
 type AccountScreenRouteProp = RouteProp<ProfileParamList, 'AccountScreen'>;
@@ -30,9 +28,6 @@ export default class AccountScreen extends React.Component<Props> {
   }
 }
 
-
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -41,6 +36,3 @@ const styles = StyleSheet.create({
     paddingRight:20,
   },
 });
-
-// account information: total numbers for metrics? 
-// edit account info
