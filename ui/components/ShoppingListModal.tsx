@@ -1,10 +1,6 @@
 import React from 'react';
-import {
-  TouchableWithoutFeedback,
-  StyleSheet
-} from 'react-native';
+import { TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import {BottomModal, ModalContent} from 'react-native-modals';
-
 import { Text, View } from './Themed'
 
 interface Props {
@@ -21,7 +17,6 @@ interface State {
 }
 
 export default class HomeFridgeModal extends React.Component<Props, State> {
-
   constructor(props: Props) {
     super(props)
     this.state = {
@@ -36,6 +31,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
+    // if the incoming modal visibility is different from the component's current stored modal visibility, update state to reflect new visibility
     if (this.props.modalProperties.visible !== this.state.visible) {
       this.setState({
         visible: this.props.modalProperties.visible,
@@ -45,18 +41,22 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   addFridge() {
+    // send added item to screen
     this.props.ModalResultFunc(this.state.index, "addFridge", )
   }
 
   remove() {
+    // send removed item to screen
     this.props.ModalResultFunc(this.state.index, "remove")
   }
 
   reorder() {
+    // send new ordering to screen
     this.props.ModalResultFunc(this.state.index, "reorder")
   }
 
   modalCancel() {
+    // cancel modal changes
     this.props.ModalResultFunc(this.state.index)
   }
 

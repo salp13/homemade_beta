@@ -1,10 +1,8 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; 
 import { Fontisto } from '@expo/vector-icons'; 
-
 import { Text, View, Image } from './Themed';
-import { FlatList, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 interface Props {
   recipe_id: string
@@ -33,7 +31,6 @@ interface State {
 export default class RecipeOverview extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
-
     this.state = {
       recipe_id: this.props.recipe_id,
       recipe_name: this.props.recipe_name,
@@ -47,6 +44,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
+    // if the new recipe id is different from stored state recipe id or if the saved flag has changed, update state
     if (this.state.recipe_id !== this.props.recipe_id || this.state.saved !== this.props.saved) {
       this.setState({
         recipe_id: this.props.recipe_id,
@@ -59,15 +57,18 @@ export default class RecipeOverview extends React.Component<Props, State> {
   }
 
   OnPressNavigate = () => {
+    // trigger a navigation to the individual recipe screen
     this.props.onPressNavigate(this.state.recipe_id)
   }
 
   OnPressUnsave = () => {
+    // unsave the recipe
     this.props.saveRecipe(this.state.recipe_id)
   }
     
     
   render() {
+    // formatting for the dietary preferences related to this recipe
     let dietaryPrefs = ''
     this.state.dietaryPreferences.forEach((pref, index) => {
       dietaryPrefs = dietaryPrefs.concat(pref.diet)

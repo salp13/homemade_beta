@@ -76,6 +76,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   }
 
   async componentDidMount() {
+    // hit api to get shopping list and order as specified
     await fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'GET',
       headers: {
@@ -98,6 +99,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   }
 
   componentDidUpdate() {
+    // if old and new triggers do not match, update shopping list and sort as specified
     if (this.state.trigger !== this.props.route.params.trigger) {
       return fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
         method: 'GET',
@@ -122,6 +124,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   }
 
   SearchFilterFunction(text: string = '') {
+    // filter shopping list based on search text
     const filteredData = this.arrayholder.filter(function(item: any) {
       const itemData = item.food.food_name ? item.food.food_name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
@@ -135,6 +138,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   }
 
   modalUpdate(id: number) {
+    // update modal visibility
     this.setState({
       modal: {
         visible: true, 
@@ -144,6 +148,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   }
 
   modalResult(index: number, action?: string) {
+    // call helper functions dependent on the responding modal action
     if (action === "addFridge") {
       let item = this.state.shoppingListItems.find(element => element.id == index)
       if (item) this.itemAddFridge(index, item.food.food_name, item.food.food_id)
@@ -173,6 +178,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   }
 
   itemReorder() {
+    // set state to allow for item reorder
     this.setState({
       modal: {
         visible: false, 
@@ -189,6 +195,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
       return value
     })
 
+    // hit api with new updating shopping list ordering
     fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
         method: 'PATCH',
         headers: {
@@ -209,6 +216,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   }
 
   async itemRemove(id: number) {
+    // update order indices for deleted item
     let deleteIndex = this.state.shoppingListItems.findIndex((value) => value.id === id)
     let placeholderListItems = this.state.shoppingListItems.map((value, index) => {
       if (index > deleteIndex) {
@@ -217,6 +225,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
       return value
     })
 
+    // hit api to delete specified item
     await fetch(`http://localhost:8000/homemade/single_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
       method: 'DELETE',
       headers: {
@@ -230,6 +239,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
 
     placeholderListItems = placeholderListItems.filter(item => item.id !== id)
 
+    // hit api to update other shopping list items' order indices
     await fetch(`http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
       method: 'PATCH',
       headers: {
@@ -253,8 +263,10 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
   }
 
   async itemAddFridge(id: number, unlisted_food: string | undefined, food_id: string) {
+    // remove item from shopping list
     await this.itemRemove(id)
     
+    // hit api to add item to fridge
     let body = (unlisted_food) ? JSON.stringify({food: food_id, unlisted_food: unlisted_food}) : JSON.stringify({food: food_id})
     await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'POST',

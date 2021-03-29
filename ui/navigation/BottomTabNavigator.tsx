@@ -5,7 +5,6 @@ import { createStackNavigator, StackNavigationProp } from '@react-navigation/sta
 import * as React from 'react';
 import { TouchableWithoutFeedback } from 'react-native'
 import { SimpleLineIcons } from '@expo/vector-icons'; 
-
 import { View } from '../components/Themed';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';

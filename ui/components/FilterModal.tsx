@@ -1,8 +1,40 @@
 import React from 'react';
 import { Modal, TouchableWithoutFeedback, StyleSheet, SectionList, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
-
 import { Text, View } from './Themed'
+
+const sectionsArray = [{
+  title: "mealType",
+  data: [
+    "dinner",
+    "lunch",
+    "breakfast",
+    "dessert", 
+    "side"
+  ]},
+  {
+  title: "dietaryPreference",
+  data: [
+    "vegetarian",
+    "vegan",
+    "sustainable",
+    "dairy-free",
+    "gluten-free"
+  ]}, 
+  {
+  title: "cuisine",
+  data: [
+    "italian",
+    "mexican",
+    "chinese",
+    "korean",
+    "indian",
+    "mediterranean",
+    "spanish",
+    "french",
+    "american"
+  ]
+}]
 
 interface Props {
   modalVisible: boolean,
@@ -29,38 +61,7 @@ interface State {
   },
 }
 
-
-const filterOptions = {
-  mealType: [
-    "dinner",
-    "lunch",
-    "breakfast",
-    "dessert", 
-    "side"
-  ],
-  dietaryPreference: [
-    "vegetarian",
-    "vegan",
-    "sustainable",
-    "dairy-free",
-    "gluten-free"
-  ],
-  cuisine: [
-    "italian",
-    "mexican",
-    "chinese",
-    "korean",
-    "indian",
-    "mediterranean",
-    "spanish",
-    "french",
-    "american"
-  ]
-}
-
 export default class HomeFridgeModal extends React.Component<Props, State> {
-  
-
   constructor(props: Props) {
     super(props)
     this.state = {
@@ -82,9 +83,11 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     this.markFilter = this.markFilter.bind(this)
     this.showAllOptions = this.showAllOptions.bind(this)
     this.showFewerOptions = this.showFewerOptions.bind(this)
+    this.filterSectionListRender = this.filterSectionListRender.bind(this)
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate() {
+    // if the incoming modal visibility is different from the component's current stored modal visibility, update state to reflect new visibility
     if (this.props.modalVisible !== this.state.modalVisible) {
       const filterDeepCopy = JSON.parse(JSON.stringify(this.props.filters));
       this.setState({
@@ -100,6 +103,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   modalResults() {
+    // reset state and send modal results back to screen
     this.setState({
       showAll: {
         mealType: false,
@@ -111,6 +115,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   filterClear() {
+    // clear all filters and send results back to screen
     this.setState({
       filters: {
         mealType: [],
@@ -127,7 +132,8 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   markFilter(filterType: string, item: string) {
-    const filterDeepCopy = JSON.parse(JSON.stringify(this.state.filters));
+    // add a certain filter item to the included filters
+    const filterDeepCopy = JSON.parse(JSON.stringify(this.state.filters))
     const filterIndex = filterDeepCopy[filterType].findIndex((filter) => {return filter === item})
     if (filterIndex === -1) filterDeepCopy[filterType].push(item)
     else filterDeepCopy[filterType].splice(filterIndex, 1)
@@ -137,6 +143,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   showAllOptions(filterType: string) {
+    // make all options for a filter type visible to user
     const showAllDeepCopy = JSON.parse(JSON.stringify(this.state.showAll));
     showAllDeepCopy[filterType] = true
     this.setState({
@@ -145,6 +152,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   showFewerOptions(filterType: string) {
+    // make only a few options for a filter type visible to user
     const showAllDeepCopy = JSON.parse(JSON.stringify(this.state.showAll));
     showAllDeepCopy[filterType] = false
     this.setState({
@@ -152,8 +160,26 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     })
   }
 
-  render() {
+  filterSectionListRender(item, index, section) {
+    if (index < 3 || this.state.showAll[section.title]) {
+      return (   
+        <View style={{flexDirection: 'row', marginBottom: 15}}>
+          <Text>{item}</Text>
+          <View style={{marginLeft: 'auto', marginTop: -5}}>
+            <TouchableWithoutFeedback onPress={() => this.markFilter(section.title, item)}>
+              {(this.state.filters.mealType.find((filter) => {return filter === item})) || 
+              (this.state.filters.dietaryPreference.find((filter) => {return filter === item})) || 
+              (this.state.filters.cuisine.find((filter) => {return filter === item})) ? 
+              <MaterialCommunityIcons name="checkbox-marked-outline" size={24} color="black" /> : 
+              <MaterialCommunityIcons name="checkbox-blank-outline" size={24} color="black" /> }
+            </TouchableWithoutFeedback>
+          </View>
+        </View> 
+    )}
+    else { return ( <Text style={{marginTop: -20}}></Text> ) }
+  }
 
+  render() {
     return (
       <View> 
         <Modal  
@@ -168,28 +194,8 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
               <View style={styles.container} >
                 <ScrollView>
                   <SectionList 
-                    sections={[
-                      {title: 'mealType', data: filterOptions.mealType}, 
-                      {title: 'dietaryPreference', data: filterOptions.dietaryPreference}, 
-                      {title: 'cuisine', data: filterOptions.cuisine}]}
-                    renderItem={({item, index, section}) => {
-                      if (index < 3 || this.state.showAll[section.title]) {
-                        return (   
-                          <View style={{flexDirection: 'row', marginBottom: 15}}>
-                            <Text>{item}</Text>
-                            <View style={{marginLeft: 'auto', marginTop: -5}}>
-                              <TouchableWithoutFeedback onPress={() => this.markFilter(section.title, item)}>
-                                {(this.state.filters.mealType.find((filter) => {return filter === item})) || 
-                                (this.state.filters.dietaryPreference.find((filter) => {return filter === item})) || 
-                                (this.state.filters.cuisine.find((filter) => {return filter === item})) ? 
-                                <MaterialCommunityIcons name="checkbox-marked-outline" size={24} color="black" /> : 
-                                <MaterialCommunityIcons name="checkbox-blank-outline" size={24} color="black" /> }
-                              </TouchableWithoutFeedback>
-                            </View>
-                          </View> 
-                      )}
-                      else { return ( <Text style={{marginTop: -20}}></Text> ) }
-                    }}
+                    sections={sectionsArray}
+                    renderItem={({item, index, section}) => this.filterSectionListRender(item, index, section)}
                     renderSectionHeader={({section}) => {
                       let sectionHeader = 'Meal Types'
                       if (section.title === 'dietaryPreference') sectionHeader = 'Dietary Preferences'
@@ -220,7 +226,6 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
                       )}}}
                   />
                 </ScrollView>
-                
                 <View style={{flexDirection: 'row', marginTop: 30}}> 
                   <TouchableWithoutFeedback onPress={this.filterClear}>
                     <Text>Clear All</Text>

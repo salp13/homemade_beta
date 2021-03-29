@@ -203,6 +203,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
   }
 
   modalResult(food_id: string, action?: string) {
+    // reset modal and call helper functions dependent on specified action
     this.setState({
       modalFridge: {
         modalVisible: false,
@@ -258,19 +259,21 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
 
   FoodRender(item, section) {
     // rendering for sectionlist ingredient/fridge items
-    if (this.state.not_viewable.has(item.food.food_id) && section.title === "fridgeItems") return (<Text style={{marginTop: -20}}></Text>)
-    return (
-    <FridgeItem
-      selected={(section.title === "Ingredients") ? true : false}
-      id={item.food.food_id}
-      item={item} 
-      modalUpdateFunc={this.modalUpdate}
-      swipeStart={this.OnSwipeNoScroll}
-      swipeEnd={this.OnSwipeScroll}
-      swipeLeftFunc={this.state.selected.has(item.food.food_id) ? this.IngredientRemove : this.FridgeDismiss}
-      swipeRightFunc={this.state.selected.has(item.food.food_id) ? () => { return item } : this.FridgeToIngredient}
-    />
-  )
+    if (this.state.not_viewable.has(item.food.food_id) && section.title === "fridgeItems") 
+      return (<Text style={{marginTop: -20}}></Text>)
+    else 
+      return (
+        <FridgeItem
+          selected={(section.title === "Ingredients") ? true : false}
+          id={item.food.food_id}
+          item={item} 
+          modalUpdateFunc={this.modalUpdate}
+          swipeStart={this.OnSwipeNoScroll}
+          swipeEnd={this.OnSwipeScroll}
+          swipeLeftFunc={this.state.selected.has(item.food.food_id) ? this.IngredientRemove : this.FridgeDismiss}
+          swipeRightFunc={this.state.selected.has(item.food.food_id) ? () => { return item } : this.FridgeToIngredient}
+        />
+      )
   }
 
   render() {
@@ -286,7 +289,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
         <Text style={styles.title}>Hello!</Text>
         <Text style={styles.title}>Which ingredients would you like to use today?</Text>
         <TouchableWithoutFeedback 
-          onPress={() => this.props.navigation.navigate('HomeResultScreen', {specifiedItems: this.state.ingredients.map((ingredient) => {return ingredient.food.food_id})})} 
+          onPress={() => this.props.navigation.navigate('HomeResultScreen', { specifiedItems: this.state.ingredients.map((ingredient) => { return ingredient.food.food_id }) })} 
           disabled={this.state.ingredients.length < 1}
           >
           {this.state.ingredients.length < 1 ? 

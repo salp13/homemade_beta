@@ -24,7 +24,6 @@ interface State {
 }
 
 export default class HomeScreen extends React.Component<Props, State> {
-  
   constructor(props: Props) {
     super(props)
 
@@ -50,7 +49,6 @@ export default class HomeScreen extends React.Component<Props, State> {
     }
 
     this.unsaveRecipe = this.unsaveRecipe.bind(this)
-    this.wastedFoodGroup = this.wastedFoodGroup.bind(this)
     this.navigateRecipe = this.navigateRecipe.bind(this)
     this.onPressSettings = this.onPressSettings.bind(this)
     this.toggle = this.toggle.bind(this)
@@ -58,6 +56,7 @@ export default class HomeScreen extends React.Component<Props, State> {
 
 
   async componentDidMount() {
+    // hit api for user data
     const user_data = await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
       method: 'GET',
       headers: {
@@ -73,6 +72,7 @@ export default class HomeScreen extends React.Component<Props, State> {
       console.error(error);
     });
 
+    // determine food group id of most wasted food group
     let id = 0
     if (this.state.user_data.produce_wasted >= this.state.user_data.meat_wasted && this.state.user_data.produce_wasted >= this.state.user_data.dairy_wasted) {
       id = 2
@@ -81,6 +81,7 @@ export default class HomeScreen extends React.Component<Props, State> {
     } else {
       id = 8
     } 
+    // hit api to get most wasted food group's image
     await fetch(`http://localhost:8000/homemade/single_food_group/${id}`, {      
       method: 'GET',
       headers: {
@@ -103,6 +104,7 @@ export default class HomeScreen extends React.Component<Props, State> {
   }
 
   async unsaveRecipe(recipe_id: string) {
+    // hit api to unsave saved recipe
     await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipe_id}`, {
       method: 'DELETE',
       headers: {
@@ -122,44 +124,18 @@ export default class HomeScreen extends React.Component<Props, State> {
     });
   }
 
-  wastedFoodGroup() {
-    let id = 0
-    if (this.state.user_data.produce_wasted >= this.state.user_data.meat_wasted && this.state.user_data.produce_wasted >= this.state.user_data.dairy_wasted) {
-      id = 2
-    } else if (this.state.user_data.meat_wasted >= this.state.user_data.dairy_wasted && this.state.user_data.meat_wasted > this.state.user_data.produce_wasted) {
-      id = 3
-    } else {
-      id = 8
-    } 
-
-    fetch(`http://localhost:8000/homemade/single_food_group/${id}`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(response => response.json())
-    .then(data => {
-      this.setState({
-        isLoading: false,
-        user_data: data,
-      });
-    })
-    .catch(error => {
-      console.error(error);
-    });
-  }
-
   navigateRecipe(recipe_id: string) {
+    // navigate to individual recipe screen
     this.props.navigation.navigate('IndividualRecipeScreen', {recipe_id: recipe_id})
   }
 
   onPressSettings() {
+    // navigate to settings screen
     this.props.navigation.navigate('SettingsScreen')
   }
 
   toggle() {
+    // flip toggle to switch between metrics and saved recipes
     this.setState({
       toggle: !this.state.toggle
     })
@@ -173,7 +149,7 @@ export default class HomeScreen extends React.Component<Props, State> {
         </View>
       );
     }
-
+    // metrics calculations and formatting 
     let percentage = Math.round((this.state.user_data.eaten_count / this.state.user_data.total_items)*100)
     let exclamation = ""
     if (percentage < 70) exclamation = "Needs some work"

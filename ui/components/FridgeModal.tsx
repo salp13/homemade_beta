@@ -1,12 +1,8 @@
 import React from 'react';
 import moment from 'moment';
-import {
-  TouchableWithoutFeedback,
-  StyleSheet
-} from 'react-native';
-import {BottomModal, ModalContent} from 'react-native-modals';
+import { TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { BottomModal, ModalContent } from 'react-native-modals';
 import { AntDesign } from '@expo/vector-icons'; 
-
 import { Text, View } from './Themed'
 
 interface Props {
@@ -51,6 +47,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
+    // if the incoming modal visibility is different from the component's current stored modal visibility, update state to reflect new visibility
     if (this.props.modalProperties.visible !== this.state.visible) {
       const propValues = JSON.parse(JSON.stringify(this.props.modalProperties))
       let daysDiff = (propValues.expiration_date) ? Math.ceil((new Date(propValues.expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000)) : 0
@@ -64,12 +61,14 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   edit() {
+    // update state to editting true
     this.setState({
       editting: true
     })
   }
 
   saveEdit() {
+    // send expiration date edits to screen 
     this.setState({
       editting: false,
     })
@@ -77,6 +76,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   cancelEdit() {
+    // revert an edits back to the original
     const expiration_date = JSON.parse(JSON.stringify(this.props.modalProperties.expiration_date))
     let daysDiff = (expiration_date) ? Math.ceil((new Date(expiration_date).valueOf() - new Date().valueOf()) / (24 * 60 * 60 * 1000)) : 0
     this.setState({
@@ -88,6 +88,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   editPlus() {
+    // increment expiration date by 1
     let updateDays = JSON.parse(JSON.stringify(this.state.daysToExp))
     let exp_date = JSON.parse(JSON.stringify(this.state.expiration_date))
     if (exp_date) {
@@ -105,6 +106,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   editMinus() {
+    // decrement expiration date by 1
     let updateDays = JSON.parse(JSON.stringify(this.state.daysToExp))
     let exp_date = JSON.parse(JSON.stringify(this.state.expiration_date))
     if (exp_date) {
@@ -119,14 +121,17 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
 
 
   eaten() {
+    // mark item as eaten
     this.props.ModalResultFunc(this.state.id, "eaten")
   }
 
   wasted() {
+    // mark item as wasted
     this.props.ModalResultFunc(this.state.id, "wasted")
   }
 
   cancel() {
+    // cancel editting and send information back to screen
     this.setState({
       editting: false
     })

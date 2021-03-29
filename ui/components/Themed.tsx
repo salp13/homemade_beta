@@ -9,7 +9,10 @@ export function useThemeColor(
   props: { light?: string; dark?: string },
   colorName: keyof typeof Colors.light & keyof typeof Colors.dark
 ) {
-  const theme = useColorScheme();
+  
+  // temporary change due to incompatibility with dark mode
+  // const theme = useColorScheme();
+  const theme = "light"
   const colorFromProps = props[theme];
 
   if (colorFromProps) {
@@ -20,7 +23,10 @@ export function useThemeColor(
 }
 
 export function useThemeColorSearch() {
-  const theme = useColorScheme();
+  // temporary change due to incompatibility with dark mode
+  // const theme = useColorScheme();
+  const theme = "light"
+
   if (theme === "light") {
     return { 
       lightMode: true, 

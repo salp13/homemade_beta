@@ -2,30 +2,12 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import { Fontisto } from '@expo/vector-icons'; 
-
+import { recipeType } from '../objectTypes'
 import { Text, View, Image } from './Themed';
-import { FlatList, TouchableWithoutFeedback } from 'react-native-gesture-handler';
-
-type recipe = {
-  recipe_id: string
-  recipe_name: string
-  image: string
-  diets: Array<{
-    diet_id: number
-    diet: string
-  }>
-  cuisine: {
-    cuisine_id: number
-    cuisine: string
-  }
-  meal_type: {
-    meal_type_id: number
-    meal_type: string
-  }
-}
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 interface Props {
-  recipe: recipe
+  recipe: recipeType
   saved: boolean
   onPressNavigate: Function
   saveRecipe: Function
@@ -61,6 +43,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
+    // if the new recipe id is different from stored state recipe id or if the saved flag has changed, update state
     if (this.state.recipe_id !== this.props.recipe.recipe_id || this.state.saved !== this.props.saved) {
       this.setState({
         recipe_id: this.props.recipe.recipe_id,
@@ -73,19 +56,23 @@ export default class RecipeOverview extends React.Component<Props, State> {
   }
 
   OnPressNavigate = () => {
+    // trigger a navigation to the individual recipe screen
     this.props.onPressNavigate(this.state.recipe_id)
   }
 
   OnPressSave = () => {
+    // save the recipe
     this.props.saveRecipe(this.state.recipe_id)
   }
 
   OnPressDismiss = () => {
+    // dismiss the recipe from view
     this.props.dismissRecipe(this.state.recipe_id)
   }
     
     
   render() {
+    // formatting for the dietary preferences related to this recipe
     let dietaryPrefs = ''
     this.state.dietaryPreferences.forEach((pref, index) => {
       dietaryPrefs = dietaryPrefs.concat(pref.diet)

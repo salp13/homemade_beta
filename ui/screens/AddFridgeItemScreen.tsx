@@ -41,7 +41,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   constructor(props?: any) {
     super(props);
-    
     this.state = { 
       isLoading: true, 
       trigger: false,
@@ -60,6 +59,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   async componentDidMount() {
+    // hit api for fridge items
     let fridgeData = await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'GET',
       headers: {
@@ -73,7 +73,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         console.error(error);
       });
 
-     await fetch('http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+    // hit api for metrics data to keep track of total items
+    await fetch('http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
         method: 'GET',
         headers: {
           Accept: 'application/json',
@@ -91,7 +92,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         .catch(error => {
           console.error(error);
         });
-    
+      
+      // hit api for all foods excluding the unlisted food item
       await fetch(`http://localhost:8000/homemade/many_foods`, {
           method: 'GET',
           headers: {
@@ -108,8 +110,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         });
   }
 
-
   OnChangeSearch(text: string) {
+    // filter all foods depending on search text
     const allFoodSearched = this.arrayholder.filter(function(item: foodItemType) {
       const itemData = item.food_name ? item.food_name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
@@ -123,13 +125,15 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   OnClearSearch() {
+    // reset search text
     this.setState({
       allFood: [],
       search: '',
     });
   }
 
-  async OnPressSearch(id: string, food_name: string) {   
+  async OnPressSearch(id: string, food_name: string) { 
+    // hit api to post newly added item to fridge
     let body = (food_name === "unlisted_food") ? JSON.stringify({food: id, unlisted_food: this.state.search}) : JSON.stringify({food: id})
     await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'POST',
@@ -143,6 +147,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         console.error(error);
       });
     
+    // hit api to increment user's total items by 1
     await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
       method: 'PATCH',
       headers: {
@@ -151,20 +156,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       },
       body: JSON.stringify({
         total_items: this.state.total_items + 1,
-        eaten_count: 0, 
-        wasted_count: 0,
       })
-      })
-      .then(response => response.json())
-      .then(data => {
-        this.setState({
-          total_items: data.total_items
-        })
       })
       .catch(error => {
         console.error(error);
       });
-      
+    // reset trigger and navigate back to fridge screen
     this.setState({
       trigger: !this.state.trigger
     })
@@ -172,6 +169,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   OnCancel() {
+    // reset trigger and navigate back to fridge screen
     this.setState({
       trigger: !this.state.trigger
     })
@@ -179,6 +177,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   async OnSubmit() {
+    // if submitted manually, search for food if it exists, if so add it normally, otherwise mark as unlisted food
     let food_item = this.arrayholder.find(item => item.food_name.toUpperCase() === this.state.search.toUpperCase())
     if (food_item) {
       await this.OnPressSearch(food_item.food_id, food_item.food_name)

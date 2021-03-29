@@ -40,7 +40,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   constructor(props?: any) {
     super(props);
-    
     this.state = { 
       isLoading: true,
       trigger: false,
@@ -58,6 +57,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   }
   async componentDidMount() {
+    // hit api for shopping list items
     let shoppingListItemsData = await fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'GET',
       headers: {
@@ -71,6 +71,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         console.error(error);
       });
 
+    // hit api for all foods to update arrayholder
     await fetch(`http://localhost:8000/homemade/many_foods`, {
         method: 'GET',
         headers: {
@@ -93,6 +94,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
 
   OnChangeSearch(text: string) {
+    // filter all foods depending on search text
     const allFoodSearched = this.arrayholder.filter(function(item: foodItemType) {
       const itemData = item.food_name ? item.food_name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
@@ -106,17 +108,16 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   OnClearSearch() {
+    // reset search text
     this.setState({
       allFood: [],
       search: '',
     });
   }
 
-  async OnPressSearch(id: string, food_name: string) {    
-    let body = JSON.stringify({food: id})
-    if (food_name === "unlisted_food") {
-      body = JSON.stringify({food: id, unlisted_food: this.state.search})
-    } 
+  async OnPressSearch(id: string, food_name: string) {   
+    // hit api to post newly added item to shopping list
+    let body = (food_name === "unlisted_food") ? JSON.stringify({food: id, unlisted_food: this.state.search}) : JSON.stringify({food: id})
     await fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'POST',
       headers: {
@@ -128,8 +129,9 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       .catch(error => {
         console.error(error);
       });
-
+    // cancel search bar, not very effective
     if (this.searchRef.current?.cancel) this.searchRef.current.cancel()
+    // revert trigger and navigate back to shopping list screen
     this.setState({
       trigger: !this.state.trigger
     })
@@ -137,6 +139,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   OnCancel() {
+    // reset trigger and navigate back to fridge screen
     this.setState({
       trigger: !this.state.trigger
     })
@@ -144,6 +147,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   async OnSubmit() {
+    // if submitted manually, search for food if it exists, if so add it normally, otherwise mark as unlisted food
     let food_item = this.arrayholder.find(item => item.food_name.toUpperCase() === this.state.search.toUpperCase())
     if (food_item) {
       await this.OnPressSearch(food_item.food_id, food_item.food_name)

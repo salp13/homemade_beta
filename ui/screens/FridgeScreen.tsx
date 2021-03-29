@@ -54,7 +54,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   constructor(props: Props) {
     super(props);
-    
     this.state = { 
       isLoading: true, 
       trigger: false,
@@ -85,6 +84,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   async componentDidMount() {
+    // hit api for fridge items and sort them by expiration date
     let fridgeData = await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'GET',
       headers: {
@@ -102,6 +102,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         console.error(error);
       });
 
+    // hit api for metrics data to update later
     return await fetch('http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'GET',
       headers: {
@@ -124,6 +125,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   componentDidUpdate() {
+    // if the trigger has changed, hit api for updated fridge items and reset trigger
     if (this.state.trigger !== this.props.route.params.trigger) {
       return fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
         method: 'GET',
@@ -148,6 +150,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   SearchFilterFunction(text: string = '') {
+    // filter fridge items based on search text
     const filteredData = this.arrayholder.filter(function(item: any) {
       const itemData = item.food.food_name ? item.food.food_name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
@@ -161,6 +164,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   modalUpdate(id: number) {
+    // make modal visible and send necessary item's id and expiration date
     let obj = this.state.fridgeItems.find(element => element.id == id)
     this.setState({
       modal: {
@@ -172,6 +176,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   async modalResult(id: number, action?: string, expiration_date?: Date | undefined) {
+    // based on modal's resulting action, call related helper functions and reset modal visibility
     if (action === "wasted") this.itemWasted(id)
     else if (action === "eaten") this.itemEaten(id)
     else if (action === "edit") await this.itemEditted(id, expiration_date)
@@ -187,20 +192,23 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   OnSwipeNoScroll() {
+    // cannot scroll while user is swiping
     this.setState({
       swipingAction: true,
     })
   }
 
   OnSwipeScroll() {
+    // reset scroll functionality once swiping has ended
     this.setState({
       swipingAction: false,
     })
   }
 
   async itemEditted(id: number, expiration_date: Date | undefined) {
+    // formatting for expiration date
     let momented = (!expiration_date) ? undefined : moment(expiration_date).add(1, 'day').format('YYYY-MM-DD')
-
+    // hit api to update fridge item's expiration date
     await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
       method: 'PATCH',
       headers: {
@@ -213,6 +221,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         console.error(error);
       });
 
+      // hit api to get existing fridge items and sort based on expiration date
       return fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'GET',
       headers: {
@@ -240,9 +249,11 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   async itemWasted(id: number) {
+    // locate the item that has been wasted for its food group, default is zero index (should throw error instead)
     let find_food = this.state.fridgeItems.find((item) => item.id === id)
     let food_group = (find_food) ? find_food.food.food_group.food_group_id : 0
 
+    // hit api to delete fridge item that has been wasted
     await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
       method: 'DELETE',
       headers: {
@@ -254,23 +265,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         console.error(error);
       });
     
-      let body
-    if (food_group == 2) {
-      body = {
-        wasted_count: this.state.wasted_count + 1,
-        produce_wasted: this.state.produce_wasted + 1
-      }
-    } else if (food_group == 8) {
-      body = {
-        wasted_count: this.state.wasted_count + 1,
-        dairy_wasted: this.state.dairy_wasted + 1
-      }
-    } else if (food_group == 3) {
-      body = {
-        wasted_count: this.state.wasted_count + 1,
-        meat_wasted: this.state.meat_wasted + 1
-      }
-    }
+    // update body based on which food group the item falls under
+    let body = { wasted_count: this.state.wasted_count + 1 }
+    if (food_group == 2) body['produce_wasted'] = this.state.produce_wasted + 1
+    else if (food_group == 8) body['dairy_wasted'] = this.state.produce_wasted + 1
+    else if (food_group == 3) body['meat_wasted'] = this.state.produce_wasted + 1
+    // hit api to update metric data with wasted counts
     return await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
       method: 'PATCH',
       headers: {
@@ -300,6 +300,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   async itemEaten(id: number) {
+    // hit api to delete eaten item from fridge
     await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
       method: 'DELETE',
       headers: {
@@ -311,6 +312,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         console.error(error);
       });
 
+    // hit api to update metric data to increment eaten count
     return await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
       method: 'PATCH',
       headers: {
@@ -339,7 +341,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       });
     
   }
-
 
   render() {
     if (this.state.isLoading) {

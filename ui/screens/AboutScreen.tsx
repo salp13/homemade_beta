@@ -23,7 +23,7 @@ export default class AboutScreen extends React.Component<Props> {
     return (
       <View style={styles.container}>
         <Text style={{margin: 20}}>
-            Hello and welcome to the homemade family! This is an app designed as a tool to help you track, mitigate, and reduce your own personal food waste. 
+            Hello and welcome to homemade! This is an app designed to help you track, mitigate, and reduce your personal food waste. 
             On our app, you can easily keep track of the perishables in your refrigerator and when they are due to expire. 
             Having this information in a central location makes it easier to not forget about what you have. 
             In addition to helping you keep track of the perishables in your fridge, we recommend recipes based on food you have that is nearing expiration 

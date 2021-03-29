@@ -1,10 +1,6 @@
 import React from 'react';
-import {
-  TouchableWithoutFeedback,
-  StyleSheet
-} from 'react-native';
+import { TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import {BottomModal, ModalContent} from 'react-native-modals';
-
 import { Text, View } from './Themed'
 
 interface Props {
@@ -35,6 +31,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
+    // if the incoming modal visibility is different from the component's current stored modal visibility, update state to reflect new visibility
     if (this.props.modalProperties.modalVisible !== this.state.modalVisible) {
       this.setState({
         modalVisible: this.props.modalProperties.modalVisible,
@@ -44,14 +41,17 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   }
 
   modalAdd() {
+    // add item to ingredients list
     this.props.ModalResultFunc(this.state.index, "add")
   }
 
   modalDismiss() {
+    // dismiss item from being viewable on home screen fridge
     this.props.ModalResultFunc(this.state.index, "dismiss")
   }
 
   modalCancel() {
+    // cancel modal 
     this.props.ModalResultFunc(this.state.index)
   }
 

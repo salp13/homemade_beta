@@ -52,6 +52,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
+    // hit api to get recipes that contain the ingredients from the specified items, must be a post request to be able to send a body
     let body = {"specifiedItems": this.state.specifiedItems}
     let recipe_data = await fetch('http://localhost:8000/homemade/many_recipes/', {
       method: 'POST',
@@ -67,6 +68,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
         console.error(error);
       });
     
+    // hit api to get the saved recipes from user
     await fetch(`http://localhost:8000/homemade/many_saved_recipes/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
       method: 'GET',
       headers: {
@@ -90,10 +92,11 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   onPressFilter() {
+    // trigger filter modal
     this.setState({
       filterModalViewable: false,
     })
-
+    // timeout in order to make sure the visibility persists between component updates
     setTimeout(() => this.setState({
       filterModalViewable: true,
     }), 10)
@@ -104,6 +107,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
       filterModalViewable: false,
       filters: filters
     })
+    // format query url for filter results
     let url = `http://localhost:8000/homemade/many_recipes/`
     let query_string = "?"
 
@@ -112,6 +116,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     this.state.filters.cuisine.forEach((type) => query_string = query_string.concat(`&cuisine=${type}`))
     if (query_string !== "?") url = url + query_string
 
+    // hit api for filtered recipes with specified items
     let body = {"specifiedItems": this.state.specifiedItems}
     await fetch(url, {
       method: 'POST',
@@ -134,10 +139,12 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   navigateRecipe(recipe_id: string) {
+    // navigate to the individual recipe
     this.props.navigation.navigate('IndividualRecipeScreen', {recipe_id: recipe_id})
   }
 
   async saveRecipe(recipeId: string) {
+    // if the user has the recipe saved, delete it from saved
     if (this.state.user_saved.has(recipeId)) {
       await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipeId}`, {
         method: 'DELETE',
@@ -155,6 +162,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
       this.setState({
         user_saved: assign_saved
       })
+    // if the user does not have the recipe saved, save it 
     } else {
       await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipeId}`, {
         method: 'POST',
@@ -174,12 +182,14 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   dismissRecipe(recipeId: string) {
+    // dismiss the recipe
     this.setState({
       dismissed: this.state.dismissed.add(recipeId)
     })
   }
 
   modalVisibility(visible: boolean) {
+    // update modal visibility
     this.setState({
       filterModalViewable: visible
     })

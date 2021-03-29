@@ -1,30 +1,15 @@
 import React from 'react';
+import { fridgeItemType } from '../objectTypes'
 import { StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Swipeable from 'react-native-swipeable';
-
 import { Text, View, Image } from './Themed';
-
-type fridgeItem = {
-  id: number
-  user: string
-  food: {
-    food_id: string
-    food_name: string
-    food_group: {
-      food_group_id: string
-      image: string | undefined
-    }
-  }
-  unlisted_food: string | undefined
-  expiration_date: Date | undefined
-}
 
 interface Props {
   id: number | string
   selected: boolean
-  item: fridgeItem
+  item: fridgeItemType
   modalUpdateFunc: Function
   swipeLeftFunc: Function
   swipeRightFunc: Function
@@ -44,7 +29,6 @@ interface State {
 export default class FridgeItem extends React.Component<Props, State> {
   constructor(props:Props) {
     super(props)
-    
     this.state = {
       id: this.props.id,
       image: this.props.item.food.food_group.image,
@@ -56,6 +40,8 @@ export default class FridgeItem extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
+    // if the new food name is different from stored state food name or if the expiration date has changed, update state
+    // food name change comes from removing or adding items
     if (this.props.item.food.food_name !== this.state.food_name || this.props.item.expiration_date !== this.state.expiration_date) {
       this.setState({
         id: this.props.id,
@@ -69,18 +55,22 @@ export default class FridgeItem extends React.Component<Props, State> {
   }
 
   updateModalVisible = () => {
+    // send updated modal visibility info to screen
     this.props.modalUpdateFunc(this.state.id, this.state.selected)
   }
 
   swipeLeft = () => {
+    // triggered when user swipes left on food item
     setTimeout(() => {this.props.swipeLeftFunc(this.state.id)}, 200)
   }
 
   swipeRight = () => {
+      // triggered when user swipes right on food item
     setTimeout(() => {this.props.swipeRightFunc(this.state.id)}, 200)
   }
 
   render() {
+    // formatting for expiration date and sub text surrounding expiration date
     let secondaryText = ''
     if (this.state.expiration_date) {
       let currentDate = new Date()

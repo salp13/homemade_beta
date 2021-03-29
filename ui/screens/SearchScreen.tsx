@@ -45,7 +45,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   constructor(props?: any) {
     super(props);
-    
     this.state = { 
       isLoading: true,
       search: '',
@@ -72,6 +71,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   async componentDidMount() {
+    // hit api for all recipes
     let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes/`, {
       method: 'GET',
       headers: {
@@ -85,6 +85,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       console.error(error);
     });
 
+    // hit api for user's saved recipes
     await fetch(`http://localhost:8000/homemade/many_saved_recipes/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
       method: 'GET',
       headers: {
@@ -109,6 +110,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   OnChangeSearch(text: string) {
+    // filter recipes based on search text
     const allRecipesSearched = this.arrayholder.filter(function(item: recipeType) {
       const itemData = item.recipe_name ? item.recipe_name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
@@ -122,6 +124,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   OnClearSearch() {    
+    // clear search text and reset recipes
     this.setState({
       recipes: this.arrayholder,
       search: '',
@@ -129,6 +132,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   onPressFilter() {
+    // set filter modal to visible with delay for time needed for modal update render
     this.setState({
       filterModalViewable: false,
     })
@@ -143,6 +147,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       filterModalViewable: false,
       filters: filters
     })
+    // format query url using results from filter modal
     let url = `http://localhost:8000/homemade/many_recipes/`
     let query_string = "?"
 
@@ -151,6 +156,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.state.filters.cuisine.forEach((type) => query_string = query_string.concat(`&cuisine=${type}`))
     if (query_string !== "?") url = url + query_string
 
+    // hit api for filtered recipes
     await fetch(url, {
       method: 'GET',
       headers: {
@@ -171,11 +177,13 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     });
   }
 
-  navigateRecipe(recipeId: string) {
+  navigateRecipe(recipe_id: string) {
+    // navigte to individual recipe screen
     this.props.navigation.navigate('IndividualRecipeScreen', {recipe_id: recipe_id})
   }
 
   async saveRecipe(recipeId: string) {
+    // if user has recipe saved, delete it from saved
     if (this.state.user_saved.has(recipeId)) {
       await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipeId}`, {
         method: 'DELETE',
@@ -193,6 +201,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       this.setState({
         user_saved: assign_saved
       })
+    // if user does not have recipe saved, save it 
     } else {
       await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipeId}`, {
         method: 'POST',
@@ -204,7 +213,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         .catch(error => {
           console.error(error);
         });
-
       this.setState({
         user_saved: this.state.user_saved.add(recipeId)
       })
@@ -212,12 +220,14 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   dismissRecipe(recipeId: string) {
+    // dismiss the recipe
     this.setState({
       dismissed: this.state.dismissed.add(recipeId)
     })
   }
 
   modalVisibility(visible: boolean) {
+    // set modal visibility to specified boolean
     this.setState({
       filterModalViewable: visible
     })
