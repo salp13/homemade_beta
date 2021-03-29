@@ -46,6 +46,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     };
 
     this.saveRecipe = this.saveRecipe.bind(this)
+    this.IsLoadingRender = this.IsLoadingRender.bind(this)
   }
 
   async componentDidMount() {
@@ -120,14 +121,17 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     }
   }
 
+  IsLoadingRender() {
+    return (
+      <View style={{ flex: 1, paddingTop: 20 }}>
+        <ActivityIndicator />
+      </View>
+    )
+  }
+
   render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
+    if (this.state.isLoading) return this.IsLoadingRender()
+
     let dietaryPrefs = ''
     this.state.recipe.diets.forEach((pref, index) => {
     dietaryPrefs = dietaryPrefs.concat(pref.diet)
@@ -141,10 +145,8 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
           <Ionicons name="ios-arrow-back" size={40} color="black" style={{marginTop: -5}}/>
         </TouchableWithoutFeedback>
       </View>
-        
       <Image style={styles.image} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.recipe.image}`}}/>
       <View style={{marginHorizontal: 20, flex: 1}}>
-        
         <View style={{flexDirection: 'row', marginVertical: 10}}>
           <Text style={{fontSize: 25, flex: 1, flexWrap: "wrap"}}>{this.state.recipe.recipe_name}</Text>
           <View style={{marginLeft: 'auto', marginRight: 10, marginTop: 10}}>  
@@ -163,12 +165,9 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
           style={{flex:1, marginTop: 20}}
           stickySectionHeadersEnabled={false}
           sections={[ {recipe_name: "Ingredients", data: this.state.recipe.ingredients.map((ingredient) => ingredient.description)}, {recipe_name: "Directions", data: instructions} ]}
-          renderItem={({item}) => {
-          return (
-          <Text style={{marginVertical: 5, marginLeft: 10}}>{item}</Text>
-          )}}
+          renderItem={({item}) => ( <Text style={{marginVertical: 5, marginLeft: 10}}>{item}</Text> )}
           renderSectionHeader={({section}) => ( <Text style={{fontWeight: 'bold', marginBottom: 10, fontSize: 15}}>{section.recipe_name}</Text> )}
-          renderSectionFooter={() => (<View style={{marginBottom: 20}}></View>)}
+          renderSectionFooter={() => ( <View style={{marginBottom: 20}}></View> )}
           /> 
           
       </View>

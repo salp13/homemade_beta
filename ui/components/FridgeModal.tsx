@@ -23,6 +23,12 @@ interface State {
 }
 
 export default class HomeFridgeModal extends React.Component<Props, State> {
+  private BottomModalProps = {
+    rounded: true, 
+    swipeDirection: 'down', 
+    swipeThreshold: 50, 
+    opacity: .7
+  }
 
   constructor(props: Props) {
     super(props)
@@ -119,7 +125,6 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     } 
   }
 
-
   eaten() {
     // mark item as eaten
     this.props.ModalResultFunc(this.state.id, "eaten")
@@ -142,13 +147,10 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     return (
       <View>
         <BottomModal
+          {... this.BottomModalProps}
           visible={this.state.visible}
-          rounded
-          swipeDirection='down'
           onSwipeOut={() => {this.cancel()}}
           onTouchOutside={() => (this.cancel())}
-          swipeThreshold={50}
-          opacity={.7}
           >
             <View style={styles.bar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)"/>
             <ModalContent style={styles.container}>

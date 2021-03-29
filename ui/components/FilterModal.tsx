@@ -84,6 +84,8 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     this.showAllOptions = this.showAllOptions.bind(this)
     this.showFewerOptions = this.showFewerOptions.bind(this)
     this.filterSectionListRender = this.filterSectionListRender.bind(this)
+    this.filterSectionHeaderRender = this.filterSectionHeaderRender.bind(this)
+    this.filterSectionFooterRender = this.filterSectionFooterRender.bind(this)
   }
 
   componentDidUpdate() {
@@ -179,14 +181,46 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     else { return ( <Text style={{marginTop: -20}}></Text> ) }
   }
 
+  filterSectionHeaderRender(section) {
+    let sectionHeader = 'Meal Types'
+    if (section.title === 'dietaryPreference') sectionHeader = 'Dietary Preferences'
+    else if (section.title === 'cuisine') sectionHeader = 'Cuisines'
+    return ( 
+      <View style={{marginTop: 10, marginBottom: 15}}>
+        <Text style={{fontSize: 20, fontWeight: 'bold'}}>{sectionHeader}</Text>
+      </View> 
+    )
+  }
+
+  filterSectionFooterRender(section) {
+    if (!this.state.showAll[section.title]) {
+      return (
+        <View>
+          <TouchableWithoutFeedback onPress={() => {this.showAllOptions(section.title)}}>
+            <Text style={{textDecorationLine: 'underline'}}>Show all options</Text>
+          </TouchableWithoutFeedback>
+          <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+        </View>
+      )
+    } else {
+      return (
+        <View>
+          <TouchableWithoutFeedback onPress={() => {this.showFewerOptions(section.title)}}>
+            <Text style={{textDecorationLine: 'underline'}}>Show fewer options</Text>
+          </TouchableWithoutFeedback>
+          <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+        </View>
+    )}
+  }
+
   render() {
     return (
       <View> 
         <Modal  
           transparent = {false}
           animationType = {"slide"}
-          visible = {this.state.modalVisible}
           presentationStyle = "pageSheet"
+          visible = {this.state.modalVisible}
           >
             <View>
               <View style={styles.bar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
@@ -196,34 +230,8 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
                   <SectionList 
                     sections={sectionsArray}
                     renderItem={({item, index, section}) => this.filterSectionListRender(item, index, section)}
-                    renderSectionHeader={({section}) => {
-                      let sectionHeader = 'Meal Types'
-                      if (section.title === 'dietaryPreference') sectionHeader = 'Dietary Preferences'
-                      else if (section.title === 'cuisine') sectionHeader = 'Cuisines'
-                      return ( 
-                        <View style={{marginTop: 10, marginBottom: 15}}>
-                          <Text style={{fontSize: 20, fontWeight: 'bold'}}>{sectionHeader}</Text>
-                        </View> 
-                    )}}
-                    renderSectionFooter={({section}) => {
-                      if (!this.state.showAll[section.title]) {
-                        return (
-                          <View>
-                            <TouchableWithoutFeedback onPress={() => {this.showAllOptions(section.title)}}>
-                              <Text style={{textDecorationLine: 'underline'}}>Show all options</Text>
-                            </TouchableWithoutFeedback>
-                            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-                          </View>
-                        )
-                      } else {
-                        return (
-                          <View>
-                            <TouchableWithoutFeedback onPress={() => {this.showFewerOptions(section.title)}}>
-                              <Text style={{textDecorationLine: 'underline'}}>Show fewer options</Text>
-                            </TouchableWithoutFeedback>
-                            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-                          </View>
-                      )}}}
+                    renderSectionHeader={({section}) => this.filterSectionHeaderRender(section)}
+                    renderSectionFooter={({section}) => this.filterSectionFooterRender(section)}
                   />
                 </ScrollView>
                 <View style={{flexDirection: 'row', marginTop: 30}}> 

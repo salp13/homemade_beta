@@ -33,6 +33,7 @@ def many_recipes(request):
         recipe_serializer = RecipeOverview_GETSerializer(recipes, many=True)
         return Response(recipe_serializer.data)
     if request.method == 'POST':
+        # this is a post because get requests do not allow a body to be sent
         if "specifiedItems" in request.data:
             if request.query_params:
                 all_meal_types = Meal_Type.objects.values_list('meal_type', flat=True)
@@ -57,7 +58,6 @@ def many_recipes(request):
                 recipes = (Recipe.objects.filter(foods__food_id__in=request.data['specifiedItems']).annotate(itemcount=Count('recipe_id')).order_by('-itemcount'))
             else: 
                 recipes = Recipe.objects.all()
-            # filteredRecipes = Recipe.objects.filter(foods__food_id__in=request.data['specifiedItems']).annotate(itemcount=Count('recipe_id')).order_by('-itemcount')
             recipe_serializer = RecipeOverview_GETSerializer(recipes, many=True)
             return Response(recipe_serializer.data, status=status.HTTP_201_CREATED)
         else:

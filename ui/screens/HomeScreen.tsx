@@ -89,6 +89,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     this.FridgeToIngredient = this.FridgeToIngredient.bind(this)
     this.IngredientRemove = this.IngredientRemove.bind(this)
     this.FridgeDismiss = this.FridgeDismiss.bind(this)
+    this.IsLoadingRender = this.IsLoadingRender.bind(this)
     this.SearchRender = this.SearchRender.bind(this)
     this.FoodRender = this.FoodRender.bind(this)
   }
@@ -248,42 +249,63 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     this.setState({ not_viewable: this.state.not_viewable.add(food_id) })
   }
 
-  SearchRender(item) {
-    // rendering for search items
+  IsLoadingRender() {
     return (
-      <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.food_id)}>
-        <Text style={styles.searchResultText}>{item.food_name}</Text>
-      </TouchableWithoutFeedback>
+      <View style={{ flex: 1, paddingTop: 20 }}>
+        <ActivityIndicator />
+      </View>
     )
   }
 
-  FoodRender(item, section) {
-    // rendering for sectionlist ingredient/fridge items
-    if (this.state.not_viewable.has(item.food.food_id) && section.title === "fridgeItems") 
-      return (<Text style={{marginTop: -20}}></Text>)
-    else 
-      return (
-        <FridgeItem
-          selected={(section.title === "Ingredients") ? true : false}
-          id={item.food.food_id}
-          item={item} 
-          modalUpdateFunc={this.modalUpdate}
-          swipeStart={this.OnSwipeNoScroll}
-          swipeEnd={this.OnSwipeScroll}
-          swipeLeftFunc={this.state.selected.has(item.food.food_id) ? this.IngredientRemove : this.FridgeDismiss}
-          swipeRightFunc={this.state.selected.has(item.food.food_id) ? () => { return item } : this.FridgeToIngredient}
+  SearchRender() {
+    // flat list that will render list of filtered search items
+    return (
+    <FlatList
+          keyboardShouldPersistTaps='always'
+          data={this.state.allFood}
+          renderItem={({item, index}) => (
+            <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.food_id)}>
+              <Text style={styles.searchResultText}>{item.food_name}</Text>
+            </TouchableWithoutFeedback>
+          )}
+          keyExtractor={(item, index) => index.toString()}
         />
-      )
+    )
+  }
+
+  FoodRender() {
+    // section list that will render list of ingredients and fridge items
+    return (
+      <SectionList
+        scrollEnabled={!this.state.swipingAction}
+        sections={[ 
+          {title: "Ingredients", data: this.state.ingredients}, 
+          {title: "fridgeItems", data: this.state.fridgeItems} ]}
+        renderItem={({item, section, index}) => {
+          if (this.state.not_viewable.has(item.food.food_id) && section.title === "fridgeItems") 
+            return (<Text style={{marginTop: -20}}></Text>)
+          else 
+            return (
+              <FridgeItem
+                selected={(section.title === "Ingredients") ? true : false}
+                id={item.food.food_id}
+                item={item} 
+                modalUpdateFunc={this.modalUpdate}
+                swipeStart={this.OnSwipeNoScroll}
+                swipeEnd={this.OnSwipeScroll}
+                swipeLeftFunc={this.state.selected.has(item.food.food_id) ? this.IngredientRemove : this.FridgeDismiss}
+                swipeRightFunc={this.state.selected.has(item.food.food_id) ? () => { return item } : this.FridgeToIngredient}
+              />
+            )
+        }}
+        renderSectionHeader={() => ( <View style={{marginTop: 10}}/> )}
+        /> 
+    )
   }
 
   render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
+    if (this.state.isLoading) return this.IsLoadingRender()
+
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Hello!</Text>
@@ -292,8 +314,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
           onPress={() => this.props.navigation.navigate('HomeResultScreen', { specifiedItems: this.state.ingredients.map((ingredient) => { return ingredient.food.food_id }) })} 
           disabled={this.state.ingredients.length < 1}
           >
-          {this.state.ingredients.length < 1 ? 
-            (<Text></Text>) : 
+          {this.state.ingredients.length < 1 ? (<Text></Text>) : 
             (<Ionicons 
               name="ios-arrow-round-forward" size={75} color="black" 
               style={{marginTop: -50, left: 300, marginBottom:0, height: '8%'}}/>)}
@@ -306,22 +327,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
           platform={(Platform.OS === "android" || Platform.OS === "ios") ? Platform.OS : "default"}
           {...this.searchBarProps}
         />
-        {this.state.search !== '' ? 
-        (<FlatList
-          keyboardShouldPersistTaps='always'
-          data={this.state.allFood}
-          renderItem={({item, index}) => this.SearchRender(item)}
-          keyExtractor={(item, index) => index.toString()}
-        />) :
-        (
-          <SectionList
-            scrollEnabled={!this.state.swipingAction}
-            sections={[ {title: "Ingredients", data: this.state.ingredients}, 
-              {title: "fridgeItems", data: this.state.fridgeItems} ]}
-            renderItem={({item, section, index}) => this.FoodRender(item, section)}
-            renderSectionHeader={() => ( <View style={{marginTop: 10}}/> )}
-            /> 
-        )}
+        {this.state.search !== '' ? this.SearchRender() : this.FoodRender()}
         <HomeFridgeModal modalProperties={this.state.modalFridge} ModalResultFunc={this.modalResult}/>
         <HomeIngredientModal modalProperties={this.state.modalIngredient} ModalResultFunc={this.modalResult}/>
       </View>

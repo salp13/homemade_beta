@@ -68,6 +68,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.saveRecipe = this.saveRecipe.bind(this)
     this.dismissRecipe = this.dismissRecipe.bind(this)
     this.modalVisibility = this.modalVisibility.bind(this)
+    this.IsLoadingRender = this.IsLoadingRender.bind(this)
+    this.RecipeRender = this.RecipeRender.bind(this)
   }
 
   async componentDidMount() {
@@ -233,15 +235,29 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
   }
 
+  IsLoadingRender() {
+    return (
+      <View style={{ flex: 1, paddingTop: 20 }}>
+        <ActivityIndicator />
+      </View>
+    )
+  }
+
+  RecipeRender(item) {
+    return (
+      <RecipeOverview 
+        recipe={item}
+        saved={(this.state.user_saved.has(item.recipe_id)) ? true : false}
+        onPressNavigate={this.navigateRecipe}
+        saveRecipe={this.saveRecipe}
+        dismissRecipe={this.dismissRecipe}
+        />
+    )
+  }
 
   render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
+    if (this.state.isLoading) return this.IsLoadingRender()
+
     return (
       <View style={styles.container}>
         <View style={{flexDirection: 'row'}}>
@@ -280,15 +296,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
           horizontal={false}
           numColumns={2}
           data={this.state.recipes.filter((recipe) => {return !this.state.dismissed.has(recipe.recipe_id)})} 
-          renderItem={({item}) => (
-            <RecipeOverview 
-              recipe={item}
-              saved={(this.state.user_saved.has(item.recipe_id)) ? true : false}
-              onPressNavigate={this.navigateRecipe}
-              saveRecipe={this.saveRecipe}
-              dismissRecipe={this.dismissRecipe}
-            />
-          )}
+          renderItem={({item}) => this.RecipeRender(item)}
           keyExtractor={(item, index) => item.recipe_id}
         />        
         <FilterModal 

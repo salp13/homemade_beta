@@ -56,6 +56,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.OnPressSearch = this.OnPressSearch.bind(this)
     this.OnCancel = this.OnCancel.bind(this)
     this.OnSubmit = this.OnSubmit.bind(this)
+    this.IsLoadingRender = this.IsLoadingRender.bind(this)
   }
 
   async componentDidMount() {
@@ -186,14 +187,17 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     }
   }
 
+  IsLoadingRender() {
+    return (
+      <View style={{ flex: 1, paddingTop: 20 }}>
+        <ActivityIndicator />
+      </View>
+    )
+  }
+
   render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
+    if (this.state.isLoading) return this.IsLoadingRender()
+
     return (
       <View style={styles.container}>
         <View>

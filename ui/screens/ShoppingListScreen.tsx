@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, FlatList, ScrollView, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { ActivityIndicator, Platform, FlatList, ScrollView, StyleSheet, TouchableWithoutFeedback, TouchableWithoutFeedbackBase } from 'react-native';
 import { AntDesign, Foundation, MaterialCommunityIcons } from '@expo/vector-icons'
 import DraggableFlatList from 'react-native-draggable-flatlist'
 import { RouteProp } from '@react-navigation/native';
@@ -73,6 +73,9 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     this.itemRemove = this.itemRemove.bind(this)
     this.itemAddFridge = this.itemAddFridge.bind(this)
     this.stopReorder = this.stopReorder.bind(this)
+    this.IsLoadingRender = this.IsLoadingRender.bind(this)
+    this.DraggableListRender = this.DraggableListRender.bind(this)
+    this.SwipableListRender = this.SwipableListRender.bind(this)
   }
 
   async componentDidMount() {
@@ -281,14 +284,65 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
       });
   }
 
+  IsLoadingRender() {
+    return (
+      <View style={{ flex: 1, paddingTop: 20 }}>
+        <ActivityIndicator />
+      </View>
+    )
+  }
+
+  DraggableListRender(item, drag) {
+    return (
+      <View>
+        <TouchableWithoutFeedback onLongPress={drag}>
+            <View style={{flexDirection: 'row', marginVertical: 15}}>
+              {item.unlisted_food ? 
+              <Text style={styles.itemName}>{item.unlisted_food}</Text> : 
+              <Text style={styles.itemName}>{item.food.food_name}</Text>}
+                <View style={styles.menuIcon}>
+                    <Foundation name="list" size={25}/>
+                </View>
+            </View>
+          </TouchableWithoutFeedback>
+      </View>
+    )
+  }
+
+  SwipableListRender(item) {
+    return (
+      <View>
+        <Swipeable
+          keyboardShouldPersistTaps='always'
+          leftActionActivationDistance={70}
+          rightActionActivationDistance={70}
+          rightContent={(<View style={[styles.rightSwipeItem, {backgroundColor: '#96FFAF'}]}></View>)}
+          leftContent={(<View style={[styles.leftSwipeItem, {backgroundColor: '#FF6A6A'}]}></View>)}
+          onLeftActionComplete={() => this.itemRemove(item.id)}
+          onRightActionComplete={() => this.itemAddFridge(item.id, item.unlisted_food, item.food.food_id)}
+          onSwipeStart={this.OnSwipeNoScroll}
+          onSwipeEnd={this.OnSwipeScroll}
+          >
+          <TouchableWithoutFeedback>
+              <View style={{flexDirection: 'row', marginVertical: 15}}>
+              {item.unlisted_food ? 
+                <Text style={styles.itemName}>{item.unlisted_food}</Text> : 
+                <Text style={styles.itemName}>{item.food.food_name}</Text>}
+                  <View style={styles.menuIcon}>
+                    <TouchableWithoutFeedback onPress={() => this.modalUpdate(item.id)}>
+                      <MaterialCommunityIcons name="dots-horizontal" size={25}/>
+                    </TouchableWithoutFeedback>
+                  </View>
+              </View>
+            </TouchableWithoutFeedback>
+        </Swipeable>
+      </View>
+    )
+  }
+
   render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
+    if (this.state.isLoading) return this.IsLoadingRender()
+
     return (
       <View style={styles.container}>
         { this.state.draggable ? (
@@ -302,21 +356,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
               keyboardShouldPersistTaps='always'
               scrollEnabled={!this.state.swipingAction}
               data={this.state.shoppingListItems}
-              renderItem={({ item, index, drag }) => {
-                return (
-                  <View>
-                    <TouchableWithoutFeedback onLongPress={drag}>
-                        <View style={{flexDirection: 'row', marginVertical: 15}}>
-                          {item.unlisted_food ? 
-                          <Text style={styles.itemName}>{item.unlisted_food}</Text> : 
-                          <Text style={styles.itemName}>{item.food.food_name}</Text>}
-                            <View style={styles.menuIcon}>
-                                <Foundation name="list" size={25}/>
-                            </View>
-                        </View>
-                      </TouchableWithoutFeedback>
-                  </View>
-              )}}
+              renderItem={({ item, index, drag }) => this.DraggableListRender(item, drag)}
               keyExtractor={(item, index) => index.toString()}
               onDragEnd={({data}) => this.setState({shoppingListItems: data})}
                 />
@@ -342,35 +382,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
                   keyboardShouldPersistTaps='always'
                   scrollEnabled={!this.state.swipingAction}
                   data={this.state.shoppingListItems}
-                  renderItem={({ item, index }) => {
-                    return (
-                      <View>
-                        <Swipeable
-                          keyboardShouldPersistTaps='always'
-                          leftActionActivationDistance={70}
-                          rightActionActivationDistance={70}
-                          rightContent={(<View style={[styles.rightSwipeItem, {backgroundColor: '#96FFAF'}]}></View>)}
-                          leftContent={(<View style={[styles.leftSwipeItem, {backgroundColor: '#FF6A6A'}]}></View>)}
-                          onLeftActionComplete={() => this.itemRemove(item.id)}
-                          onRightActionComplete={() => this.itemAddFridge(item.id, item.unlisted_food, item.food.food_id)}
-                          onSwipeStart={this.OnSwipeNoScroll}
-                          onSwipeEnd={this.OnSwipeScroll}
-                          >
-                          <TouchableWithoutFeedback>
-                              <View style={{flexDirection: 'row', marginVertical: 15}}>
-                              {item.unlisted_food ? 
-                                <Text style={styles.itemName}>{item.unlisted_food}</Text> : 
-                                <Text style={styles.itemName}>{item.food.food_name}</Text>}
-                                  <View style={styles.menuIcon}>
-                                    <TouchableWithoutFeedback onPress={() => this.modalUpdate(item.id)}>
-                                      <MaterialCommunityIcons name="dots-horizontal" size={25}/>
-                                    </TouchableWithoutFeedback>
-                                  </View>
-                              </View>
-                            </TouchableWithoutFeedback>
-                        </Swipeable>
-                      </View>
-                  )}}
+                  renderItem={({ item, index }) => this.SwipableListRender(item)}
                   keyExtractor={(item, index) => index.toString()}
                   />
               </ScrollView>

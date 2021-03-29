@@ -76,11 +76,13 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.SearchFilterFunction = this.SearchFilterFunction.bind(this)
     this.modalUpdate = this.modalUpdate.bind(this)
     this.modalResult = this.modalResult.bind(this)
-    this.OnSwipeScroll = this.OnSwipeScroll.bind(this)
     this.OnSwipeNoScroll = this.OnSwipeNoScroll.bind(this)
+    this.OnSwipeScroll = this.OnSwipeScroll.bind(this)
     this.itemEditted = this.itemEditted.bind(this)
     this.itemWasted = this.itemWasted.bind(this)
     this.itemEaten = this.itemEaten.bind(this)
+    this.IsLoadingRender = this.IsLoadingRender.bind(this)
+    this.FridgeRender = this.FridgeRender.bind(this)
   }
 
   async componentDidMount() {
@@ -342,14 +344,33 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     
   }
 
+  IsLoadingRender() {
+    return (
+      <View style={{ flex: 1, paddingTop: 20 }}>
+        <ActivityIndicator />
+      </View>
+    )
+  }
+
+  FridgeRender(item) {
+    // rendering for flat list of fridge items
+    return (
+      <FridgeItem
+        selected={false}
+        id={item.id}
+        item={item} 
+        modalUpdateFunc={this.modalUpdate}
+        swipeStart={this.OnSwipeNoScroll}
+        swipeEnd={this.OnSwipeScroll}
+        swipeLeftFunc={this.itemWasted}
+        swipeRightFunc={this.itemEaten}
+      />
+    )
+  }
+
   render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
+    if (this.state.isLoading) return this.IsLoadingRender()
+
     return (
       <View style={styles.container}>
         <View style={{flexDirection: 'row'}}>
@@ -370,18 +391,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
           <FlatList
             scrollEnabled={!this.state.swipingAction}
             data={this.state.fridgeItems}
-            renderItem={({ item }) => (
-                <FridgeItem
-                  selected={false}
-                  id={item.id}
-                  item={item} 
-                  modalUpdateFunc={this.modalUpdate}
-                  swipeStart={this.OnSwipeNoScroll}
-                  swipeEnd={this.OnSwipeScroll}
-                  swipeLeftFunc={this.itemWasted}
-                  swipeRightFunc={this.itemEaten}
-                />
-            )}
+            renderItem={({ item }) => this.FridgeRender(item)}
             style={{ marginTop: 10 }}
             keyExtractor={(item, index) => index.toString()}
           />

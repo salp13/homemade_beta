@@ -52,6 +52,9 @@ export default class HomeScreen extends React.Component<Props, State> {
     this.navigateRecipe = this.navigateRecipe.bind(this)
     this.onPressSettings = this.onPressSettings.bind(this)
     this.toggle = this.toggle.bind(this)
+    this.IsLoadingRender = this.IsLoadingRender.bind(this)
+    this.DetermineExclamation = this.DetermineExclamation.bind(this)
+    this.CalculateAverageItems = this.CalculateAverageItems.bind(this)
   }
 
 
@@ -141,26 +144,35 @@ export default class HomeScreen extends React.Component<Props, State> {
     })
   }
 
-  render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
-    // metrics calculations and formatting 
-    let percentage = Math.round((this.state.user_data.eaten_count / this.state.user_data.total_items)*100)
-    let exclamation = ""
-    if (percentage < 70) exclamation = "Needs some work"
-    else if (percentage < 80) exclamation = "Keep it up"
-    else if (percentage < 90) exclamation = "You're doing great"
-    else exclamation = "You're amazing!"
+  IsLoadingRender() {
+    return (
+      <View style={{ flex: 1, paddingTop: 20 }}>
+        <ActivityIndicator />
+      </View>
+    )
+  }
 
+  DetermineExclamation(percentage) {
+    if (percentage < 70) return "Needs some work"
+    else if (percentage < 80) return "Keep it up"
+    else if (percentage < 90) return "You're doing great"
+    else return "You're amazing!"
+  }
+
+  CalculateAverageItems() {
     let currentDate = new Date()
     let placehold = new Date(this.state.user_data.origin_account_date)
     let total_days = Math.ceil((currentDate.valueOf() - placehold.valueOf())/(24 * 60 * 60 * 1000))
-    let avg_items = Math.round((this.state.user_data.total_items / total_days) * 100)
+    return Math.round((this.state.user_data.total_items / total_days) * 100)
+  }
+
+  render() {
+    if (this.state.isLoading) this.IsLoadingRender()
+
+    // metrics calculations and formatting 
+    let percentage = Math.round((this.state.user_data.eaten_count / this.state.user_data.total_items)*100)
+    let exclamation = this.DetermineExclamation(percentage)
+    let avg_items = this.CalculateAverageItems()
 
     return (
       <View style={styles.container}>
@@ -183,10 +195,11 @@ export default class HomeScreen extends React.Component<Props, State> {
         <Swiper 
           showsButtons={false} 
           loop={false} 
+          scrollsToTop={true}
           onIndexChanged={this.toggle} 
           dot={<View></View>} 
           activeDot={<View></View>} 
-          scrollsToTop={true}>
+          >
           <View>
             <View>
               <View style={{flexDirection: 'row', marginVertical: 40}}>
@@ -215,14 +228,14 @@ export default class HomeScreen extends React.Component<Props, State> {
                 data={this.state.user_data.saved_recipes}
                 renderItem={({item}) => (
                   <SavedRecipe 
-                  recipe_id={item.recipe_id}
-                  recipe_name={item.recipe_name}
-                  image={item.image}
-                  dietaryPreferences={item.diets}
-                  saved={true}
-                  onPressNavigate={this.navigateRecipe}
-                  saveRecipe={this.unsaveRecipe}
-                />)}
+                    recipe_id={item.recipe_id}
+                    recipe_name={item.recipe_name}
+                    image={item.image}
+                    dietaryPreferences={item.diets}
+                    saved={true}
+                    onPressNavigate={this.navigateRecipe}
+                    saveRecipe={this.unsaveRecipe}
+                  />)}
                 />
             </View>
           </View>

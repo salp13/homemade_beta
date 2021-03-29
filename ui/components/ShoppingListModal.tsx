@@ -17,6 +17,12 @@ interface State {
 }
 
 export default class HomeFridgeModal extends React.Component<Props, State> {
+  private BottomModalProps = {
+    rounded: true,
+    swipeDirection: 'down',
+    swipeThreshold: 50,
+    opacity: .7
+  }
   constructor(props: Props) {
     super(props)
     this.state = {
@@ -64,32 +70,29 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     return (
       <View>
         <BottomModal
+          {... this.BottomModalProps}
           visible={this.state.visible}
-          rounded
-          swipeDirection='down'
           onSwipeOut={() => {this.modalCancel()}}
           onTouchOutside={() => (this.modalCancel())}
-          swipeThreshold={50}
-          opacity={.7}
           >
-            <View style={styles.bar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)"/>
-            <ModalContent style={styles.container}>
-              <TouchableWithoutFeedback onPress={() => {this.addFridge()}}> 
-                <Text style={styles.option}>Remove and add to fridge</Text>
-              </TouchableWithoutFeedback>
-              <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-              <TouchableWithoutFeedback onPress={() => {this.remove()}}> 
-                <Text style={styles.option}>Remove</Text>
-              </TouchableWithoutFeedback>
-              <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-              <TouchableWithoutFeedback onPress={() => {this.reorder()}}> 
-                <Text style={styles.option}>Reorder</Text>
-              </TouchableWithoutFeedback>
-              <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-              <TouchableWithoutFeedback onPress={() => {this.modalCancel()}}>
-                <Text style={styles.cancel}>Cancel</Text>
-              </TouchableWithoutFeedback>
-            </ModalContent>
+          <View style={styles.bar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)"/>
+          <ModalContent style={styles.container}>
+            <TouchableWithoutFeedback onPress={() => {this.addFridge()}}> 
+              <Text style={styles.option}>Remove and add to fridge</Text>
+            </TouchableWithoutFeedback>
+            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            <TouchableWithoutFeedback onPress={() => {this.remove()}}> 
+              <Text style={styles.option}>Remove</Text>
+            </TouchableWithoutFeedback>
+            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            <TouchableWithoutFeedback onPress={() => {this.reorder()}}> 
+              <Text style={styles.option}>Reorder</Text>
+            </TouchableWithoutFeedback>
+            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            <TouchableWithoutFeedback onPress={() => {this.modalCancel()}}>
+              <Text style={styles.cancel}>Cancel</Text>
+            </TouchableWithoutFeedback>
+          </ModalContent>
         </BottomModal>
       </View>
     );

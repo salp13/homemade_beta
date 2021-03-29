@@ -17,7 +17,12 @@ interface State {
 }
 
 export default class HomeFridgeModal extends React.Component<Props, State> {
-
+  private BottomModalProps = {
+    rounded: true,
+    swipeDirection: 'down',
+    swipeThreshold: 50,
+    opacity: .7
+  }
   constructor(props: Props) {
     super(props)
     this.state = {
@@ -59,13 +64,10 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     return (
       <View>
         <BottomModal
+          {... this.BottomModalProps}
           visible={this.state.modalVisible}
-          rounded
-          swipeDirection='down'
           onSwipeOut={() => {this.modalCancel()}}
           onTouchOutside={() => (this.modalCancel())}
-          swipeThreshold={50}
-          opacity={.7}
           >
           <View style={styles.bar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)"/>
           <ModalContent style={styles.container}>

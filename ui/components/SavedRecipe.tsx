@@ -66,7 +66,6 @@ export default class RecipeOverview extends React.Component<Props, State> {
     this.props.saveRecipe(this.state.recipe_id)
   }
     
-    
   render() {
     // formatting for the dietary preferences related to this recipe
     let dietaryPrefs = ''
@@ -74,6 +73,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
       dietaryPrefs = dietaryPrefs.concat(pref.diet)
       if (index !== this.state.dietaryPreferences.length - 1) dietaryPrefs = dietaryPrefs.concat(', ')
     })
+    
     return (
       <View style={styles.container}>
           <View style={{flexDirection:'row'}}>

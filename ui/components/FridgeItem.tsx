@@ -37,6 +37,11 @@ export default class FridgeItem extends React.Component<Props, State> {
       expiration_date: this.props.item.expiration_date,
       selected: this.props.selected,
     }
+
+    this.updateModalVisible = this.updateModalVisible.bind(this)
+    this.swipeLeft = this.swipeLeft.bind(this)
+    this.swipeRight = this.swipeRight.bind(this)
+    this.determineSecondaryText = this.determineSecondaryText.bind(this)
   }
 
   componentDidUpdate() {
@@ -69,7 +74,7 @@ export default class FridgeItem extends React.Component<Props, State> {
     setTimeout(() => {this.props.swipeRightFunc(this.state.id)}, 200)
   }
 
-  render() {
+  determineSecondaryText() {
     // formatting for expiration date and sub text surrounding expiration date
     let secondaryText = ''
     if (this.state.expiration_date) {
@@ -80,7 +85,10 @@ export default class FridgeItem extends React.Component<Props, State> {
       else if (daysToExp < 1) secondaryText = 'expired'
       else secondaryText = `this expires in ${daysToExp} days`
     }
+    return secondaryText
+  }
 
+  render() {
     let loadimage = this.state.image ? `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}` : `corn.png`
 
     return (
@@ -103,10 +111,10 @@ export default class FridgeItem extends React.Component<Props, State> {
             </View>
             {this.state.unlisted_food ? 
             <Text style={styles.itemName}>{this.state.unlisted_food + "\n"}
-              <Text style={styles.secondary} lightColor="#ccc" darkColor="#ccc">{secondaryText}</Text>
+              <Text style={styles.secondary} lightColor="#ccc" darkColor="#ccc">{this.determineSecondaryText()}</Text>
             </Text> :
             <Text style={styles.itemName}>{this.state.food_name + "\n"}
-            <Text style={styles.secondary} lightColor="#ccc" darkColor="#ccc">{secondaryText}</Text>
+            <Text style={styles.secondary} lightColor="#ccc" darkColor="#ccc">{this.determineSecondaryText()}</Text>
           </Text>
             }
             
