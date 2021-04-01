@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, TouchableWithoutFeedback, StyleSheet, SectionList, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import { Text, View } from './Themed'
+import { styling } from '../style'
 
 const sectionsArray = [{
   title: "mealType",
@@ -289,3 +290,10 @@ const styles = StyleSheet.create({
     height: 1,
   },
 })
+
+/*
+TODO: 
+  - make cancel and save buttons visible
+  - fix scroll capabilities
+  - finish compatible style
+*/

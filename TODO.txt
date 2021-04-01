@@ -1,10 +1,10 @@
-Priority 4: (1 day)
-    modularize renders and mimic searchbarprops when possible 
+Priority 4: (2 days)
     compatible for all iphone versions (style)
     authorization / admin (account screen)
 
-Priority 5: (2 hours)
+Priority 5: (4 hours)
     documentation
+    comment and organize API code
 
 Priority 6: (3 hours)
     deployment

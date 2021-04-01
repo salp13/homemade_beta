@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, FlatList, ScrollView, StyleSheet, TouchableWithoutFeedback, TouchableWithoutFeedbackBase } from 'react-native';
+import { ActivityIndicator, Platform, FlatList, ScrollView, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { AntDesign, Foundation, MaterialCommunityIcons } from '@expo/vector-icons'
 import DraggableFlatList from 'react-native-draggable-flatlist'
 import { RouteProp } from '@react-navigation/native';
@@ -10,6 +10,7 @@ import ShoppingListModal from '../components/ShoppingListModal'
 import { ShoppingListParamList } from '../types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Swipeable from 'react-native-swipeable';
+import { styling } from '../style';
 
 interface Props {
   navigation: StackNavigationProp<ShoppingListParamList, 'ShoppingListScreen'>,
@@ -40,10 +41,10 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     placeholder: "Search your shopping list...",
     autoCorrect: false,
     showCancel: true,
-    containerStyle: styles.searchBarContainerStyle,
-    inputContainerStyle: styles.searchBarInputContainerStyle,
-    inputStyle: styles.searchBarTextStyle,
-    cancelButtonProps: {buttonTextStyle: {fontSize: 15}},
+    containerStyle: styling.searchBarContainerStyle,
+    inputContainerStyle: styling.searchBarInputContainerStyle,
+    inputStyle: styling.defaultFontSize,
+    cancelButtonProps: {buttonTextStyle: styling.defaultFontSize},
     reference: this.searchRef,
   }
 
@@ -286,7 +287,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
 
   IsLoadingRender() {
     return (
-      <View style={{ flex: 1, paddingTop: 20 }}>
+      <View style={styling.container}>
         <ActivityIndicator />
       </View>
     )
@@ -296,12 +297,12 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     return (
       <View>
         <TouchableWithoutFeedback onLongPress={drag}>
-            <View style={{flexDirection: 'row', marginVertical: 15}}>
+            <View style={styling.shoppingListElement}>
               {item.unlisted_food ? 
-              <Text style={styles.itemName}>{item.unlisted_food}</Text> : 
-              <Text style={styles.itemName}>{item.food.food_name}</Text>}
-                <View style={styles.menuIcon}>
-                    <Foundation name="list" size={25}/>
+              <Text style={styling.shoppingListText}>{item.unlisted_food}</Text> : 
+              <Text style={styling.shoppingListText}>{item.food.food_name}</Text>}
+                <View style={styling.autoLeft}>
+                    <Foundation name="list" style={styling.iconSize}/>
                 </View>
             </View>
           </TouchableWithoutFeedback>
@@ -316,21 +317,21 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
           keyboardShouldPersistTaps='always'
           leftActionActivationDistance={70}
           rightActionActivationDistance={70}
-          rightContent={(<View style={[styles.rightSwipeItem, {backgroundColor: '#96FFAF'}]}></View>)}
-          leftContent={(<View style={[styles.leftSwipeItem, {backgroundColor: '#FF6A6A'}]}></View>)}
+          rightContent={(<View style={styling.rightSwipeItem}></View>)}
+          leftContent={(<View style={styling.leftSwipeItem}></View>)}
           onLeftActionComplete={() => this.itemRemove(item.id)}
           onRightActionComplete={() => this.itemAddFridge(item.id, item.unlisted_food, item.food.food_id)}
           onSwipeStart={this.OnSwipeNoScroll}
           onSwipeEnd={this.OnSwipeScroll}
           >
           <TouchableWithoutFeedback>
-              <View style={{flexDirection: 'row', marginVertical: 15}}>
+              <View style={styling.shoppingListElement}>
               {item.unlisted_food ? 
-                <Text style={styles.itemName}>{item.unlisted_food}</Text> : 
-                <Text style={styles.itemName}>{item.food.food_name}</Text>}
-                  <View style={styles.menuIcon}>
+                <Text style={styling.shoppingListText}>{item.unlisted_food}</Text> : 
+                <Text style={styling.shoppingListText}>{item.food.food_name}</Text>}
+                  <View style={styling.autoLeft}>
                     <TouchableWithoutFeedback onPress={() => this.modalUpdate(item.id)}>
-                      <MaterialCommunityIcons name="dots-horizontal" size={25}/>
+                      <MaterialCommunityIcons name="dots-horizontal" style={styling.iconSize}/>
                     </TouchableWithoutFeedback>
                   </View>
               </View>
@@ -344,12 +345,12 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     if (this.state.isLoading) return this.IsLoadingRender()
 
     return (
-      <View style={styles.container}>
+      <View style={styling.container}>
         { this.state.draggable ? (
-          <View style={{flex: 1}}>
-            <View style={{flexDirection: 'row', marginLeft: 'auto', marginVertical: 20}}>
+          <View style={styling.setFlex}>
+            <View style={StyleSheet.flatten([styling.shoppingListElement, styling.autoLeft])}>
               <TouchableWithoutFeedback onPress={this.stopReorder}>
-                <Text style={{textDecorationLine: 'underline', fontSize: 15}}>done</Text>
+                <Text style={StyleSheet.flatten([styling.defaultFontSize, {textDecorationLine: 'underline'}])}>done</Text>
               </TouchableWithoutFeedback>
             </View>
             <DraggableFlatList
@@ -362,8 +363,8 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
                 />
             </View>
            ) : (
-             <View style={{flex: 1}}>
-              <View style={{flexDirection: 'row'}}>
+             <View style={styling.setFlex}>
+              <View style={styling.flexRow}>
                 <SearchBar
                   onChangeText={text => this.SearchFilterFunction(text)}
                   onClear={this.SearchFilterFunction}
@@ -371,9 +372,9 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
                   platform={Platform.OS === "android" || Platform.OS === "ios" ? Platform.OS : "default"}
                   {...this.searchBarProps}
                 />
-                <View style={{marginTop: 18, marginLeft: 10}}>
+                <View style={styling.addButton}>
                   <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('AddShoppingListItemScreen')}>
-                    <AntDesign name="plus" size={24} color="black"/>
+                    <AntDesign name="plus" style={styling.iconSize} color="black"/>
                   </TouchableWithoutFeedback>
                 </View>
               </View>
@@ -393,42 +394,3 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
     )
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  searchBarContainerStyle: {
-    borderBottomColor: 'transparent',
-    borderTopColor: 'transparent',
-    width: 335,
-  },
-  searchBarInputContainerStyle: {
-    height: 35,
-  },
-  searchBarTextStyle: {
-    fontSize: 15,
-  },
-  menuIcon:{
-    marginLeft: 'auto',
-  },
-  itemName: {
-    paddingLeft: 15,
-    fontSize: 15,
-  },
-  leftSwipeItem: {
-    flex: 2,
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    left: -1,
-    paddingRight: 20
-  },
-  rightSwipeItem: {
-    flex: 2,
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    paddingLeft: 20
-  },
-});

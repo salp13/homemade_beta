@@ -7,6 +7,7 @@ import SavedRecipe from '../components/SavedRecipe'
 import { StackNavigationProp } from '@react-navigation/stack';
 import Swiper from 'react-native-swiper'
 import { userDataType } from '../objectTypes'
+import { styling } from '../style';
 
 type ProfileScreenNavigationProp = StackNavigationProp<ProfileParamList, 'ProfileScreen'>;
 type ProfileScreenRouteProp = RouteProp<ProfileParamList, 'ProfileScreen'>;
@@ -20,7 +21,7 @@ interface State {
   isLoading: boolean
   toggle: boolean
   user_data: userDataType
-  most_wasted_image: string
+  most_wasted_group: string
 }
 
 export default class HomeScreen extends React.Component<Props, State> {
@@ -45,7 +46,7 @@ export default class HomeScreen extends React.Component<Props, State> {
         shopping_list: [],
         fridge: []
       },
-      most_wasted_image: ""
+      most_wasted_group: ""
     }
 
     this.unsaveRecipe = this.unsaveRecipe.bind(this)
@@ -53,7 +54,6 @@ export default class HomeScreen extends React.Component<Props, State> {
     this.onPressSettings = this.onPressSettings.bind(this)
     this.toggle = this.toggle.bind(this)
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
-    this.DetermineExclamation = this.DetermineExclamation.bind(this)
     this.CalculateAverageItems = this.CalculateAverageItems.bind(this)
   }
 
@@ -75,34 +75,19 @@ export default class HomeScreen extends React.Component<Props, State> {
       console.error(error);
     });
 
-    // determine food group id of most wasted food group
-    let id = 0
+    // determine most wasted food group
+    let group = ""
     if (this.state.user_data.produce_wasted >= this.state.user_data.meat_wasted && this.state.user_data.produce_wasted >= this.state.user_data.dairy_wasted) {
-      id = 2
+      group = 'produce'
     } else if (this.state.user_data.meat_wasted >= this.state.user_data.dairy_wasted && this.state.user_data.meat_wasted > this.state.user_data.produce_wasted) {
-      id = 3
+      group = 'protein'
     } else {
-      id = 8
+      group = 'dairy'
     } 
-    // hit api to get most wasted food group's image
-    await fetch(`http://localhost:8000/homemade/single_food_group/${id}`, {      
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data)
-      this.setState({
-        isLoading: false,
-        user_data: user_data,
-        most_wasted_image: data.image
-      });
-    })
-    .catch(error => {
-      console.error(error);
+    this.setState({
+      isLoading: false,
+      user_data: user_data,
+      most_wasted_group: group
     });
   }
 
@@ -146,17 +131,10 @@ export default class HomeScreen extends React.Component<Props, State> {
 
   IsLoadingRender() {
     return (
-      <View style={{ flex: 1, paddingTop: 20 }}>
+      <View style={styling.container}>
         <ActivityIndicator />
       </View>
     )
-  }
-
-  DetermineExclamation(percentage) {
-    if (percentage < 70) return "Needs some work"
-    else if (percentage < 80) return "Keep it up"
-    else if (percentage < 90) return "You're doing great"
-    else return "You're amazing!"
   }
 
   CalculateAverageItems() {
@@ -171,26 +149,28 @@ export default class HomeScreen extends React.Component<Props, State> {
 
     // metrics calculations and formatting 
     let percentage = Math.round((this.state.user_data.eaten_count / this.state.user_data.total_items)*100)
-    let exclamation = this.DetermineExclamation(percentage)
     let avg_items = this.CalculateAverageItems()
 
     return (
-      <View style={styles.container}>
-        <View style={{marginTop: 30, marginBottom: 50}}>
-          <Text style={styles.usersName}>{this.state.user_data.name}</Text>
-          <Text style={styles.currentFridgeCount}>your fridge has {this.state.user_data.fridge.length} items</Text>
+      <View style={styling.container}>
+        <View style={styling.userInfoBuffer}>
+          <Text style={styling.username}>{this.state.user_data.name}</Text>
+          <Text style={styling.metricsText}>Items in your fridge: {this.state.user_data.fridge.length}</Text>
+          <Text style={styling.metricsText}>Ratio of food eaten instead of wasted: {percentage}%</Text>
+          <Text style={styling.metricsText}>Average number of items in your fridge: {avg_items}</Text>
+          <Text style={styling.metricsText}>Food group wasted most often: {this.state.most_wasted_group}</Text>
         </View>
-          <View style={{flexDirection: 'row'}}>
-            <View style={{marginRight:'auto', marginLeft: 60}}>
-              <Text style={this.state.toggle ? {fontWeight: 'bold'} : {fontWeight: 'normal'}}>Your Metrics</Text>
+          <View style={styling.flexRow}>
+            <View style={styling.halfWidth}>
+              <Text style={this.state.toggle ? styling.toggledText : styling.untoggledText}>Your Recipes</Text>
             </View>
-            <View style={{marginLeft:'auto', marginRight: 55}}>
-              <Text style={!this.state.toggle ? {fontWeight: 'bold'} : {fontWeight: 'normal'}}>Saved Recipes</Text>
+            <View style={styling.halfWidth}>
+              <Text style={!this.state.toggle ? styling.toggledText : styling.untoggledText}>Saved Recipes</Text>
             </View>
           </View> 
-          <View>
-            <View style={styles.completeSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-            <View style={!this.state.toggle ? StyleSheet.flatten([styles.halfSeparator, {marginLeft: 'auto'}]) : styles.halfSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+          <View style={styling.flexRow}>
+            <View style={!this.state.toggle ? styling.untoggledSeparator : styling.toggledSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            <View style={!this.state.toggle ? styling.toggledSeparator : styling.untoggledSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
           </View>
         <Swiper 
           showsButtons={false} 
@@ -201,31 +181,13 @@ export default class HomeScreen extends React.Component<Props, State> {
           activeDot={<View></View>} 
           >
           <View>
-            <View>
-              <View style={{flexDirection: 'row', marginVertical: 40}}>
-                <View style={styles.fridgeCountCircle}>
-                <Text style={{marginTop: 25, marginLeft: 17, fontSize: 35}}>{percentage}%</Text>
-                </View>
-                <Text style={{marginTop: 20, marginLeft: 30, fontSize: 15}}>{exclamation}{"\n"}{percentage}% of food in your fridge{"\n"} is eaten instead of wasted</Text>
-              </View>
-              <View style={{flexDirection: 'row', marginBottom: 40}}>
-                <View style={styles.fridgeCountCircle}>
-                  <Text style={{marginTop: 3, marginLeft: 27, fontSize: 75}}>{avg_items}</Text> 
-                </View>
-                <Text style={{marginTop: 40, marginLeft: 30, fontSize: 15}}>items on average in fridge</Text>
-              </View>
-              <View style={{flexDirection: 'row'}}>
-                <View style={styles.imageContainer}>
-                  <Image style={styles.image} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.most_wasted_image}`}}/>
-                </View>
-                <Text style={{marginTop: 40, marginLeft: 30, fontSize: 15}}>food group wasted the most often</Text>
-              </View>
-            </View>
+            <Text>Coming soon...</Text>
           </View>
           <View>
             <View>
               <FlatList 
                 data={this.state.user_data.saved_recipes}
+                ItemSeparatorComponent={() => (<View style={styling.elementBuffer}></View>)}
                 renderItem={({item}) => (
                   <SavedRecipe 
                     recipe_id={item.recipe_id}
@@ -245,59 +207,7 @@ export default class HomeScreen extends React.Component<Props, State> {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 20,
-    textAlign: 'center',
-    marginTop: -240,
-  },
-  usersName: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    marginHorizontal: 20,
-    marginBottom: 5
-  },
-  currentFridgeCount: {
-    fontSize: 15,
-    marginHorizontal: 20
-  },
-  completeSeparator: {
-    marginVertical: 10,
-    height: 1,
-  },
-  halfSeparator: {
-    marginTop: -11.5,
-    height: 1,
-    borderWidth: 0.5,
-    width: "50%",
-  },
-  toggleHeader: {
-    marginVertical: 30,
-    height: 1,
-  },
-  fridgeCountCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginLeft: 20,
-    borderWidth: 1
-  },
-  imageContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginLeft: 20,
-    overflow: "hidden",
-    backgroundColor: "#ccc"
-  },
-  image: {
-    width: 75,
-    height: 75,
-    marginTop: 7,
-    left: 11,
-    backgroundColor: "#ccc"
-  },
-});
+/*
+TODO:
+  - clicking "Saved Recipes" or "Your Recipes" should toggle as well as swipe
+*/

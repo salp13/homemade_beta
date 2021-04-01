@@ -4,6 +4,7 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { StyleSheet } from 'react-native';
 import { View } from '../components/Themed';
+import { styling } from '../style'
 
 type AccountScreenNavigationProp = StackNavigationProp<ProfileParamList, 'AccountScreen'>;
 type AccountScreenRouteProp = RouteProp<ProfileParamList, 'AccountScreen'>;
@@ -21,18 +22,9 @@ export default class AccountScreen extends React.Component<Props> {
 
   render() {
     return (
-        <View style={styles.container}>
+        <View style={styling.container}>
 
         </View>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 65,
-    paddingLeft: 20,
-    paddingRight:20,
-  },
-});

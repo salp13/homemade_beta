@@ -4,6 +4,7 @@ import { TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { BottomModal, ModalContent } from 'react-native-modals';
 import { AntDesign } from '@expo/vector-icons'; 
 import { Text, View } from './Themed'
+import { styling } from '../style'
 
 interface Props {
     modalProperties: {
@@ -152,47 +153,48 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
           onSwipeOut={() => {this.cancel()}}
           onTouchOutside={() => (this.cancel())}
           >
-            <View style={styles.bar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)"/>
-            <ModalContent style={styles.container}>
+            <View style={styling.modalBar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)"/>
+            <ModalContent>
               {this.state.editting ? 
                 <View>
                   <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                     {this.state.daysToExp !== 0 ?
-                    <View style={{flexDirection: 'row'}}>
+                    <View style={styling.flexRow}>
                       <TouchableWithoutFeedback onPress={() => {this.editMinus()}}> 
-                        <AntDesign name="minus" size={24} color="black" />
+                        <AntDesign name="minus" style={styling.iconSize} color="black" />
                       </TouchableWithoutFeedback>
-                      <Text style={{fontSize: 20, marginHorizontal: 20}}>{this.state.daysToExp}</Text>
+                      <Text style={styling.editFridgeText}>{this.state.daysToExp}</Text>
                     </View> :
-                    <View><Text style={{fontSize: 20, marginHorizontal: 20}}>frozen</Text></View>}
+                    <View><Text style={styling.editFridgeText}>frozen</Text></View>}
+
                     <TouchableWithoutFeedback onPress={() => {this.editPlus()}}> 
-                      <AntDesign name="plus" size={24} color="black" />
+                      <AntDesign name="plus" style={styling.iconSize} color="black" />
                     </TouchableWithoutFeedback>
                   </View>
-                  <View style={{flexDirection: 'row', marginTop: 30}}> 
+                  <View style={styling.modalPadding}> 
                     <TouchableWithoutFeedback onPress={this.cancelEdit}>
                       <Text>Cancel</Text>
                     </TouchableWithoutFeedback>
                     <TouchableWithoutFeedback onPress={this.saveEdit}>
-                      <Text style={{marginLeft: 'auto'}}>Save</Text>
+                      <Text style={styling.autoLeft}>Save</Text>
                     </TouchableWithoutFeedback>
                   </View>
                 </View> :
                 <View>
                   <TouchableWithoutFeedback onPress={() => {this.edit()}}> 
-                    <Text style={styles.option}>Edit</Text>
+                    <Text style={styling.modalOption}>Edit</Text>
                   </TouchableWithoutFeedback>
-                  <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+                  <View style={styling.fullSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
                   <TouchableWithoutFeedback onPress={() => {this.eaten()}}> 
-                    <Text style={styles.option}>Eaten</Text>
+                    <Text style={styling.modalOption}>Eaten</Text>
                   </TouchableWithoutFeedback>
-                  <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+                  <View style={styling.fullSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
                   <TouchableWithoutFeedback onPress={() => {this.wasted()}}>
-                    <Text style={styles.option}>Wasted</Text>
+                    <Text style={styling.modalOption}>Wasted</Text>
                   </TouchableWithoutFeedback>
-                  <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+                  <View style={styling.fullSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
                   <TouchableWithoutFeedback onPress={() => {this.cancel()}}>
-                    <Text style={styles.cancel}>Cancel</Text>
+                    <Text style={StyleSheet.flatten([styling.modalOption, {alignSelf: 'center'}])}>Cancel</Text>
                   </TouchableWithoutFeedback>
                 </View>
                }
@@ -202,37 +204,3 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     );
   }
 }
-
-
-const styles = StyleSheet.create({
-  bar: {
-    marginTop: 15,
-    height: 3, 
-    width: 40,
-    borderRadius: 3,
-    alignSelf: 'center'
-  },
-  container: {
-    margin: 20,
-  },
-  option: {
-    marginTop: 5,
-    marginBottom: 10,
-    paddingLeft: 15,
-    fontSize: 20,
-    fontWeight: "normal"
-  },
-  cancel: {
-    marginTop: 5,
-    marginBottom: 10,
-    paddingLeft: 15,
-    fontSize: 15,
-    alignSelf: 'center',
-    fontWeight: "normal"
-  },
-  separator: {
-    marginVertical: 10,
-    height: 1,
-  },
-})
-

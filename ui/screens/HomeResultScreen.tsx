@@ -9,6 +9,7 @@ import RecipeOverview from '../components/RecipeOverview'
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Text, View } from '../components/Themed';
+import { styling } from '../style';
 
 interface Props {
   navigation: StackNavigationProp<HomeParamList, 'HomeResultScreen'>,
@@ -199,7 +200,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
 
   IsLoadingRender() {
     return (
-      <View style={{ flex: 1, paddingTop: 20 }}>
+      <View style={styling.container}>
         <ActivityIndicator />
       </View>
     )
@@ -221,30 +222,31 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     if (this.state.isLoading) return this.IsLoadingRender()
 
     return (
-      <View style={styles.container}>
-        <View style={{flexDirection:'row', marginLeft: 5, marginRight: 25}}>
+      <View style={StyleSheet.flatten([styling.noHeader, styling.container])}>
+        <View style={styling.backArrow}>
           <TouchableWithoutFeedback onPress={this.props.navigation.goBack}>
-            <Ionicons name="ios-arrow-back" size={24} color="black" style={{marginTop: -5}}/>
+            <Ionicons name="ios-arrow-back" color="black" style={styling.iconSize}/>
           </TouchableWithoutFeedback>
-          {(this.state.filters.mealType.length || 
-            this.state.filters.dietaryPreference.length || 
-            this.state.filters.cuisine.length) ? 
-            <Text style={{ marginLeft: 15, fontWeight: 'bold'}}>Filters:</Text> : 
-            <Text></Text>}
-          <SectionList
-            horizontal
-            contentContainerStyle={{marginRight: 50, marginLeft: 10}}
-            sections={[ 
-              {data: this.state.filters.mealType}, 
-              {data: this.state.filters.dietaryPreference}, 
-              {data: this.state.filters.cuisine} ]}
-            renderItem={({ item }) => (<Text>{item + "   "}</Text>)}
-          />
           <TouchableWithoutFeedback onPress={this.onPressFilter}>
-            <MaterialIcons name="filter-list" size={24} color="black" 
-              style={{marginLeft: 'auto', marginBottom: 10, marginTop: -5}} />
+            <MaterialIcons name="filter-list" color="black" style={StyleSheet.flatten([styling.iconSize, styling.autoLeft])}/>
           </TouchableWithoutFeedback>
         </View>
+        <View style={styling.filterTextContainer}>
+          {(this.state.filters.mealType.length || 
+              this.state.filters.dietaryPreference.length || 
+              this.state.filters.cuisine.length) ? 
+              <Text style={{fontWeight: 'bold'}}>Filters: </Text> : 
+              <Text></Text>}
+            <SectionList
+              horizontal
+              contentContainerStyle={styling.filterTextPadding}
+              sections={[ 
+                {data: this.state.filters.mealType}, 
+                {data: this.state.filters.dietaryPreference}, 
+                {data: this.state.filters.cuisine} ]}
+              renderItem={({ item }) => (<Text>{item + "   "}</Text>)}
+            />
+          </View>
         <FlatList
           horizontal={false}
           numColumns={2}
@@ -262,13 +264,3 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     );
   }
 }
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 65,
-    paddingLeft: 15,
-    paddingRight: 15,
-  },
-});

@@ -2,6 +2,7 @@ import React from 'react';
 import { TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import {BottomModal, ModalContent} from 'react-native-modals';
 import { Text, View } from './Themed'
+import { styling } from '../style'
 
 interface Props {
     modalProperties: {
@@ -69,18 +70,18 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
           onSwipeOut={() => {this.modalCancel()}}
           onTouchOutside={() => (this.modalCancel())}
           >
-          <View style={styles.bar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)"/>
-          <ModalContent style={styles.container}>
+          <View style={styling.modalBar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)"/>
+          <ModalContent>
             <TouchableWithoutFeedback onPress={() => {this.modalAdd()}}> 
-              <Text style={styles.option}>Add this item to ingredients list</Text>
+              <Text style={styling.modalOption}>Add this item to ingredients list</Text>
             </TouchableWithoutFeedback>
-            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            <View style={styling.fullSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
             <TouchableWithoutFeedback onPress={() => {this.modalDismiss()}}> 
-              <Text style={styles.option}>Dismiss this item for now</Text>
+              <Text style={styling.modalOption}>Dismiss this item for now</Text>
             </TouchableWithoutFeedback>
-            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            <View style={styling.fullSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
             <TouchableWithoutFeedback onPress={() => {this.modalCancel()}}>
-              <Text style={styles.cancel}>Cancel</Text>
+              <Text style={StyleSheet.flatten([styling.modalOption, {alignSelf: 'center'}])}>Cancel</Text>
             </TouchableWithoutFeedback>
           </ModalContent>
         </BottomModal>
@@ -88,36 +89,3 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     );
   }
 }
-
-
-const styles = StyleSheet.create({
-  bar: {
-    marginTop: 15,
-    height: 3, 
-    width: 40,
-    borderRadius: 3,
-    alignSelf: 'center'
-  },
-  container: {
-    margin: 20,
-  },
-  option: {
-    marginTop: 5,
-    marginBottom: 10,
-    paddingLeft: 15,
-    fontSize: 20,
-    fontWeight: "normal"
-  },
-  cancel: {
-    marginTop: 5,
-    marginBottom: 10,
-    paddingLeft: 15,
-    fontSize: 15,
-    alignSelf: 'center',
-    fontWeight: "normal"
-  },
-  separator: {
-    marginVertical: 10,
-    height: 1,
-  },
-})

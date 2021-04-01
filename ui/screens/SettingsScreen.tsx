@@ -5,6 +5,7 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Text, View } from '../components/Themed';
+import { styling } from '../style';
 
 type SettingsScreenNavigationProp = StackNavigationProp<ProfileParamList, 'SettingsScreen'>;
 type SettingsScreenRouteProp = RouteProp<ProfileParamList, 'SettingsScreen'>;
@@ -23,7 +24,7 @@ export default class SettingsScreen extends React.Component<Props> {
 
   render() {
     return (
-      <View style={styles.container}>
+      <View style={styling.container}>
         <TouchableWithoutFeedback onPress={() => {this.props.navigation.navigate('AccountScreen')}}>
             <View style={{flexDirection: 'row'}}>
                 <Text style={{fontSize: 15, margin: 10, marginTop: 20}}>Account</Text>
@@ -45,9 +46,6 @@ export default class SettingsScreen extends React.Component<Props> {
 
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   completeSeparator: {
     marginVertical: 10,
     height: 1,

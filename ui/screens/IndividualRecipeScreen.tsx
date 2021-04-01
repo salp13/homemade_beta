@@ -7,6 +7,7 @@ import { recipeEntireType } from '../objectTypes'
 import { RouteProp } from '@react-navigation/native';
 import { SectionList, TouchableWithoutFeedback } from 'react-native'
 import { StackNavigationProp } from '@react-navigation/stack';
+import { styling } from '../style';
 
 type HomeNavigationProp = StackNavigationProp<HomeParamList, 'IndividualRecipeScreen'>;
 type HomeRouteProp = RouteProp<HomeParamList, 'IndividualRecipeScreen'>;
@@ -123,7 +124,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
 
   IsLoadingRender() {
     return (
-      <View style={{ flex: 1, paddingTop: 20 }}>
+      <View style={styling.container}>
         <ActivityIndicator />
       </View>
     )
@@ -137,59 +138,45 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     dietaryPrefs = dietaryPrefs.concat(pref.diet)
     if (index !== this.state.recipe.diets.length - 1) dietaryPrefs = dietaryPrefs.concat(', ')
     })
-    let instructions = this.state.recipe.instructions.split("\n")
+    let instructions = this.state.recipe.instructions.split("\n").map((ele) => {return ele.trim()})
+
     return (
-    <View style={styles.container}>
-      <View style={{position: 'absolute', marginTop: 50, marginLeft: 20, zIndex: 1, backgroundColor: 'transparant'}}>
+    <View style={styling.setFlex}>
+      <View style={styling.positioningSetUp}>
         <TouchableWithoutFeedback onPress={this.props.navigation.goBack}>
-          <Ionicons name="ios-arrow-back" size={40} color="black" style={{marginTop: -5}}/>
+          <Ionicons name="ios-arrow-back" color="black" style={StyleSheet.flatten([styling.largeIconSize, styling.noHeader])}/>
         </TouchableWithoutFeedback>
       </View>
-      <Image style={styles.image} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.recipe.image}`}}/>
-      <View style={{marginHorizontal: 20, flex: 1}}>
-        <View style={{flexDirection: 'row', marginVertical: 10}}>
-          <Text style={{fontSize: 25, flex: 1, flexWrap: "wrap"}}>{this.state.recipe.recipe_name}</Text>
-          <View style={{marginLeft: 'auto', marginRight: 10, marginTop: 10}}>  
+      <Image style={styling.fullRecipeImage} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.recipe.image}`}}/>
+      <View style={styling.container}>
+        <View style={styling.flexRow}>
+          <Text style={styling.fullRecipeName}>{this.state.recipe.recipe_name}</Text>
+          <View style={styling.formatSave}>  
             <TouchableWithoutFeedback onPress={this.saveRecipe}>
-                <Fontisto name={this.state.saved ? "bookmark-alt" : "bookmark"} size={24} color="black" />
+                <Fontisto name={this.state.saved ? "bookmark-alt" : "bookmark"} style={styling.iconSize} color="black" />
             </TouchableWithoutFeedback>
           </View>
         </View>
 
-        <View style={{flexDirection: 'row'}}>
-            <Text style={{marginBottom: 4}}>{dietaryPrefs}</Text>
+        <View style={styling.flexRow}>
+            <Text>{dietaryPrefs}</Text>
         </View>
 
-        <View style={styles.completeSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
         <SectionList
-          style={{flex:1, marginTop: 20}}
+          style={styling.sectionBuffer}
           stickySectionHeadersEnabled={false}
-          sections={[ {recipe_name: "Ingredients", data: this.state.recipe.ingredients.map((ingredient) => ingredient.description)}, {recipe_name: "Directions", data: instructions} ]}
-          renderItem={({item}) => ( <Text style={{marginVertical: 5, marginLeft: 10}}>{item}</Text> )}
-          renderSectionHeader={({section}) => ( <Text style={{fontWeight: 'bold', marginBottom: 10, fontSize: 15}}>{section.recipe_name}</Text> )}
-          renderSectionFooter={() => ( <View style={{marginBottom: 20}}></View> )}
+          sections={[ 
+            {recipe_name: "Ingredients", data: this.state.recipe.ingredients.map((ingredient) => ingredient.description)}, 
+            {recipe_name: "Directions", data: instructions} ]}
+          renderItem={({item}) => ( <Text style={styling.recipeDirections}>{item}</Text> )}
+          renderSectionHeader={({section}) => ( 
+            <Text style={styling.recipeDirectionsHeader}>{section.recipe_name}</Text> 
+            )}
+          renderSectionFooter={() => ( <View style={styling.recipeDirectionsFooter}></View> )}
           /> 
           
       </View>
     </View>
     );
+  }
 }
-}
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    zIndex: 1
-  },
-  image: {
-    width: '100%',
-    marginBottom: 5,
-    height: undefined,
-    aspectRatio: 5/4,
-  },
-  completeSeparator: {
-    marginVertical: 10,
-    height: 1,
-  },
-});

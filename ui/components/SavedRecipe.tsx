@@ -3,6 +3,8 @@ import { StyleSheet } from 'react-native';
 import { Fontisto } from '@expo/vector-icons'; 
 import { Text, View, Image } from './Themed';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { styling } from '../style';
+
 
 interface Props {
   recipe_id: string
@@ -75,21 +77,21 @@ export default class RecipeOverview extends React.Component<Props, State> {
     })
     
     return (
-      <View style={styles.container}>
-          <View style={{flexDirection:'row'}}>
+      <View style={styling.setFlex}>
+          <View style={styling.flexRow}>
             <TouchableWithoutFeedback onPress={this.OnPressNavigate}>
-                <View style ={{flexDirection: 'row'}}>
-                    <Image style={styles.image} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`}}/>
-                    <View style={{marginLeft: 20, marginTop: 20}}>
-                        <Text style={{fontWeight: 'bold', marginBottom: 4}}>{this.state.recipe_name}</Text>
-                        <Text style={{marginBottom: 4}}>{dietaryPrefs}</Text>
+                <View style={styling.flexRow}>
+                    <Image style={styling.savedRecipeImage} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`}}/>
+                    <View style={styling.upRightBuffer}>
+                        <Text style={styling.savedRecipeText}>{this.state.recipe_name}</Text>
+                        <Text>{dietaryPrefs}</Text>
                     </View>
                 </View>
             
             </TouchableWithoutFeedback>
-            <View style={{marginLeft: 'auto', marginTop: 25}}> 
+            <View style={styling.savedBookmarkPadding}> 
                 <TouchableWithoutFeedback onPress={this.OnPressUnsave}>
-                    <Fontisto name={this.state.saved ? "bookmark-alt" : "bookmark"} size={24} color="black" />
+                    <Fontisto name={this.state.saved ? "bookmark-alt" : "bookmark"} style={styling.iconSize} color="black" />
                 </TouchableWithoutFeedback>
             </View>
           </View>
@@ -98,15 +100,6 @@ export default class RecipeOverview extends React.Component<Props, State> {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginVertical: 10,
-    marginHorizontal: 20
-  },
-  image: {
-    width: 100,
-    height: 80,
-    marginBottom: 5
-  },
-});
+/*
+TODO: limit characters and add ellipse (ensure same size of box)
+*/

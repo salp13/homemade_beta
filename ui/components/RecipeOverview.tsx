@@ -5,6 +5,7 @@ import { Fontisto } from '@expo/vector-icons';
 import { recipeType } from '../objectTypes'
 import { Text, View, Image } from './Themed';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { styling } from '../style'
 
 interface Props {
   recipe: recipeType
@@ -80,22 +81,28 @@ export default class RecipeOverview extends React.Component<Props, State> {
     
     return (
       <View style={styles.container}>
+        <View style={{flex: 5}}>
         <TouchableWithoutFeedback onPress={this.OnPressNavigate}>
-          <Image style={styles.image} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`}}/>
+          <View>
+            <Image style={styles.image} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`}}/>
+          </View>
           <View>
             <Text style={{fontWeight: 'bold', marginBottom: 4}}>{this.state.recipe_name}</Text>
-            <Text style={{marginBottom: 4}}>{dietaryPrefs}</Text>
           </View>
         </TouchableWithoutFeedback>
-            <View style={{flexDirection: 'row', left: 125}}> 
-              <View style={{left: -20}}>
-                <TouchableWithoutFeedback onPress={this.OnPressDismiss}>
-                  <MaterialIcons name="clear" size={24} color="black"/>
+        </View>
+            <View style={{flex: 1, flexDirection: 'row-reverse', marginTop: 10}}> 
+              <View style={{marginHorizontal:7}}>
+                <TouchableWithoutFeedback onPress={this.OnPressSave}>
+                  <Fontisto name={this.state.saved ? "bookmark-alt" : "bookmark"} style={styling.iconSize} color="black" />
                 </TouchableWithoutFeedback>
               </View>
-              <TouchableWithoutFeedback onPress={this.OnPressSave}>
-                <Fontisto name={this.state.saved ? "bookmark-alt" : "bookmark"} size={24} color="black" />
-              </TouchableWithoutFeedback>
+              <View style={{marginHorizontal:7}}>
+                <TouchableWithoutFeedback onPress={this.OnPressDismiss}>
+                  <MaterialIcons name="clear" style={styling.iconSize} color="black"/>
+                </TouchableWithoutFeedback>
+              </View>
+              
             </View>
       </View>
     );
@@ -107,12 +114,19 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom: 30,
     marginRight: 20,
-    width: 170,
+    width: 182,
     height: 224
   },
   image: {
-    width: 167,
-    height: 133,
+    width: 182,
+    aspectRatio: 5/4,
     marginBottom: 5
   },
 });
+
+
+/*
+TODO: 
+  - limit characters and add ellipse (ensure same size of box)
+  - finish compatible style
+*/

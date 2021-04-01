@@ -9,6 +9,7 @@ import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { SearchBar, Text, View } from '../components/Themed';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { SearchParamList } from '../types'
+import { styling } from '../style';
 
 interface Props {
   navigation: StackNavigationProp<SearchParamList, 'SearchScreen'>,
@@ -36,10 +37,10 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     placeholder: "Search for a recipe...",
     autoCorrect: false,
     showCancel: true,
-    containerStyle: styles.searchBarContainerStyle,
-    inputContainerStyle: styles.searchBarInputContainerStyle,
-    inputStyle: styles.searchBarTextStyle,
-    cancelButtonProps: {buttonTextStyle: {fontSize: 15}},
+    containerStyle: styling.searchBarContainerStyle,
+    inputContainerStyle: styling.searchBarInputContainerStyle,
+    inputStyle: styling.defaultFontSize,
+    cancelButtonProps: {buttonTextStyle: styling.defaultFontSize},
     reference: this.searchRef,
   }
 
@@ -237,7 +238,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   IsLoadingRender() {
     return (
-      <View style={{ flex: 1, paddingTop: 20 }}>
+      <View style={styling.container}>
         <ActivityIndicator />
       </View>
     )
@@ -259,8 +260,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     if (this.state.isLoading) return this.IsLoadingRender()
 
     return (
-      <View style={styles.container}>
-        <View style={{flexDirection: 'row'}}>
+      <View style={StyleSheet.flatten([styling.noHeader, styling.container])}>
+        <View style={styling.flexRow}>
           <SearchBar
             onChangeText={text => this.OnChangeSearch(text)}
             onClear={this.OnClearSearch}
@@ -268,22 +269,21 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
             platform={Platform.OS === "android" || Platform.OS === "ios" ? Platform.OS : "default"}
             {...this.searchBarProps}
           />
-          <View style={{marginTop: 18, marginLeft: 10}}>
+          <View style={styling.addButton}>
             <TouchableWithoutFeedback onPress={this.onPressFilter}>
-              <MaterialIcons name="filter-list" size={24} color="black" 
-                style={{marginLeft: 'auto'}} />
+              <MaterialIcons name="filter-list" color="black" style={StyleSheet.flatten([styling.iconSize, styling.autoLeft])}/>
             </TouchableWithoutFeedback>
           </View>
         </View>
-        <View style={{flexDirection:'row', marginRight: 25, marginBottom: 10}}>
+        <View style={styling.filterTextContainer}>
           {(this.state.filters.mealType.length || 
             this.state.filters.dietaryPreference.length || 
             this.state.filters.cuisine.length) ? 
-            <Text style={{ marginLeft: 15, fontWeight: 'bold'}}>Filters:</Text> : 
+            <Text style={{fontWeight: 'bold'}}>Filters: </Text> : 
             <Text></Text>}
           <SectionList
             horizontal
-            contentContainerStyle={{marginRight: 50, marginLeft: 10}}
+            contentContainerStyle={styling.filterTextPadding}
             sections={[ 
               {data: this.state.filters.mealType}, 
               {data: this.state.filters.dietaryPreference}, 
@@ -295,6 +295,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
           keyboardShouldPersistTaps='always'
           horizontal={false}
           numColumns={2}
+          ItemSeparatorComponent={() => (<View style={{marginHorizontal: 10}}></View>)}
           data={this.state.recipes.filter((recipe) => {return !this.state.dismissed.has(recipe.recipe_id)})} 
           renderItem={({item}) => this.RecipeRender(item)}
           keyExtractor={(item, index) => item.recipe_id}
@@ -309,38 +310,3 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 50,
-    paddingLeft: 20,
-    paddingRight:20,
-
-  },
-  title: {
-    fontSize: 30,
-    textAlign: 'left',
-    paddingRight: 80,
-  },
-  separator: {
-    marginVertical: 10,
-    height: 1,
-  },
-  searchBarContainerStyle: {
-    borderBottomColor: 'transparent',
-    borderTopColor: 'transparent',
-    width: 335,
-  },
-  searchBarInputContainerStyle: {
-    height: 35,
-  },
-  searchBarTextStyle: {
-    fontSize: 15,
-  },
-  searchResultText: {
-    marginLeft: 20,
-    marginTop: 15,
-    fontSize: 15,
-  },
-});

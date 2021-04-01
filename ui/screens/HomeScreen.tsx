@@ -10,6 +10,7 @@ import { RouteProp } from '@react-navigation/native';
 import { SearchBar as SearchBarElement } from 'react-native-elements';
 import { SearchBar, Text, View } from '../components/Themed';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { styling } from '../style';
 
 type HomeScreenNavigationProp = StackNavigationProp<HomeParamList, 'HomeScreen'>;
 type HomeScreenRouteProp = RouteProp<HomeParamList, 'HomeScreen'>;
@@ -49,10 +50,10 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     placeholder: "Find an ingredient to use...",
     autoCorrect: false,
     showCancel: true,
-    containerStyle: styles.searchBarContainerStyle,
-    inputContainerStyle: styles.searchBarInputContainerStyle,
-    inputStyle: styles.searchBarTextStyle,
-    cancelButtonProps: {buttonTextStyle: {fontSize: 15}},
+    containerStyle: StyleSheet.flatten([styling.searchBarContainerStyle, {width: '100%'}]),
+    inputContainerStyle: styling.searchBarInputContainerStyle,
+    inputStyle: styling.defaultFontSize,
+    cancelButtonProps: {buttonTextStyle: styling.defaultFontSize},
     reference: this.searchRef,
   }
 
@@ -190,6 +191,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
   }
 
   OnSwipeScroll() {
+    console.log("OnSwipeScroll")
     this.setState({ swipingAction: false })
   }
 
@@ -251,7 +253,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
 
   IsLoadingRender() {
     return (
-      <View style={{ flex: 1, paddingTop: 20 }}>
+      <View style={styling.container}>
         <ActivityIndicator />
       </View>
     )
@@ -265,7 +267,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
           data={this.state.allFood}
           renderItem={({item, index}) => (
             <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.food_id)}>
-              <Text style={styles.searchResultText}>{item.food_name}</Text>
+              <Text style={styling.searchResultText}>{item.food_name}</Text>
             </TouchableWithoutFeedback>
           )}
           keyExtractor={(item, index) => index.toString()}
@@ -283,7 +285,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
           {title: "fridgeItems", data: this.state.fridgeItems} ]}
         renderItem={({item, section, index}) => {
           if (this.state.not_viewable.has(item.food.food_id) && section.title === "fridgeItems") 
-            return (<Text style={{marginTop: -20}}></Text>)
+            return (<Text style={styling.reverseSkipped}></Text>)
           else 
             return (
               <FridgeItem
@@ -298,7 +300,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
               />
             )
         }}
-        renderSectionHeader={() => ( <View style={{marginTop: 10}}/> )}
+        renderSectionHeader={() => ( <View style={styling.sectionBuffer}/> )}
         /> 
     )
   }
@@ -307,19 +309,19 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     if (this.state.isLoading) return this.IsLoadingRender()
 
     return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Hello!</Text>
-        <Text style={styles.title}>Which ingredients would you like to use today?</Text>
-        <TouchableWithoutFeedback 
-          onPress={() => this.props.navigation.navigate('HomeResultScreen', { specifiedItems: this.state.ingredients.map((ingredient) => { return ingredient.food.food_id }) })} 
-          disabled={this.state.ingredients.length < 1}
-          >
-          {this.state.ingredients.length < 1 ? (<Text></Text>) : 
-            (<Ionicons 
-              name="ios-arrow-round-forward" size={75} color="black" 
-              style={{marginTop: -50, left: 300, marginBottom:0, height: '8%'}}/>)}
-        </TouchableWithoutFeedback>
-        <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+      <View style={StyleSheet.flatten([styling.noHeader, styling.container])}>
+        <View style={styling.flexRow}>
+          <Text style={styling.title}>Hello!{'\n'}Which ingredients would you like to use today?</Text>
+          <TouchableWithoutFeedback 
+            onPress={() => this.props.navigation.navigate('HomeResultScreen', { specifiedItems: this.state.ingredients.map((ingredient) => { return ingredient.food.food_id }) })} 
+            disabled={this.state.ingredients.length < 1}
+            >
+            {this.state.ingredients.length < 1 ? (<Text></Text>) : 
+              (<Ionicons 
+                name="ios-arrow-round-forward" color="black" style={styling.arrow}/>)}
+          </TouchableWithoutFeedback>
+        </View>
+        <View style={styling.fullSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
         <SearchBar
           onChangeText={text => this.OnChangeSearch(text)}
           onClear={this.OnClearSearch}
@@ -334,39 +336,3 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     );
   }
 }
-
-
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 65,
-    paddingLeft: 20,
-    paddingRight:20,
-  },
-  title: {
-    fontSize: 30,
-    textAlign: 'left',
-    paddingRight: 80,
-  },
-  separator: {
-    marginVertical: 10,
-    height: 1,
-  },
-  searchBarContainerStyle: {
-    borderBottomColor: 'transparent',
-    borderTopColor: 'transparent',
-  },
-  searchBarInputContainerStyle: {
-    height: 35,
-  },
-  searchBarTextStyle: {
-    fontSize: 15,
-  },
-  searchResultText: {
-    marginLeft: 20,
-    marginTop: 15,
-    fontSize: 15,
-  },
-});

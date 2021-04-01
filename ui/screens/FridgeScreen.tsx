@@ -10,6 +10,7 @@ import { RouteProp } from '@react-navigation/native';
 import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { SearchBar, View } from '../components/Themed';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { styling } from '../style'
 
 interface Props {
   navigation: StackNavigationProp<FridgeParamList, 'FridgeScreen'>,
@@ -45,10 +46,10 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     placeholder: "Search your fridge...",
     autoCorrect: false,
     showCancel: true,
-    containerStyle: styles.searchBarContainerStyle,
-    inputContainerStyle: styles.searchBarInputContainerStyle,
-    inputStyle: styles.searchBarTextStyle,
-    cancelButtonProps: {buttonTextStyle: {fontSize: 15}},
+    containerStyle: styling.searchBarContainerStyle,
+    inputContainerStyle: styling.searchBarInputContainerStyle,
+    inputStyle: styling.defaultFontSize,
+    cancelButtonProps: {buttonTextStyle: styling.defaultFontSize},
     reference: this.searchRef,
   }
 
@@ -346,7 +347,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   IsLoadingRender() {
     return (
-      <View style={{ flex: 1, paddingTop: 20 }}>
+      <View style={styling.container}>
         <ActivityIndicator />
       </View>
     )
@@ -372,8 +373,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     if (this.state.isLoading) return this.IsLoadingRender()
 
     return (
-      <View style={styles.container}>
-        <View style={{flexDirection: 'row'}}>
+      <View style={styling.container}>
+        <View style={styling.flexRow}>
           <SearchBar
             onChangeText={text => this.SearchFilterFunction(text)}
             onClear={this.SearchFilterFunction}
@@ -381,9 +382,9 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
             platform={Platform.OS === "android" || Platform.OS === "ios" ? Platform.OS : "default"}
             {...this.searchBarProps}
           />
-          <View style={{marginTop: 18, marginLeft: 10}}>
+          <View style={styling.addButton}>
             <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('AddFridgeItemScreen')}>
-              <AntDesign name="plus" size={24} color="black"/>
+              <AntDesign name="plus" style={styling.iconSize} color="black"/>
             </TouchableWithoutFeedback>
           </View>
         </View>
@@ -392,7 +393,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
             scrollEnabled={!this.state.swipingAction}
             data={this.state.fridgeItems}
             renderItem={({ item }) => this.FridgeRender(item)}
-            style={{ marginTop: 10 }}
             keyExtractor={(item, index) => index.toString()}
           />
         </ScrollView>
@@ -402,30 +402,3 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingLeft: 20,
-    paddingRight:20,
-  },
-  title: {
-    fontSize: 30,
-    textAlign: 'left',
-    paddingRight: 80,
-  },
-  separator: {
-    marginVertical: 10,
-    height: 1,
-  },
-  searchBarContainerStyle: {
-    borderBottomColor: 'transparent',
-    borderTopColor: 'transparent',
-    width: 335,
-  },
-  searchBarInputContainerStyle: {
-    height: 35,
-  },
-  searchBarTextStyle: {
-    fontSize: 15,
-  },
-});

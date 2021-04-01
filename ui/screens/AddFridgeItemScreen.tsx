@@ -6,6 +6,7 @@ import { RouteProp } from '@react-navigation/native';
 import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { SearchBar, Text, View } from '../components/Themed';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { styling } from '../style'
 
 interface Props {
   navigation: StackNavigationProp<FridgeParamList, 'AddFridgeItemScreen'>,
@@ -32,10 +33,10 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     placeholder: "Add item to fridge...",
     autoCorrect: false,
     showCancel: true,
-    containerStyle: styles.searchBarContainerStyle,
-    inputContainerStyle: styles.searchBarInputContainerStyle,
-    inputStyle: styles.searchBarTextStyle,
-    cancelButtonProps: {buttonTextStyle: {fontSize: 15}},
+    containerStyle: StyleSheet.flatten([styling.searchBarContainerStyle, {width: '100%'}]),
+    inputContainerStyle: styling.searchBarInputContainerStyle,
+    inputStyle: styling.defaultFontSize,
+    cancelButtonProps: {buttonTextStyle: styling.defaultFontSize},
     reference: this.searchRef,
   }
 
@@ -189,7 +190,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   IsLoadingRender() {
     return (
-      <View style={{ flex: 1, paddingTop: 20 }}>
+      <View style={styling.container}>
         <ActivityIndicator />
       </View>
     )
@@ -199,7 +200,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     if (this.state.isLoading) return this.IsLoadingRender()
 
     return (
-      <View style={styles.container}>
+      <View style={StyleSheet.flatten([styling.noHeader, styling.container])}>
         <View>
           <SearchBar
             onChangeText={text => this.OnChangeSearch(text)}
@@ -217,47 +218,13 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
           renderItem={({ item, index }) => (
             <View>
               <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.food_id, item.food_name)}>
-                <Text style={styles.searchResultText}>{item.food_name}</Text>
+                <Text style={styling.searchResultText}>{item.food_name}</Text>
               </TouchableWithoutFeedback>
             </View>
           )}
-          style={{ marginTop: 10 }}
           keyExtractor={(item, index) => index.toString()}
         />
       </View>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 50,
-    paddingLeft: 20,
-    paddingRight:20,
-  },
-  title: {
-    fontSize: 30,
-    textAlign: 'left',
-    paddingRight: 80,
-  },
-  separator: {
-    marginVertical: 10,
-    height: 1,
-  },
-  searchBarContainerStyle: {
-    borderBottomColor: 'transparent',
-    borderTopColor: 'transparent',
-  },
-  searchBarInputContainerStyle: {
-    height: 35,
-  },
-  searchBarTextStyle: {
-    fontSize: 15,
-  },
-  searchResultText: {
-    marginLeft: 20,
-    marginTop: 15,
-    fontSize: 15,
-  },
-});
