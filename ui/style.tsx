@@ -36,6 +36,19 @@ export const styling = EStyleSheet.create({
   elementBuffer: {
     marginVertical: '10rem'
   },
+  filterModalElement: {
+    flexDirection: 'row', 
+    marginBottom: '15rem',
+  },
+  filterModalPadding: {
+    flexDirection: 'row', 
+    marginTop: '30rem', 
+    marginBottom: '50rem'
+  },  
+  filterModalSectionHeader: {
+    fontSize: '20rem', 
+    fontWeight: 'bold'
+  },
   filterTextContainer: {
     flexDirection:'row', 
     marginHorizontal: '10rem', 
@@ -61,13 +74,13 @@ export const styling = EStyleSheet.create({
   },
   fridgeItemContainer: {
     flex: 1,
-    marginTop: 10,
-    marginBottom: 15,
+    marginTop: '10rem',
+    marginBottom: '15rem',
     flexDirection: "row",
   },
   fridgeItemName: {
-    paddingLeft: 15,
-    fontSize: 15,
+    paddingLeft: '15rem',
+    fontSize: '15rem',
     fontWeight: "bold"
   },
   fullRecipeImage: {
@@ -87,8 +100,16 @@ export const styling = EStyleSheet.create({
   halfWidth: {
     width: '50%'
   },
+  iconContainer: {
+    flex: 1, 
+    flexDirection: 'row-reverse', 
+    marginTop: 10
+  },
   iconSize: {
     fontSize: '24rem'
+  },
+  iconSpacing: {
+    marginHorizontal: '7rem'
   },
   imageContainerBorder: {
     width: '30rem',
@@ -133,6 +154,11 @@ export const styling = EStyleSheet.create({
     borderRadius: '3rem',
     alignSelf: 'center'
   },
+  modalContainer: {
+    margin: '20rem',
+    height: '90%',
+    overflow: 'scroll',
+  },
   modalOption: {
     marginVertical: '5rem',
     marginLeft: '15rem',
@@ -140,11 +166,30 @@ export const styling = EStyleSheet.create({
   },
   modalPadding: {
     flexDirection: 'row', 
-    margin: 30, 
-    marginHorizontal: 30
+    margin: '30rem', 
+    marginTop: '30rem',
+    marginHorizontal: '30rem'
+  },
+  modalTitle: {
+    alignSelf: 'center', 
+    fontSize: '15rem', 
+    fontWeight: 'bold', 
+    marginTop: '15rem'
   },
   noHeader: {
     paddingTop: '60rem',
+  },
+  overviewContainer: {
+    flex: 1/2,
+    marginHorizontal: '10rem'
+  },
+  overviewImage: {
+    aspectRatio: 5/4,
+    marginBottom: '4rem'
+  },
+  overviewName: {
+    fontWeight: 'bold', 
+    fontSize: '15rem'
   },
   positioningSetUp: {
     position: 'absolute', 
@@ -155,7 +200,7 @@ export const styling = EStyleSheet.create({
   recipeDirections: {
     marginVertical: '5rem', 
     marginLeft: '10rem',
-    fontSize: '14rem'
+    fontSize: '15rem'
   },
   recipeDirectionsFooter: {
     marginBottom: '20rem'
@@ -177,7 +222,7 @@ export const styling = EStyleSheet.create({
   },
   savedBookmarkPadding: {
     marginLeft: 'auto', 
-    marginTop: 25
+    marginTop: '25rem'
   },
   savedRecipeImage: {
     width: '100rem',
@@ -185,7 +230,8 @@ export const styling = EStyleSheet.create({
   },
   savedRecipeText: {
     fontWeight: 'bold', 
-    marginBottom: 4
+    fontSize: '15rem',
+    marginBottom: '4rem'
   },
   searchBarContainerStyle: {
     borderBottomColor: 'transparent',
@@ -231,7 +277,7 @@ export const styling = EStyleSheet.create({
   toggledText: {
     fontWeight: 'bold', 
     textAlign: 'center',
-    fontSize: '14rem',
+    fontSize: '15rem',
   },
   untoggledSeparator: {
     marginVertical: '10rem',
@@ -241,11 +287,11 @@ export const styling = EStyleSheet.create({
   untoggledText: {
     fontWeight: 'normal', 
     textAlign: 'center',
-    fontSize: '14rem',
+    fontSize: '15rem',
   },
   upRightBuffer: {
-    marginLeft: 20, 
-    marginTop: 20
+    marginLeft: '20rem', 
+    marginTop: '20rem'
   },
   userInfoBuffer: {
     marginVertical: '20rem'

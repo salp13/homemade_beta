@@ -75,11 +75,11 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     })
       .then(response => response.json())
       .then(data => {
-        const filtered_data = data.filter((recipe) => {recipe.recipe_id === this.state.recipe.recipe_id})
+        const filtered_data = data.find((recipe) => {return recipe.recipe_id === this.state.recipe.recipe_id})
         this.setState({
           isLoading: false,
           recipe: recipe_data,
-          saved: filtered_data.length > 0,
+          saved: filtered_data ? true : false,
         });
       })
       .catch(error => {
@@ -133,6 +133,8 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
 
+    console.log(this.state.saved)
+
     let dietaryPrefs = ''
     this.state.recipe.diets.forEach((pref, index) => {
     dietaryPrefs = dietaryPrefs.concat(pref.diet)
@@ -165,6 +167,8 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
         <SectionList
           style={styling.sectionBuffer}
           stickySectionHeadersEnabled={false}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
           sections={[ 
             {recipe_name: "Ingredients", data: this.state.recipe.ingredients.map((ingredient) => ingredient.description)}, 
             {recipe_name: "Directions", data: instructions} ]}

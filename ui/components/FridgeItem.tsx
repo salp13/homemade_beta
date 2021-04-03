@@ -20,7 +20,7 @@ interface Props {
 
 interface State {
   id: number | string
-  image: string | undefined
+  image: string
   food_name: string
   unlisted_food: string | undefined
   expiration_date: Date | undefined
@@ -92,7 +92,7 @@ export default class FridgeItem extends React.Component<Props, State> {
   }
 
   render() {
-    let loadimage = this.state.image ? `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}` : `corn.png`
+    let loadimage = `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`
 
     return (
       <Swipeable
@@ -131,7 +131,3 @@ export default class FridgeItem extends React.Component<Props, State> {
     );
   }
 }
-
-/*
-TODO: no need for corn.png
-*/

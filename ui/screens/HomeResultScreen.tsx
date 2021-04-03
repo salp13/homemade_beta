@@ -250,6 +250,9 @@ export default class HomeResultScreen extends React.Component<Props, State> {
         <FlatList
           horizontal={false}
           numColumns={2}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          ItemSeparatorComponent={() => (<View style={styling.userInfoBuffer}></View>)}
           data={this.state.recipes.filter((recipe) => {return !this.state.dismissed.has(recipe.recipe_id)})} 
           renderItem={({item}) => this.RecipeRender(item)}
           keyExtractor={(item, index) => item.recipe_id}

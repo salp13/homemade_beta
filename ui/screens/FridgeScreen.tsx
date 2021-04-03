@@ -391,6 +391,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         <ScrollView scrollEnabled={!this.state.swipingAction}>
           <FlatList
             scrollEnabled={!this.state.swipingAction}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
             data={this.state.fridgeItems}
             renderItem={({ item }) => this.FridgeRender(item)}
             keyExtractor={(item, index) => index.toString()}

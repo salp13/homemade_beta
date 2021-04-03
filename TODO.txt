@@ -1,5 +1,4 @@
-Priority 4: (2 days)
-    compatible for all iphone versions (style)
+Priority 4: (1 days)
     authorization / admin (account screen)
 
 Priority 5: (4 hours)
@@ -15,9 +14,8 @@ Priority 7:
 
 Priority 8: 
     alpha version 
-        restructure profile page to have metrics up top with fridge count 
-        toggle between Your Recipes and Saved Recipes
         Create Recipe button and separate screen for adding recipe (public/private)
+            40 char limit on recipe names
         sorting algorithm for recipes (rating system)
         compatible with dark mode
 

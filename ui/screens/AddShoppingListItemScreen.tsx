@@ -17,6 +17,7 @@ interface State {
   isLoading: boolean
   trigger: boolean
   search: string
+  orderNumber: number
   allFood: Array<foodItemType>
   shoppingListItems: Array<any>
 }
@@ -44,6 +45,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.state = { 
       isLoading: true,
       trigger: false,
+      orderNumber: this.props.route.params.orderNumber,
       search: '',
       allFood: [],
       shoppingListItems: []
@@ -118,7 +120,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   async OnPressSearch(id: string, food_name: string) {   
     // hit api to post newly added item to shopping list
-    let body = (food_name === "unlisted_food") ? JSON.stringify({food: id, unlisted_food: this.state.search}) : JSON.stringify({food: id})
+    let body = (food_name === "unlisted_food") ? JSON.stringify({food: id, unlisted_food: this.state.search, order_index: this.state.orderNumber}) : JSON.stringify({food: id, order_index: this.state.orderNumber})
     await fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
       method: 'POST',
       headers: {
@@ -183,6 +185,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         </View>
         <FlatList
           keyboardShouldPersistTaps='always'
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
           data={this.state.allFood}
           renderItem={({ item, index }) => (
             <View>
@@ -197,8 +201,3 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     );
   }
 }
-
-/*
-TODO: 
-  - props should contain next order number and send in post body
-*/

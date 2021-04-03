@@ -10,10 +10,9 @@ import EStyleSheet from 'react-native-extended-stylesheet';
 console.disableYellowBox = true;
 
 // define REM depending on screen width
-const { width, height } = Dimensions.get('window');
+export const { width, height } = Dimensions.get('window');
 const rem = width / 414;
 console.log(width)
-console.log(height)
 
 
 // calc styles

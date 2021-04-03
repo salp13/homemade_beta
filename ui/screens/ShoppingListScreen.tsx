@@ -373,7 +373,7 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
                   {...this.searchBarProps}
                 />
                 <View style={styling.addButton}>
-                  <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('AddShoppingListItemScreen')}>
+                  <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('AddShoppingListItemScreen', { orderNumber: this.state.shoppingListItems.length })}>
                     <AntDesign name="plus" style={styling.iconSize} color="black"/>
                   </TouchableWithoutFeedback>
                 </View>
@@ -381,6 +381,8 @@ export default class HomeResultScreen extends React.Component<Props, State, Arra
               <ScrollView scrollEnabled={!this.state.swipingAction}>
                 <FlatList
                   keyboardShouldPersistTaps='always'
+                  showsVerticalScrollIndicator={false}
+                  showsHorizontalScrollIndicator={false}
                   scrollEnabled={!this.state.swipingAction}
                   data={this.state.shoppingListItems}
                   renderItem={({ item, index }) => this.SwipableListRender(item)}

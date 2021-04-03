@@ -16,7 +16,7 @@ export type fridgeItemType = {
       food_name: string
       food_group: {
         food_group_id: string
-        image: string | undefined
+        image: string
       }
     }
     unlisted_food: string | undefined

@@ -49,7 +49,9 @@ export type ShoppingListParamList = {
   ShoppingListScreen: {
     trigger: boolean
   };
-  AddShoppingListItemScreen: undefined
+  AddShoppingListItemScreen: {
+    orderNumber: number
+  }
 };
 
 export type ProfileParamList = {

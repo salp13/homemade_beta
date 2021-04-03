@@ -264,6 +264,8 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     return (
     <FlatList
           keyboardShouldPersistTaps='always'
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
           data={this.state.allFood}
           renderItem={({item, index}) => (
             <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.food_id)}>
@@ -280,6 +282,8 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     return (
       <SectionList
         scrollEnabled={!this.state.swipingAction}
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
         sections={[ 
           {title: "Ingredients", data: this.state.ingredients}, 
           {title: "fridgeItems", data: this.state.fridgeItems} ]}

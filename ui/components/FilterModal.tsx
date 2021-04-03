@@ -166,20 +166,20 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
   filterSectionListRender(item, index, section) {
     if (index < 3 || this.state.showAll[section.title]) {
       return (   
-        <View style={{flexDirection: 'row', marginBottom: 15}}>
+        <View style={styling.filterModalElement}>
           <Text>{item}</Text>
-          <View style={{marginLeft: 'auto', marginTop: -5}}>
+          <View style={styling.autoLeft}>
             <TouchableWithoutFeedback onPress={() => this.markFilter(section.title, item)}>
               {(this.state.filters.mealType.find((filter) => {return filter === item})) || 
               (this.state.filters.dietaryPreference.find((filter) => {return filter === item})) || 
               (this.state.filters.cuisine.find((filter) => {return filter === item})) ? 
-              <MaterialCommunityIcons name="checkbox-marked-outline" size={24} color="black" /> : 
-              <MaterialCommunityIcons name="checkbox-blank-outline" size={24} color="black" /> }
+              <MaterialCommunityIcons name="checkbox-marked-outline" style={styling.iconSize} color="black" /> : 
+              <MaterialCommunityIcons name="checkbox-blank-outline" style={styling.iconSize} color="black" /> }
             </TouchableWithoutFeedback>
           </View>
         </View> 
     )}
-    else { return ( <Text style={{marginTop: -20}}></Text> ) }
+    else { return ( <Text style={styling.reverseSkipped}></Text> ) }
   }
 
   filterSectionHeaderRender(section) {
@@ -187,8 +187,8 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     if (section.title === 'dietaryPreference') sectionHeader = 'Dietary Preferences'
     else if (section.title === 'cuisine') sectionHeader = 'Cuisines'
     return ( 
-      <View style={{marginTop: 10, marginBottom: 15}}>
-        <Text style={{fontSize: 20, fontWeight: 'bold'}}>{sectionHeader}</Text>
+      <View style={styling.elementBuffer}>
+        <Text style={styling.filterModalSectionHeader}>{sectionHeader}</Text>
       </View> 
     )
   }
@@ -200,7 +200,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
           <TouchableWithoutFeedback onPress={() => {this.showAllOptions(section.title)}}>
             <Text style={{textDecorationLine: 'underline'}}>Show all options</Text>
           </TouchableWithoutFeedback>
-          <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+          <View style={styling.fullSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
         </View>
       )
     } else {
@@ -209,7 +209,7 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
           <TouchableWithoutFeedback onPress={() => {this.showFewerOptions(section.title)}}>
             <Text style={{textDecorationLine: 'underline'}}>Show fewer options</Text>
           </TouchableWithoutFeedback>
-          <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+          <View style={styling.fullSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
         </View>
     )}
   }
@@ -224,23 +224,28 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
           visible = {this.state.modalVisible}
           >
             <View>
-              <View style={styles.bar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-              <Text style={{alignSelf: 'center', fontSize: 15, fontWeight: 'bold', marginTop: 15}}>Filters</Text>
-              <View style={styles.container} >
-                <ScrollView>
+              <View style={styling.modalBar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+              <Text style={styling.modalTitle}>Filters</Text>
+              <View style={styling.modalContainer} >
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  showsHorizontalScrollIndicator={false}
+                >
                   <SectionList 
                     sections={sectionsArray}
+                    showsVerticalScrollIndicator={false}
+                    showsHorizontalScrollIndicator={false}
                     renderItem={({item, index, section}) => this.filterSectionListRender(item, index, section)}
                     renderSectionHeader={({section}) => this.filterSectionHeaderRender(section)}
                     renderSectionFooter={({section}) => this.filterSectionFooterRender(section)}
                   />
                 </ScrollView>
-                <View style={{flexDirection: 'row', marginTop: 30}}> 
+                <View style={styling.filterModalPadding}> 
                   <TouchableWithoutFeedback onPress={this.filterClear}>
-                    <Text>Clear All</Text>
+                    <Text style={styling.defaultFontSize}>Clear All</Text>
                   </TouchableWithoutFeedback>
                   <TouchableWithoutFeedback onPress={this.modalResults}>
-                    <Text style={{marginLeft: 'auto'}}>Show Results</Text>
+                    <Text style={[styling.autoLeft, styling.defaultFontSize]}>Show Results</Text>
                   </TouchableWithoutFeedback>
                 </View>
               </View>
@@ -250,50 +255,3 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     )
   }
 }
-
-
-const styles = StyleSheet.create({
-  outerContainer: {
-    marginTop: 300,
-    height: 300,
-  },
-  bar: {
-    marginTop: 15,
-    height: 3, 
-    width: 40,
-    borderRadius: 3,
-    alignSelf: 'center'
-  },
-  container: {
-    margin: 20,
-    height: 700,
-    overflow: 'scroll',
-  },
-  option: {
-    marginTop: 5,
-    marginBottom: 10,
-    paddingLeft: 15,
-    fontSize: 20,
-    fontWeight: "normal"
-  },
-  cancel: {
-    marginTop: 5,
-    marginBottom: 10,
-    paddingLeft: 15,
-    fontSize: 15,
-    alignSelf: 'center',
-    fontWeight: "normal"
-  },
-  separator: {
-    marginTop: 20,
-    marginBottom: 10,
-    height: 1,
-  },
-})
-
-/*
-TODO: 
-  - make cancel and save buttons visible
-  - fix scroll capabilities
-  - finish compatible style
-*/

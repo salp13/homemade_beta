@@ -80,24 +80,24 @@ export default class RecipeOverview extends React.Component<Props, State> {
     })
     
     return (
-      <View style={styles.container}>
+      <View style={styling.overviewContainer}>
         <View style={{flex: 5}}>
         <TouchableWithoutFeedback onPress={this.OnPressNavigate}>
           <View>
-            <Image style={styles.image} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`}}/>
+            <Image style={styling.overviewImage} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`}}/>
           </View>
           <View>
-            <Text style={{fontWeight: 'bold', marginBottom: 4}}>{this.state.recipe_name}</Text>
+            <Text style={styling.overviewName}>{this.state.recipe_name}</Text>
           </View>
         </TouchableWithoutFeedback>
         </View>
-            <View style={{flex: 1, flexDirection: 'row-reverse', marginTop: 10}}> 
-              <View style={{marginHorizontal:7}}>
+            <View style={styling.iconContainer}> 
+              <View style={styling.iconSpacing}>
                 <TouchableWithoutFeedback onPress={this.OnPressSave}>
                   <Fontisto name={this.state.saved ? "bookmark-alt" : "bookmark"} style={styling.iconSize} color="black" />
                 </TouchableWithoutFeedback>
               </View>
-              <View style={{marginHorizontal:7}}>
+              <View style={styling.iconSpacing}>
                 <TouchableWithoutFeedback onPress={this.OnPressDismiss}>
                   <MaterialIcons name="clear" style={styling.iconSize} color="black"/>
                 </TouchableWithoutFeedback>
@@ -108,25 +108,3 @@ export default class RecipeOverview extends React.Component<Props, State> {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginBottom: 30,
-    marginRight: 20,
-    width: 182,
-    height: 224
-  },
-  image: {
-    width: 182,
-    aspectRatio: 5/4,
-    marginBottom: 5
-  },
-});
-
-
-/*
-TODO: 
-  - limit characters and add ellipse (ensure same size of box)
-  - finish compatible style
-*/

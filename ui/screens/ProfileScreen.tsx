@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Image, Text, View } from '../components/Themed';
 import { ProfileParamList } from '../types'
 import { RouteProp } from '@react-navigation/native';
@@ -8,6 +8,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import Swiper from 'react-native-swiper'
 import { userDataType } from '../objectTypes'
 import { styling } from '../style';
+import { width, height } from '../App'
 
 type ProfileScreenNavigationProp = StackNavigationProp<ProfileParamList, 'ProfileScreen'>;
 type ProfileScreenRouteProp = RouteProp<ProfileParamList, 'ProfileScreen'>;
@@ -25,9 +26,9 @@ interface State {
 }
 
 export default class HomeScreen extends React.Component<Props, State> {
+  private swiperRef = React.createRef<Swiper>()
   constructor(props: Props) {
     super(props)
-
     this.state = {
       isLoading: true,
       toggle: true,
@@ -160,46 +161,52 @@ export default class HomeScreen extends React.Component<Props, State> {
           <Text style={styling.metricsText}>Average number of items in your fridge: {avg_items}</Text>
           <Text style={styling.metricsText}>Food group wasted most often: {this.state.most_wasted_group}</Text>
         </View>
-          <View style={styling.flexRow}>
-            <View style={styling.halfWidth}>
+        <View style={styling.flexRow}>
+          <View style={styling.halfWidth}>
+            <TouchableWithoutFeedback onPress={() => {
+              this.swiperRef.current?.scrollTo(0)
+              this.toggle}}>
               <Text style={this.state.toggle ? styling.toggledText : styling.untoggledText}>Your Recipes</Text>
-            </View>
-            <View style={styling.halfWidth}>
-              <Text style={!this.state.toggle ? styling.toggledText : styling.untoggledText}>Saved Recipes</Text>
-            </View>
-          </View> 
-          <View style={styling.flexRow}>
-            <View style={!this.state.toggle ? styling.untoggledSeparator : styling.toggledSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-            <View style={!this.state.toggle ? styling.toggledSeparator : styling.untoggledSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            </TouchableWithoutFeedback>
           </View>
+          <View style={styling.halfWidth}>
+            <TouchableWithoutFeedback onPress={() => {
+              this.swiperRef.current?.scrollTo(1)
+              this.toggle}}>
+              <Text style={!this.state.toggle ? styling.toggledText : styling.untoggledText}>Saved Recipes</Text>
+            </TouchableWithoutFeedback>
+          </View>
+        </View> 
+        <View style={styling.flexRow}>
+          <View style={!this.state.toggle ? styling.untoggledSeparator : styling.toggledSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+          <View style={!this.state.toggle ? styling.toggledSeparator : styling.untoggledSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+        </View>
         <Swiper 
           showsButtons={false} 
           loop={false} 
           scrollsToTop={true}
-          onIndexChanged={this.toggle} 
-          dot={<View></View>} 
-          activeDot={<View></View>} 
+          onIndexChanged={this.toggle}
+          showsPagination={false}
+          ref={this.swiperRef}
           >
           <View>
             <Text>Coming soon...</Text>
           </View>
           <View>
-            <View>
-              <FlatList 
-                data={this.state.user_data.saved_recipes}
-                ItemSeparatorComponent={() => (<View style={styling.elementBuffer}></View>)}
-                renderItem={({item}) => (
-                  <SavedRecipe 
-                    recipe_id={item.recipe_id}
-                    recipe_name={item.recipe_name}
-                    image={item.image}
-                    dietaryPreferences={item.diets}
-                    saved={true}
-                    onPressNavigate={this.navigateRecipe}
-                    saveRecipe={this.unsaveRecipe}
-                  />)}
-                />
-            </View>
+            <FlatList 
+              data={this.state.user_data.saved_recipes}
+              ItemSeparatorComponent={() => (<View style={styling.elementBuffer}></View>)}
+              renderItem={({item}) => (
+                <SavedRecipe 
+                  recipe_id={item.recipe_id}
+                  recipe_name={item.recipe_name}
+                  image={item.image}
+                  dietaryPreferences={item.diets}
+                  saved={true}
+                  onPressNavigate={this.navigateRecipe}
+                  saveRecipe={this.unsaveRecipe}
+                />)}
+              />
           </View>
         </Swiper>
       </View>
@@ -208,6 +215,5 @@ export default class HomeScreen extends React.Component<Props, State> {
 }
 
 /*
-TODO:
-  - clicking "Saved Recipes" or "Your Recipes" should toggle as well as swipe
+TODO: fix issue with setState in onIndexChanged
 */

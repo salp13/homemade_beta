@@ -295,7 +295,9 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
           keyboardShouldPersistTaps='always'
           horizontal={false}
           numColumns={2}
-          ItemSeparatorComponent={() => (<View style={{marginHorizontal: 10}}></View>)}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          ItemSeparatorComponent={() => (<View style={styling.userInfoBuffer}></View>)}
           data={this.state.recipes.filter((recipe) => {return !this.state.dismissed.has(recipe.recipe_id)})} 
           renderItem={({item}) => this.RecipeRender(item)}
           keyExtractor={(item, index) => item.recipe_id}

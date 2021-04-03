@@ -75,21 +75,26 @@ export default class RecipeOverview extends React.Component<Props, State> {
       dietaryPrefs = dietaryPrefs.concat(pref.diet)
       if (index !== this.state.dietaryPreferences.length - 1) dietaryPrefs = dietaryPrefs.concat(', ')
     })
-    
+
+    dietaryPrefs = (dietaryPrefs.length > 30) ? dietaryPrefs.slice(0, 30) + "..." : dietaryPrefs
+
+    let recipe_name = (this.state.recipe_name.length > 25) ? this.state.recipe_name.slice(0, 25) + "..." : this.state.recipe_name
+    // recipe_name = this.state.recipe_name
     return (
       <View style={styling.setFlex}>
           <View style={styling.flexRow}>
-            <TouchableWithoutFeedback onPress={this.OnPressNavigate}>
-                <View style={styling.flexRow}>
-                    <Image style={styling.savedRecipeImage} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`}}/>
-                    <View style={styling.upRightBuffer}>
-                        <Text style={styling.savedRecipeText}>{this.state.recipe_name}</Text>
-                        <Text>{dietaryPrefs}</Text>
-                    </View>
-                </View>
-            
-            </TouchableWithoutFeedback>
-            <View style={styling.savedBookmarkPadding}> 
+            <View style={{flex: 25}}>
+              <TouchableWithoutFeedback onPress={this.OnPressNavigate}>
+                  <View style={[styling.flexRow]}>
+                      <Image style={styling.savedRecipeImage} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`}}/>
+                      <View style={styling.upRightBuffer}>
+                          <Text style={styling.savedRecipeText}>{recipe_name}</Text>
+                          <Text style={styling.defaultFontSize}>{dietaryPrefs}</Text>
+                      </View>
+                  </View>
+              </TouchableWithoutFeedback>
+            </View>
+            <View style={[styling.savedBookmarkPadding, {flex: 1}]}> 
                 <TouchableWithoutFeedback onPress={this.OnPressUnsave}>
                     <Fontisto name={this.state.saved ? "bookmark-alt" : "bookmark"} style={styling.iconSize} color="black" />
                 </TouchableWithoutFeedback>
@@ -99,7 +104,3 @@ export default class RecipeOverview extends React.Component<Props, State> {
     );
   }
 }
-
-/*
-TODO: limit characters and add ellipse (ensure same size of box)
-*/

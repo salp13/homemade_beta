@@ -214,6 +214,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         </View>
         <FlatList
           keyboardShouldPersistTaps='always'
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
           data={this.state.allFood}
           renderItem={({ item, index }) => (
             <View>
