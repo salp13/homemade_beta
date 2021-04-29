@@ -57,6 +57,10 @@ export const styling = EStyleSheet.create({
   filterTextPadding: {
     marginRight: '50rem'
   },
+  flexPadding: {
+    flexDirection: 'row',
+    paddingHorizontal: '20rem'
+  },
   flexRow: {
     flexDirection: 'row'
   },
@@ -190,6 +194,13 @@ export const styling = EStyleSheet.create({
   overviewName: {
     fontWeight: 'bold', 
     fontSize: '15rem'
+  },
+  paddingHorizontal: {
+    paddingHorizontal: '20rem'
+  },
+  paddingMargin: {
+    marginVertical: '20rem',
+    paddingHorizontal: '20rem'
   },
   positioningSetUp: {
     position: 'absolute', 

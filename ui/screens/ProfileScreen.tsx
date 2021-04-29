@@ -153,15 +153,15 @@ export default class HomeScreen extends React.Component<Props, State> {
     let avg_items = this.CalculateAverageItems()
 
     return (
-      <View style={styling.container}>
-        <View style={styling.userInfoBuffer}>
+      <View style={{flex: 1}}>
+        <View style={styling.paddingMargin}>
           <Text style={styling.username}>{this.state.user_data.name}</Text>
           <Text style={styling.metricsText}>Items in your fridge: {this.state.user_data.fridge.length}</Text>
           <Text style={styling.metricsText}>Ratio of food eaten instead of wasted: {percentage}%</Text>
           <Text style={styling.metricsText}>Average number of items in your fridge: {avg_items}</Text>
           <Text style={styling.metricsText}>Food group wasted most often: {this.state.most_wasted_group}</Text>
         </View>
-        <View style={styling.flexRow}>
+        <View style={styling.flexPadding}>
           <View style={styling.halfWidth}>
             <TouchableWithoutFeedback onPress={() => {
               this.swiperRef.current?.scrollTo(0)
@@ -177,7 +177,7 @@ export default class HomeScreen extends React.Component<Props, State> {
             </TouchableWithoutFeedback>
           </View>
         </View> 
-        <View style={styling.flexRow}>
+        <View style={styling.flexPadding}>
           <View style={!this.state.toggle ? styling.untoggledSeparator : styling.toggledSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
           <View style={!this.state.toggle ? styling.toggledSeparator : styling.untoggledSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
         </View>
@@ -188,6 +188,7 @@ export default class HomeScreen extends React.Component<Props, State> {
           onIndexChanged={this.toggle}
           showsPagination={false}
           ref={this.swiperRef}
+          style={styling.paddingHorizontal}
           >
           <View>
             <Text>Coming soon...</Text>
