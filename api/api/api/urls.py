@@ -13,7 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
+from django.contrib import admin, auth
 from django.urls import path
 from food.views import many_foods, single_food, admin_food_group, single_food_group
 from recipes.views import many_recipes, single_recipe, admin_post
@@ -39,3 +39,7 @@ urlpatterns = [
     path('homemade/many_saved_recipes/<uuid:user_pk>', many_saved_recipes),
     path('homemade/single_saved_recipe/<uuid:user_pk>/<uuid:recipe_pk>', single_saved_recipe),
 ]
+
+# urlpatterns += [
+#     path('accounts/', auth.urls),
+# ]

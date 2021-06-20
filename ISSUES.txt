@@ -14,6 +14,9 @@ FUNCTIONALITY:
     AddFridgeItemScreen and AddShoppingListItemScreen:
         - persistent / not persistent states between add screen to actual screen
         - go to add item page should already have keyboard up and ready to search 
+    LoginScreen
+        - guest log in 
+        - log in through google/facebook/etc
 
 DESIGN:
     - modals (add icons and fix layouts)

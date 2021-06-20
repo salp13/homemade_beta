@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.contrib.auth.models import User
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -18,7 +19,14 @@ def many_users(request):
         users_serializer = User_GETSerializer(users, many=True)
         return Response(users_serializer.data)
     elif request.method == 'POST':
-        user_serializer = User_POSTSerializer(data=request.data)
+        # create admin user
+        username = request.data['username']
+        email = request.data['email']
+        password = request.data['password']
+        name = request.data['name']
+        user = User.objects.create_user(username, email, password)
+        # create data user
+        user_serializer = User_POSTSerializer(data={username: username, name: name})
         if user_serializer.is_valid():
             user_serializer.save()
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)

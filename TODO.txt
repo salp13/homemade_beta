@@ -1,12 +1,21 @@
-Priority 4: (1 days)
+Priority 4: (1 day)
     authorization / admin (account screen)
+        log in / sign up on the UI side
+            1. send log in info to backend for authorization
+            4. limit screen accessibility if not signed in
+            5. persist user log in through closing and opening the app 
+        3. authorization check in all screens / requests
+        2. test creating user from UI to API
 
-Priority 5: (4 hours)
+Priority 5: (3 hours)
+    deployment
+        1. package app
+        2. host database
+        3. host app
+
+Priority 6: (4 hours)
     documentation
     comment and organize API code
-
-Priority 6: (3 hours)
-    deployment
 
 Priority 7: 
     fix issues in ISSUES.txt

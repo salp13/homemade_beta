@@ -4,6 +4,9 @@ export type RootStackParamList = {
 };
 
 export type BottomTabParamList = {
+  Login: {
+    screen: 'LoginScreen'
+  };
   Home: {
     screen: 'HomeScreen',
   };
@@ -65,3 +68,8 @@ export type ProfileParamList = {
     recipe_id: string
   }
 };
+
+export type LoginParamList = {
+  LoginScreen: undefined
+  SignupScreen: undefined
+}

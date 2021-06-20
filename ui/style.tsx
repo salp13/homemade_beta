@@ -147,9 +147,8 @@ export const styling = EStyleSheet.create({
     paddingRight: '20rem'
   },
   metricsText: {
-    fontSize: '15rem',
+    fontSize: '12rem',
     marginVertical: '3rem',
-    marginLeft: '15rem'
   },
   modalBar: {
     marginTop: '15rem',

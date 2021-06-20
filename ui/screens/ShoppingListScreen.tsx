@@ -34,7 +34,7 @@ interface Arrayholder {
   arrayholder: Array<any>
 }
 
-export default class HomeResultScreen extends React.Component<Props, State, Arrayholder> {
+export default class ShoppingListScreen extends React.Component<Props, State, Arrayholder> {
   arrayholder: Array<any> = [];
   private searchRef = React.createRef<SearchBarElement>();
   private searchBarProps = {

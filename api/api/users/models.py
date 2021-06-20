@@ -5,7 +5,7 @@ from uuid import uuid4
 
 class User(models.Model):
     user_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    username = models.CharField(max_length=128)
+    username = models.CharField(max_length=128, unique=True)
     name = models.CharField(max_length=128)
     origin_account_date = models.DateField(default=datetime.date.today)
     wasted_count = models.PositiveIntegerField(default=0)
