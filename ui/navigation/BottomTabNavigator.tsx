@@ -33,24 +33,70 @@ import {
   ProfileParamList } from '../types';
 import { StackActions } from '@react-navigation/native';
 
+
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
 export default function BottomTabNavigator() {
   const colorScheme = useColorScheme();
-  return (
-    <BottomTab.Navigator
-      initialRouteName="Login"
-      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint, showLabel: false }}
-      >
-      <BottomTab.Screen
-        name="Login"
-        component={LoginNavigator}
-        options={{
-          tabBarVisible: false
-        }}
-      />
-    </BottomTab.Navigator>
-  )
+  // return ((!globalThis.logged_in) ? 
+  //   (<BottomTab.Navigator
+  //     initialRouteName="Login"
+  //     tabBarOptions={{ activeTintColor: Colors[colorScheme].tint, showLabel: false }}
+  //     >
+  //     <BottomTab.Screen
+  //       name="Login"
+  //       component={LoginNavigator}
+  //       options={{
+  //         tabBarVisible: false
+  //       }}
+  //     />
+  //   </BottomTab.Navigator>) : (
+  //   <BottomTab.Navigator
+  //     initialRouteName="Fridge"
+  //     tabBarOptions={{ activeTintColor: Colors[colorScheme].tint, showLabel: false }}
+  //     >
+  //     <BottomTab.Screen
+  //       name="Home"
+  //       component={HomeNavigator}
+  //       options={{
+  //         tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+  //         unmountOnBlur: true,
+  //       }}
+  //     />
+  //     <BottomTab.Screen
+  //       name="Search"
+  //       component={SearchNavigator}
+  //       options={{
+  //         tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+  //         unmountOnBlur: true,
+  //       }}
+  //     />
+  //     <BottomTab.Screen
+  //       name="Fridge"
+  //       component={FridgeNavigator}
+  //       options={{
+  //         tabBarIcon: ({ color }) => <TabBarIcon name="fridge-outline" color={color} />,
+  //         unmountOnBlur: true,
+  //       }}
+  //     />
+  //     <BottomTab.Screen
+  //       name="ShoppingList"
+  //       component={ShoppingListNavigator}
+  //       options={{
+  //         tabBarIcon: ({ color }) => <TabBarIcon name="format-list-bulleted" color={color} />,
+  //         unmountOnBlur: true,
+  //       }}
+  //     />
+  //     <BottomTab.Screen
+  //       name="Profile"
+  //       component={ProfileNavigator}
+  //       options={{
+  //         tabBarIcon: ({ color }) => <TabBarIcon name="person" color={color} />,
+  //         unmountOnBlur: true,
+  //       }}
+  //     />
+  //   </BottomTab.Navigator>)
+  //     )
   return (
     <BottomTab.Navigator
       initialRouteName="Fridge"

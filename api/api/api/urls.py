@@ -17,7 +17,7 @@ from django.contrib import admin, auth
 from django.urls import path
 from food.views import many_foods, single_food, admin_food_group, single_food_group
 from recipes.views import many_recipes, single_recipe, admin_post
-from users.views import many_users, single_user, metric_data, many_fridge, single_fridge, many_shopping_list, single_shopping_list, many_saved_recipes, single_saved_recipe
+from users.views import login, signup, many_users, single_user, metric_data, many_fridge, single_fridge, many_shopping_list, single_shopping_list, many_saved_recipes, single_saved_recipe
 
 
 urlpatterns = [
@@ -38,6 +38,8 @@ urlpatterns = [
     path('homemade/single_shopping_list/<uuid:user_pk>/<int:shopping_list_pk>', single_shopping_list),
     path('homemade/many_saved_recipes/<uuid:user_pk>', many_saved_recipes),
     path('homemade/single_saved_recipe/<uuid:user_pk>/<uuid:recipe_pk>', single_saved_recipe),
+    path('homemade/login', login),
+    path('homemade/signup', signup)
 ]
 
 # urlpatterns += [

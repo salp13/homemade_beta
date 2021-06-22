@@ -17,6 +17,9 @@ FUNCTIONALITY:
     LoginScreen
         - guest log in 
         - log in through google/facebook/etc
+        - persist user log in through closing and opening the app 
+    SignupScreen
+        - validation of signup info (real email, not repeated username)
 
 DESIGN:
     - modals (add icons and fix layouts)

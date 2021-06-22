@@ -12,7 +12,9 @@ interface Props {
 }
   
 interface State {
+  invalid: boolean
   name: string
+  email: string
   username: string
   password: string
 }
@@ -22,14 +24,72 @@ export default class SignupScreen extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = {
+      invalid: false,
       name: '',
+      email: '',
       username: '',
       password: ''
     }
 
+    this.signup = this.signup.bind(this)
+    this.setEmail = this.setEmail.bind(this)
     this.setName = this.setName.bind(this)
     this.setUsername = this.setUsername.bind(this)
     this.setPassword = this.setPassword.bind(this)
+  }
+
+  async signup() {
+    await fetch('http://localhost:8000/homemade/signup', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: this.state.email,
+        name: this.state.name,
+        username: this.state.username,
+        password: this.state.password
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data)
+        if (data.response == 'failed') {
+          this.setState({
+            invalid: true,
+          })
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+
+      return fetch('http://localhost:8000/homemade/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: this.state.username,
+        password: this.state.password
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data)
+        globalThis.logged_in = true
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
+  setEmail(text: string) {
+    this.setState({
+      email: text,
+    })
   }
 
   setName(text: string) {
@@ -57,6 +117,12 @@ export default class SignupScreen extends React.Component<Props, State> {
 
         <TextInput 
           style={{height: 30}}
+          placeholder="email"
+          onChangeText={text => this.setEmail(text)}
+          defaultValue={''}/>
+
+        <TextInput 
+          style={{height: 30}}
           placeholder="name"
           onChangeText={text => this.setName(text)}
           defaultValue={''}/>
@@ -73,11 +139,11 @@ export default class SignupScreen extends React.Component<Props, State> {
           onChangeText={text => this.setPassword(text)}
           defaultValue={''}/>
 
-        <Button title="signup" onPress={() => {
-          // TODO: requeset to post / create new user 
-        }}/>
+        <Button title="signup" onPress={() => this.signup()}/>
 
         <Button title="back to login" onPress={() => this.props.navigation.navigate('LoginScreen')}/>
+
+        {this.state.invalid ? <Text>Signup attempt failed, please try again with a different information.</Text> : <View></View> }
       </View>
     );
   }

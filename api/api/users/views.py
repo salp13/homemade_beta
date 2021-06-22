@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User as Auth_User
+from django.contrib.auth import authenticate 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,25 +13,48 @@ from recipes.serializers import RecipeOverview_GETSerializer
 from food.serializers import Food_S_Serializer, Food_D_Serializer
 import datetime
 
-@api_view(['get', 'post'])
-def many_users(request):
-    if request.method == 'GET':
-        users = User.objects.all()
-        users_serializer = User_GETSerializer(users, many=True)
-        return Response(users_serializer.data)
-    elif request.method == 'POST':
+@api_view(['post'])
+def login(request):
+    if request.method == 'POST':
+        response = {"response": "ok"}
+        user = authenticate(username=request.data['username'], password=request.data['password'])
+        if user is not None:
+            return Response(response)
+        else: 
+            response['response'] = "failed"
+            return Response(response)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['post'])
+def signup(request):
+    if request.method == 'POST':
         # create admin user
+        response = {"response": "ok"}
         username = request.data['username']
         email = request.data['email']
         password = request.data['password']
         name = request.data['name']
-        user = User.objects.create_user(username, email, password)
+        try: 
+            user = Auth_User.objects.create_user(username, email, password)
+            user.save()
+        except:
+            response['response'] = "failed"
+            return Response(response)
         # create data user
-        user_serializer = User_POSTSerializer(data={username: username, name: name})
+        user_serializer = User_POSTSerializer(data={"username": username, "name": name})
         if user_serializer.is_valid():
             user_serializer.save()
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['get'])
+def many_users(request):
+    if request.method == 'GET':
+        users = User.objects.all()
+        users_serializer = User_GETSerializer(users, many=True)
+        # print(user_serializer.data)
+        return Response(users_serializer.data)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['get', 'patch', 'delete'])

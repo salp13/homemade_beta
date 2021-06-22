@@ -7,18 +7,21 @@ import Navigation from './navigation';
 import { Dimensions } from 'react-native';
 import EStyleSheet from 'react-native-extended-stylesheet';
 
+
 console.disableYellowBox = true;
 
 // define REM depending on screen width
 export const { width, height } = Dimensions.get('window');
 const rem = width / 414;
-console.log(width)
-
+declare var logged_in: boolean
+logged_in = false
 
 // calc styles
 EStyleSheet.build({
   $rem: rem,
 });
+
+
 
 
 export default function App() {
@@ -34,5 +37,5 @@ export default function App() {
         <StatusBar />
       </SafeAreaProvider>
     );
-  }
+  } 
 }
