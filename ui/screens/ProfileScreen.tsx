@@ -9,6 +9,8 @@ import Swiper from 'react-native-swiper'
 import { userDataType } from '../objectTypes'
 import { styling } from '../style';
 import { width, height } from '../App'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 type ProfileScreenNavigationProp = StackNavigationProp<ProfileParamList, 'ProfileScreen'>;
 type ProfileScreenRouteProp = RouteProp<ProfileParamList, 'ProfileScreen'>;
@@ -20,6 +22,8 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  token: string
+  user_id: string
   toggle: boolean
   user_data: userDataType
   most_wasted_group: string
@@ -31,6 +35,8 @@ export default class HomeScreen extends React.Component<Props, State> {
     super(props)
     this.state = {
       isLoading: true,
+      token: '', 
+      user_id: '', 
       toggle: true,
       user_data: {
         user_id: "",
@@ -38,7 +44,7 @@ export default class HomeScreen extends React.Component<Props, State> {
         username: "",
         name: "",
         origin_account_date: "",
-        waste_count: 0,
+        wasted_count: 0,
         eaten_count: 0,
         produce_wasted: 0,
         meat_wasted: 0,
@@ -56,16 +62,28 @@ export default class HomeScreen extends React.Component<Props, State> {
     this.toggle = this.toggle.bind(this)
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
     this.CalculateAverageItems = this.CalculateAverageItems.bind(this)
+    this.MetricData = this.MetricData.bind(this)
   }
 
 
   async componentDidMount() {
+    // set token and user_id
+    const setToken = await AsyncStorage.getItem('@token')
+    const setUserID = await AsyncStorage.getItem('@user_id')
+    if (setToken && setUserID) {
+      this.setState({
+        token: setToken,
+        user_id: setUserID
+      })
+    }
+    
     // hit api for user data
-    const user_data = await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+    const user_data = await fetch(`http://localhost:8000/homemade/metric_data/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
     .then(response => response.json())
@@ -77,14 +95,13 @@ export default class HomeScreen extends React.Component<Props, State> {
     });
 
     // determine most wasted food group
-    let group = ""
-    if (this.state.user_data.produce_wasted >= this.state.user_data.meat_wasted && this.state.user_data.produce_wasted >= this.state.user_data.dairy_wasted) {
-      group = 'produce'
-    } else if (this.state.user_data.meat_wasted >= this.state.user_data.dairy_wasted && this.state.user_data.meat_wasted > this.state.user_data.produce_wasted) {
-      group = 'protein'
-    } else {
-      group = 'dairy'
-    } 
+    let group = ''
+    let comp_arr = [user_data.produce_wasted, user_data.meat_wasted, user_data.dairy_wasted]
+    let i = comp_arr.indexOf(Math.max(...comp_arr));
+    if ( i === 0) group = 'produce'
+    else if (i === 1) group = 'protein'
+    else group = 'dairy'
+
     this.setState({
       isLoading: false,
       user_data: user_data,
@@ -94,11 +111,12 @@ export default class HomeScreen extends React.Component<Props, State> {
 
   async unsaveRecipe(recipe_id: string) {
     // hit api to unsave saved recipe
-    await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipe_id}`, {
+    await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipe_id}`, {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
     .catch(error => {
@@ -142,18 +160,32 @@ export default class HomeScreen extends React.Component<Props, State> {
     let currentDate = new Date()
     let placehold = new Date(this.state.user_data.origin_account_date)
     let total_days = Math.ceil((currentDate.valueOf() - placehold.valueOf())/(24 * 60 * 60 * 1000))
-    return Math.round((this.state.user_data.total_items / total_days) * 100)
+    return Math.round((this.state.user_data.total_items / total_days))
   }
 
-  render() {
-    if (this.state.isLoading) this.IsLoadingRender()
-
+  MetricData() {
     // metrics calculations and formatting 
     let percentage = Math.round((this.state.user_data.eaten_count / this.state.user_data.total_items)*100)
     let avg_items = this.CalculateAverageItems()
-
-    return (
-      <View style={{flex: 1}}>
+    if (this.state.user_data.total_items === 0 && this.state.user_data.wasted_count === 0) {
+      return (
+        <View style={styling.paddingMargin}>
+          <Text style={styling.username}>{this.state.user_data.name}</Text>
+          <Text style={styling.metricsText}>Items in your fridge: {this.state.user_data.fridge.length}</Text>
+          <Text style={styling.metricsText}>Average number of items in your fridge: {avg_items}</Text>
+        </View>
+      )
+    } else if (this.state.user_data.wasted_count === 0) {
+      return (
+        <View style={styling.paddingMargin}>
+          <Text style={styling.username}>{this.state.user_data.name}</Text>
+          <Text style={styling.metricsText}>Items in your fridge: {this.state.user_data.fridge.length}</Text>
+          <Text style={styling.metricsText}>Ratio of food eaten instead of wasted: {percentage}%</Text>
+          <Text style={styling.metricsText}>Average number of items in your fridge: {avg_items}</Text>
+        </View>
+      )
+    } else {
+      return (
         <View style={styling.paddingMargin}>
           <Text style={styling.username}>{this.state.user_data.name}</Text>
           <Text style={styling.metricsText}>Items in your fridge: {this.state.user_data.fridge.length}</Text>
@@ -161,6 +193,16 @@ export default class HomeScreen extends React.Component<Props, State> {
           <Text style={styling.metricsText}>Average number of items in your fridge: {avg_items}</Text>
           <Text style={styling.metricsText}>Food group wasted most often: {this.state.most_wasted_group}</Text>
         </View>
+      )
+    }
+  }
+
+  render() {
+    if (this.state.isLoading) this.IsLoadingRender()
+
+    return (
+      <View style={{flex: 1}}>
+          {this.MetricData()}
         <View style={styling.flexPadding}>
           <View style={styling.halfWidth}>
             <TouchableWithoutFeedback onPress={() => {

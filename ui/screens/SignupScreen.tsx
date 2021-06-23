@@ -1,18 +1,21 @@
 import * as React from 'react';
-import { LoginParamList } from '../types'
-import { RouteProp } from '@react-navigation/native';
+import { LoginParamList, RootStackParamList } from '../types'
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { TextInput, Button } from 'react-native'
 import { Text, View } from '../components/Themed';
 import { styling } from '../style'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
-  navigation: StackNavigationProp<LoginParamList, 'SignupScreen'>;
+  navigation: CompositeNavigationProp<StackNavigationProp<LoginParamList>, StackNavigationProp<RootStackParamList, 'Auth'>>;
   route: RouteProp<LoginParamList, 'SignupScreen'>;
 }
   
 interface State {
   invalid: boolean
+  token: string
+  user_id: string
   name: string
   email: string
   username: string
@@ -25,17 +28,74 @@ export default class SignupScreen extends React.Component<Props, State> {
     super(props)
     this.state = {
       invalid: false,
+      token: '',
+      user_id: '',
       name: '',
       email: '',
       username: '',
       password: ''
     }
 
+    this.login = this.login.bind(this)
     this.signup = this.signup.bind(this)
     this.setEmail = this.setEmail.bind(this)
     this.setName = this.setName.bind(this)
     this.setUsername = this.setUsername.bind(this)
     this.setPassword = this.setPassword.bind(this)
+  }
+
+  async login() {
+    await fetch('http://localhost:8000/api-token-auth/', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: this.state.username,
+          password: this.state.password
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          this.setState({
+            token: data.token
+          })
+          try {
+            AsyncStorage.setItem('@token', data.token)
+          } catch (e) {
+            console.error(e)
+            return
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+
+    await fetch('http://localhost:8000/homemade/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token
+      },
+      body: JSON.stringify({
+        username: this.state.username,
+        password: this.state.password
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        try {
+          AsyncStorage.setItem('@user_id', data.user_id)
+          this.props.navigation.replace('Root')
+        } catch (e) {
+          console.error(e)
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
   async signup() {
@@ -54,36 +114,18 @@ export default class SignupScreen extends React.Component<Props, State> {
     })
       .then(response => response.json())
       .then(data => {
-        console.log(data)
         if (data.response == 'failed') {
           this.setState({
             invalid: true,
           })
+          return
         }
       })
       .catch(error => {
         console.error(error);
+        return
       });
-
-      return fetch('http://localhost:8000/homemade/login', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: this.state.username,
-        password: this.state.password
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data)
-        globalThis.logged_in = true
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    await this.login()
   }
 
   setEmail(text: string) {

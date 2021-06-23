@@ -11,6 +11,7 @@ import { SearchBar as SearchBarElement } from 'react-native-elements';
 import { SearchBar, Text, View } from '../components/Themed';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { styling } from '../style';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type HomeScreenNavigationProp = StackNavigationProp<HomeParamList, 'HomeScreen'>;
 type HomeScreenRouteProp = RouteProp<HomeParamList, 'HomeScreen'>;
@@ -22,6 +23,8 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  token: string
+  user_id: string
   search: string
   allFood: Array<foodItemType>
   fridgeItems: Array<fridgeItemType>
@@ -62,6 +65,8 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
 
     this.state = { 
       isLoading: true, 
+      token: '', 
+      user_id: '', 
       search: '',
       allFood: [],
       fridgeItems: [],
@@ -96,8 +101,24 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
   }
 
   async componentDidMount() {
+    const setToken = await AsyncStorage.getItem('@token')
+    const setUserID = await AsyncStorage.getItem('@user_id')
+    if (setToken && setUserID) {
+      this.setState({
+        token: setToken,
+        user_id: setUserID
+      })
+    }
+    
     // Load all items in user's fridge
-    let fridgeData = await fetch('http://127.0.0.1:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea')
+    let fridgeData = await fetch(`http://localhost:8000/homemade/many_fridge/${this.state.user_id}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
+      },
+    })
       .then(response => response.json())
       .then(data => {return data})
       .catch(error => {
@@ -106,13 +127,13 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     
     // Filter out unlisted foods from user's fridge as they won't apply to existing recipes
     fridgeData = fridgeData.filter(item => item.food.food_name !== 'unlisted_food')
-    
     // Load all foods and store in the arrayholder for search filtering
-    await fetch(`http://localhost:8000/homemade/many_foods`, {
+    await fetch(`http://localhost:8000/homemade/many_foods/`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
     .then(response => response.json())
@@ -162,6 +183,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+          'Authorization': 'Token ' + this.state.token,
         },
       })
         .then(response => response.json())
@@ -191,7 +213,6 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
   }
 
   OnSwipeScroll() {
-    console.log("OnSwipeScroll")
     this.setState({ swipingAction: false })
   }
 

@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User as Auth_User
 from django.contrib.auth import authenticate 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from rest_framework import status
 from .serializers import Fridge_Item_D_Serializer, Fridge_Item_DN_Serializer, Fridge_Item_SN_Serializer, Fridge_Item_DNSN_Serializer
 from .serializers import User_GETSerializer, User_POSTSerializer, Shopping_List_Item_D_Serializer, Shopping_List_Item_DN_Serializer
@@ -16,16 +17,20 @@ import datetime
 @api_view(['post'])
 def login(request):
     if request.method == 'POST':
-        response = {"response": "ok"}
         user = authenticate(username=request.data['username'], password=request.data['password'])
         if user is not None:
-            return Response(response)
+            try:
+                user_obj = User.objects.get(username=request.data['username'])
+            except User.DoesNotExist:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            user_serializer = User_GETSerializer(user_obj)
+            return Response(user_serializer.data)
         else: 
-            response['response'] = "failed"
-            return Response(response)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['post'])
+@permission_classes((AllowAny, ))
 def signup(request):
     if request.method == 'POST':
         # create admin user

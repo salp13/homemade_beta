@@ -18,7 +18,7 @@ from django.urls import path
 from food.views import many_foods, single_food, admin_food_group, single_food_group
 from recipes.views import many_recipes, single_recipe, admin_post
 from users.views import login, signup, many_users, single_user, metric_data, many_fridge, single_fridge, many_shopping_list, single_shopping_list, many_saved_recipes, single_saved_recipe
-
+from rest_framework.authtoken import views
 
 urlpatterns = [
     path('homemade/admin/', admin.site.urls),
@@ -39,9 +39,6 @@ urlpatterns = [
     path('homemade/many_saved_recipes/<uuid:user_pk>', many_saved_recipes),
     path('homemade/single_saved_recipe/<uuid:user_pk>/<uuid:recipe_pk>', single_saved_recipe),
     path('homemade/login', login),
-    path('homemade/signup', signup)
+    path('homemade/signup', signup),
+    path('api-token-auth/', views.obtain_auth_token, name='api-tokn-auth'),
 ]
-
-# urlpatterns += [
-#     path('accounts/', auth.urls),
-# ]

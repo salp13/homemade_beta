@@ -5,9 +5,10 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { TextInput, Button } from 'react-native'
 import { Text, View } from '../components/Themed';
 import { styling } from '../style'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type LoginScreenNavigationProp = CompositeNavigationProp<StackNavigationProp<LoginParamList, 'LoginScreen'>, StackNavigationProp<RootStackParamList>>;
-type LoginScreenRouteProp = RouteProp<RootStackParamList, 'Auth'>;
+type LoginScreenNavigationProp = CompositeNavigationProp<StackNavigationProp<LoginParamList>, StackNavigationProp<RootStackParamList, 'Auth'>>;
+type LoginScreenRouteProp = RouteProp<LoginParamList, 'LoginScreen'>;
 
 interface Props {
   navigation: LoginScreenNavigationProp,
@@ -15,7 +16,9 @@ interface Props {
 }
   
 interface State {
+  isLoading: boolean
   failed_attempt: boolean
+  token: string
   username: string
   password: string
 }
@@ -25,7 +28,9 @@ export default class LoginScreen extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = {
+      isLoading: true,
       failed_attempt: false,
+      token: '', 
       username: '',
       password: ''
     }
@@ -35,8 +40,17 @@ export default class LoginScreen extends React.Component<Props, State> {
     this.setPassword = this.setPassword.bind(this)
   }
 
+  async componentDidMount() {
+    const setToken = await AsyncStorage.getItem('@token')
+    const setUserID = await AsyncStorage.getItem('@user_id')
+    if (setToken && setUserID) {
+      this.props.navigation.replace('Root')
+    }
+    this.setState({isLoading: false})
+  }
+
   async login() {
-    return fetch('http://localhost:8000/homemade/login', {
+    await fetch('http://localhost:8000/api-token-auth/', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -50,14 +64,66 @@ export default class LoginScreen extends React.Component<Props, State> {
       .then(response => response.json())
       .then(data => {
         console.log(data)
-        if (data.response == 'failed') {
+        if (data.non_field_errors) {
           this.setState({
             failed_attempt: true,
           })
+          return
         } else {
-          console.log("navigating?")
-          this.props.navigation.navigate('Root');
-          globalThis.logged_in = true
+          this.setState({
+            failed_attempt: false,
+          })
+        }
+        this.setState({
+          token: data.token
+        })
+        try {
+          AsyncStorage.setItem('@token', data.token)
+        } catch (e) {
+          console.error(e)
+          return
+        }
+      })
+      .catch(error => {
+        console.log(error)
+        console.error(error);
+        this.setState({
+          failed_attempt: true,
+        })
+        return
+      });
+
+    if (this.state.failed_attempt) return
+
+    await fetch('http://localhost:8000/homemade/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token
+      },
+      body: JSON.stringify({
+        username: this.state.username,
+        password: this.state.password
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.non_field_errors) {
+          this.setState({
+            failed_attempt: true,
+          })
+          return
+        } else {
+          this.setState({
+            failed_attempt: false,
+          })
+        }
+        try {
+          AsyncStorage.setItem('@user_id', data.user_id)
+          this.props.navigation.replace('Root')
+        } catch (e) {
+          console.error(e)
         }
       })
       .catch(error => {
@@ -78,6 +144,7 @@ export default class LoginScreen extends React.Component<Props, State> {
   }
 
   render() {
+    if (this.state.isLoading) return (<View></View>)
     return (
       <View style={[styling.setFlex, {margin: 100}]}>
         <Text>homemade</Text>

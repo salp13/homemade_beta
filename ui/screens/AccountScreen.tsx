@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { ProfileParamList } from '../types'
-import { RouteProp } from '@react-navigation/native';
+import { ProfileParamList, RootStackParamList } from '../types'
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { StyleSheet } from 'react-native';
-import { View } from '../components/Themed';
+import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { Text, View } from '../components/Themed';
 import { styling } from '../style'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type AccountScreenNavigationProp = StackNavigationProp<ProfileParamList, 'AccountScreen'>;
+type AccountScreenNavigationProp = CompositeNavigationProp<StackNavigationProp<ProfileParamList>, StackNavigationProp<RootStackParamList, 'Root'>>;
 type AccountScreenRouteProp = RouteProp<ProfileParamList, 'AccountScreen'>;
 
 interface Props {
@@ -18,12 +19,27 @@ export default class AccountScreen extends React.Component<Props> {
 
   constructor(props: Props) {
     super(props);
+
+    this.logout = this.logout.bind(this)
+  }
+
+  async logout() {
+    try {
+      AsyncStorage.setItem('@token', '')
+    } catch (e) {
+      console.error(e)
+    }
+    this.props.navigation.replace('Auth')
   }
 
   render() {
     return (
         <View style={styling.container}>
-
+          <TouchableWithoutFeedback onPress={() => this.logout()}>
+            <View style={{flexDirection: 'row'}}>
+                <Text style={{fontSize: 15, margin: 10, marginTop: 20}}>Log Out</Text>
+            </View>
+        </TouchableWithoutFeedback>
         </View>
     );
   }

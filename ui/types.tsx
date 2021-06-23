@@ -1,17 +1,14 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type RootStackParamList = {
-  Root: undefined;
+  Root: undefined
   NotFound: undefined;
   Auth: undefined
 };
 
 export type BottomTabParamList = {
-  Login: {
-    screen: 'LoginScreen'
-  };
   Home: {
-    screen: 'HomeScreen',
+    screen: 'HomeScreen'
   };
   Search: {
     screen: 'SearchScreen'
@@ -75,5 +72,10 @@ export type ProfileParamList = {
 export type LoginParamList = {
   LoginScreen: undefined
   SignupScreen: undefined
-  Home: NavigatorScreenParams<BottomTabParamList>;
+}
+
+export type RootStackParams = {
+  Auth: NavigatorScreenParams<LoginParamList>
+  Root: undefined;
+  NotFound: undefined;
 }

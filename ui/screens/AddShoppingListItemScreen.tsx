@@ -7,6 +7,7 @@ import { SearchBar, Text, View } from '../components/Themed';
 import { ShoppingListParamList } from '../types'
 import { StackNavigationProp } from '@react-navigation/stack';
 import { styling } from '../style';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
   navigation: StackNavigationProp<ShoppingListParamList, 'AddShoppingListItemScreen'>,
@@ -15,6 +16,8 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  token: string
+  user_id: string
   trigger: boolean
   search: string
   orderNumber: number
@@ -44,6 +47,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     super(props);
     this.state = { 
       isLoading: true,
+      token: '',
+      user_id: '', 
       trigger: false,
       orderNumber: this.props.route.params.orderNumber,
       search: '',
@@ -61,12 +66,23 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   }
   async componentDidMount() {
+    // set token and user_id
+    const setToken = await AsyncStorage.getItem('@token')
+    const setUserID = await AsyncStorage.getItem('@user_id')
+    if (setToken && setUserID) {
+      this.setState({
+        token: setToken,
+        user_id: setUserID
+      })
+    }
+    
     // hit api for shopping list items
-    let shoppingListItemsData = await fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+    let shoppingListItemsData = await fetch(`http://localhost:8000/homemade/many_shopping_list/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
       .then(response => response.json())
@@ -76,11 +92,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       });
 
     // hit api for all foods to update arrayholder
-    await fetch(`http://localhost:8000/homemade/many_foods`, {
+    await fetch(`http://localhost:8000/homemade/many_foods/`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
         },
       })
       .then(response => response.json())
@@ -121,11 +138,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   async OnPressSearch(id: string, food_name: string) {   
     // hit api to post newly added item to shopping list
     let body = (food_name === "unlisted_food") ? JSON.stringify({food: id, unlisted_food: this.state.search, order_index: this.state.orderNumber}) : JSON.stringify({food: id, order_index: this.state.orderNumber})
-    await fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+    await fetch(`http://localhost:8000/homemade/many_shopping_list/${this.state.user_id}`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
       body: body
     })

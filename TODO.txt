@@ -1,33 +1,50 @@
 Priority 4: (1 day)
     authorization / admin (account screen)
-        log in / sign up on the UI side
-            3. limit screen accessibility if not signed in
-        4. authorization check in all screens / requests
-        5. UI of login and signup screens
+        6. UI of login and signup screens (2 hours)
 
-Priority 5: (3 hours)
-    deployment
+Priority 5 (1 day)
+    Create Recipe functionality
+    Account screen functionality
+
+Priority 6: (1 day)
+    deployment of beta
         1. package app
         2. host database
         3. host app
 
-Priority 6: (4 hours)
+Priority 7: (1 day)
     documentation
     comment and organize API code
 
-Priority 7: 
-    fix issues in ISSUES.txt
-    write test suite and conduct user testing
+DONE BY JUNE 29
 
-Priority 8: 
-    alpha version 
-        Create Recipe button and separate screen for adding recipe (public/private)
-            40 char limit on recipe names
+
+Priority 8 (3 days): 
+    fix issues in ISSUES.txt
+
+DONE BY JULY 6
+
+
+Priority 9 (2 days):
+    write test suite for beta version API and UI
+
+Priority 10 (2 days): 
+    alpha version development
+        style changes
         sorting algorithm for recipes (rating system)
         compatible with dark mode
 
-Priority 9:
+DONE BY JULY 27
+
+
+Priority 10 (1 day):
     conduct testing on alpha
+
+Priority 11 (1 day): 
+    deploy alpha version
+
+DONE BY AUGUST 1
+
 
 
 in api: 

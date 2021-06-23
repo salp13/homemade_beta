@@ -8,8 +8,6 @@ import { SimpleLineIcons } from '@expo/vector-icons';
 import { View } from '../components/Themed';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import LoginScreen from '../screens/LoginScreen'
-import SignupScreen from '../screens/SignupScreen'
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import FridgeScreen from '../screens/FridgeScreen';
@@ -25,7 +23,6 @@ import IndividualRecipeScreen from '../screens/IndividualRecipeScreen'
 
 import { 
   BottomTabParamList, 
-  LoginParamList,
   HomeParamList, 
   SearchParamList, 
   FridgeParamList, 
@@ -38,65 +35,6 @@ const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
 export default function BottomTabNavigator() {
   const colorScheme = useColorScheme();
-  // return ((!globalThis.logged_in) ? 
-  //   (<BottomTab.Navigator
-  //     initialRouteName="Login"
-  //     tabBarOptions={{ activeTintColor: Colors[colorScheme].tint, showLabel: false }}
-  //     >
-  //     <BottomTab.Screen
-  //       name="Login"
-  //       component={LoginNavigator}
-  //       options={{
-  //         tabBarVisible: false
-  //       }}
-  //     />
-  //   </BottomTab.Navigator>) : (
-  //   <BottomTab.Navigator
-  //     initialRouteName="Fridge"
-  //     tabBarOptions={{ activeTintColor: Colors[colorScheme].tint, showLabel: false }}
-  //     >
-  //     <BottomTab.Screen
-  //       name="Home"
-  //       component={HomeNavigator}
-  //       options={{
-  //         tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-  //         unmountOnBlur: true,
-  //       }}
-  //     />
-  //     <BottomTab.Screen
-  //       name="Search"
-  //       component={SearchNavigator}
-  //       options={{
-  //         tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
-  //         unmountOnBlur: true,
-  //       }}
-  //     />
-  //     <BottomTab.Screen
-  //       name="Fridge"
-  //       component={FridgeNavigator}
-  //       options={{
-  //         tabBarIcon: ({ color }) => <TabBarIcon name="fridge-outline" color={color} />,
-  //         unmountOnBlur: true,
-  //       }}
-  //     />
-  //     <BottomTab.Screen
-  //       name="ShoppingList"
-  //       component={ShoppingListNavigator}
-  //       options={{
-  //         tabBarIcon: ({ color }) => <TabBarIcon name="format-list-bulleted" color={color} />,
-  //         unmountOnBlur: true,
-  //       }}
-  //     />
-  //     <BottomTab.Screen
-  //       name="Profile"
-  //       component={ProfileNavigator}
-  //       options={{
-  //         tabBarIcon: ({ color }) => <TabBarIcon name="person" color={color} />,
-  //         unmountOnBlur: true,
-  //       }}
-  //     />
-  //   </BottomTab.Navigator>)
-  //     )
   return (
     <BottomTab.Navigator
       initialRouteName="Fridge"
@@ -165,32 +103,11 @@ function resetStack(navigation: StackNavigationProp<HomeParamList, 'HomeScreen'>
 // Each tab has its own navigation stack, you can read more about this pattern here:
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
 
-const LoginStack = createStackNavigator<LoginParamList>();
 const HomeStack = createStackNavigator<HomeParamList>();
 const SearchStack = createStackNavigator<SearchParamList>();
 const FridgeStack = createStackNavigator<FridgeParamList>();
 const ShoppingListStack = createStackNavigator<ShoppingListParamList>();
 const ProfileStack = createStackNavigator<ProfileParamList>();
-
-function LoginNavigator() {
-  return (
-    <LoginStack.Navigator
-      initialRouteName="LoginScreen"
-      screenOptions={{
-        headerShown: false
-      }}
-      >
-      <LoginStack.Screen
-        name="LoginScreen"
-        component={LoginScreen}
-      />
-      <LoginStack.Screen
-        name="SignupScreen"
-        component={SignupScreen}
-      />
-    </LoginStack.Navigator>
-  )
-}
 
 function HomeNavigator() {
   return (

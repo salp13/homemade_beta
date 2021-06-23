@@ -11,6 +11,7 @@ import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { SearchBar, View } from '../components/Themed';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { styling } from '../style'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
   navigation: StackNavigationProp<FridgeParamList, 'FridgeScreen'>,
@@ -19,6 +20,8 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  token: string
+  user_id: string
   trigger: boolean
   search: string
   wasted_count: number
@@ -57,6 +60,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     super(props);
     this.state = { 
       isLoading: true, 
+      token: '',
+      user_id: '',
       trigger: false,
       search: '',
       wasted_count: 0,
@@ -87,12 +92,23 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   async componentDidMount() {
+    // set token and user_id
+    const setToken = await AsyncStorage.getItem('@token')
+    const setUserID = await AsyncStorage.getItem('@user_id')
+    if (setToken && setUserID) {
+      this.setState({
+        token: setToken,
+        user_id: setUserID
+      })
+    }
+
     // hit api for fridge items and sort them by expiration date
-    let fridgeData = await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+    let fridgeData = await fetch(`http://localhost:8000/homemade/many_fridge/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
       .then(response => response.json())
@@ -106,11 +122,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       });
 
     // hit api for metrics data to update later
-    return await fetch('http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+    return await fetch(`http://localhost:8000/homemade/metric_data/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
       .then(response => response.json())
@@ -130,11 +147,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   componentDidUpdate() {
     // if the trigger has changed, hit api for updated fridge items and reset trigger
     if (this.state.trigger !== this.props.route.params.trigger) {
-      return fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+      return fetch(`http://localhost:8000/homemade/many_fridge/${this.state.user_id}`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+          'Authorization': 'Token ' + this.state.token,
         },
       })
         .then(response => response.json())
@@ -212,11 +230,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     // formatting for expiration date
     let momented = (!expiration_date) ? undefined : moment(expiration_date).add(1, 'day').format('YYYY-MM-DD')
     // hit api to update fridge item's expiration date
-    await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
+    await fetch(`http://localhost:8000/homemade/single_fridge/${this.state.user_id}/${id}`, {
       method: 'PATCH',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
       body: JSON.stringify({ expiration_date: momented })
     })
@@ -225,11 +244,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       });
 
       // hit api to get existing fridge items and sort based on expiration date
-      return fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+      return fetch(`http://localhost:8000/homemade/many_fridge/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
       .then(response => response.json())
@@ -257,11 +277,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     let food_group = (find_food) ? find_food.food.food_group.food_group_id : 0
 
     // hit api to delete fridge item that has been wasted
-    await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
+    await fetch(`http://localhost:8000/homemade/single_fridge/${this.state.user_id}/${id}`, {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
       .catch(error => {
@@ -269,16 +290,17 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       });
     
     // update body based on which food group the item falls under
-    let body = { wasted_count: this.state.wasted_count + 1 }
+    let body = { wasted_count: (!this.state.wasted_count) ? 1 : this.state.wasted_count + 1 }
     if (food_group == 2) body['produce_wasted'] = this.state.produce_wasted + 1
     else if (food_group == 8) body['dairy_wasted'] = this.state.produce_wasted + 1
     else if (food_group == 3) body['meat_wasted'] = this.state.produce_wasted + 1
     // hit api to update metric data with wasted counts
-    return await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+    return await fetch(`http://localhost:8000/homemade/metric_data/${this.state.user_id}`, {
       method: 'PATCH',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
       body: JSON.stringify(body)
     })
@@ -304,11 +326,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   async itemEaten(id: number) {
     // hit api to delete eaten item from fridge
-    await fetch(`http://localhost:8000/homemade/single_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
+    await fetch(`http://localhost:8000/homemade/single_fridge/${this.state.user_id}/${id}`, {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
       .catch(error => {
@@ -316,11 +339,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       });
 
     // hit api to update metric data to increment eaten count
-    return await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+    return await fetch(`http://localhost:8000/homemade/metric_data/${this.state.user_id}`, {
       method: 'PATCH',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
       body: JSON.stringify({
         eaten_count: this.state.eaten_count + 1

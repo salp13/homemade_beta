@@ -104,7 +104,6 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
     } else {
       updateDays = 1
       exp_date = moment().add(1, 'days').format('YYYY-MM-DD')
-      console.log(exp_date)
     }
     this.setState({
       expiration_date: exp_date,

@@ -66,14 +66,12 @@ export default class FridgeItem extends React.Component<Props, State> {
   }
 
   swipeLeft = () => {
-    console.log("swipeLeftCompleted")
     // triggered when user swipes left on food item
     setTimeout(() => {this.props.swipeLeftFunc(this.state.id)}, 200)
   }
 
   swipeRight = () => {
       // triggered when user swipes right on food item
-      console.log("swipeRightCompleted")
     setTimeout(() => {this.props.swipeRightFunc(this.state.id)}, 200)
   }
 

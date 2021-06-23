@@ -11,6 +11,7 @@ import { ShoppingListParamList } from '../types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Swipeable from 'react-native-swipeable';
 import { styling } from '../style';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
   navigation: StackNavigationProp<ShoppingListParamList, 'ShoppingListScreen'>,
@@ -19,6 +20,8 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  token: string
+  user_id: string
   trigger: boolean
   draggable: boolean
   swipingAction: boolean
@@ -53,6 +56,8 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
 
     this.state = { 
       isLoading: true,
+      token: '', 
+      user_id: '', 
       trigger: false,
       draggable: false,
       swipingAction: false,
@@ -80,12 +85,23 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
   }
 
   async componentDidMount() {
+    // set token and user_id
+    const setToken = await AsyncStorage.getItem('@token')
+    const setUserID = await AsyncStorage.getItem('@user_id')
+    if (setToken && setUserID) {
+      this.setState({
+        token: setToken,
+        user_id: setUserID
+      })
+    }
+
     // hit api to get shopping list and order as specified
-    await fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+    await fetch(`http://localhost:8000/homemade/many_shopping_list/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
       .then(response => response.json())
@@ -105,11 +121,12 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
   componentDidUpdate() {
     // if old and new triggers do not match, update shopping list and sort as specified
     if (this.state.trigger !== this.props.route.params.trigger) {
-      return fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+      return fetch(`http://localhost:8000/homemade/many_shopping_list/${this.state.user_id}`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
         },
       })
         .then(response => response.json())
@@ -200,11 +217,12 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     })
 
     // hit api with new updating shopping list ordering
-    fetch('http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+    fetch(`http://localhost:8000/homemade/many_shopping_list/${this.state.user_id}`, {
         method: 'PATCH',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
         },
         body: JSON.stringify(placeholderListItems)
       })
@@ -230,11 +248,12 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     })
 
     // hit api to delete specified item
-    await fetch(`http://localhost:8000/homemade/single_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${id}`, {
+    await fetch(`http://localhost:8000/homemade/single_shopping_list/${this.state.user_id}/${id}`, {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
       .catch(error => {
@@ -244,11 +263,12 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     placeholderListItems = placeholderListItems.filter(item => item.id !== id)
 
     // hit api to update other shopping list items' order indices
-    await fetch(`http://localhost:8000/homemade/many_shopping_list/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+    await fetch(`http://localhost:8000/homemade/many_shopping_list/${this.state.user_id}`, {
       method: 'PATCH',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
       body: JSON.stringify(placeholderListItems)
     })
@@ -272,11 +292,12 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     
     // hit api to add item to fridge
     let body = (unlisted_food) ? JSON.stringify({food: food_id, unlisted_food: unlisted_food}) : JSON.stringify({food: food_id})
-    await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+    await fetch(`http://localhost:8000/homemade/many_fridge/${this.state.user_id}`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
       body: body
     })

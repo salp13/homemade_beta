@@ -6,7 +6,7 @@ import useColorScheme from "./hooks/useColorScheme"
 import Navigation from './navigation';
 import { Dimensions } from 'react-native';
 import EStyleSheet from 'react-native-extended-stylesheet';
-
+import {useState} from 'react'
 
 console.disableYellowBox = true;
 
@@ -22,11 +22,11 @@ EStyleSheet.build({
 });
 
 
-
-
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
+
+  // const [token, setToken] = useState('')
 
   if (!isLoadingComplete) {
     return null;

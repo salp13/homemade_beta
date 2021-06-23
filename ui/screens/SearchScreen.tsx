@@ -10,6 +10,7 @@ import { SearchBar, Text, View } from '../components/Themed';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { SearchParamList } from '../types'
 import { styling } from '../style';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
   navigation: StackNavigationProp<SearchParamList, 'SearchScreen'>,
@@ -18,6 +19,8 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  token: string
+  user_id: string
   search: string
   recipes: Array<recipeType>
   dismissed: Set<string>
@@ -48,6 +51,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     super(props);
     this.state = { 
       isLoading: true,
+      token: '', 
+      user_id: '', 
       search: '',
       recipes: [],
       dismissed: new Set(),
@@ -74,12 +79,23 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   async componentDidMount() {
+    // set token and user_id
+    const setToken = await AsyncStorage.getItem('@token')
+    const setUserID = await AsyncStorage.getItem('@user_id')
+    if (setToken && setUserID) {
+      this.setState({
+        token: setToken,
+        user_id: setUserID
+      })
+    }
+
     // hit api for all recipes
     let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes/`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
     .then(response => response.json())
@@ -89,11 +105,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     });
 
     // hit api for user's saved recipes
-    await fetch(`http://localhost:8000/homemade/many_saved_recipes/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+    await fetch(`http://localhost:8000/homemade/many_saved_recipes/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
     .then(response => response.json())
@@ -165,6 +182,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
     .then(response => response.json())
@@ -188,11 +206,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   async saveRecipe(recipeId: string) {
     // if user has recipe saved, delete it from saved
     if (this.state.user_saved.has(recipeId)) {
-      await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipeId}`, {
+      await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipeId}`, {
         method: 'DELETE',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
         },
       })
         .catch(error => {
@@ -206,11 +225,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       })
     // if user does not have recipe saved, save it 
     } else {
-      await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipeId}`, {
+      await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipeId}`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
         },
       })
         .catch(error => {

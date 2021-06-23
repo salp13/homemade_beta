@@ -8,6 +8,7 @@ import { RouteProp } from '@react-navigation/native';
 import { SectionList, TouchableWithoutFeedback } from 'react-native'
 import { StackNavigationProp } from '@react-navigation/stack';
 import { styling } from '../style';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type HomeNavigationProp = StackNavigationProp<HomeParamList, 'IndividualRecipeScreen'>;
 type HomeRouteProp = RouteProp<HomeParamList, 'IndividualRecipeScreen'>;
@@ -23,6 +24,8 @@ interface Props {
 
 interface State {
     isLoading: boolean
+    token: string
+    user_id: string
     recipe: recipeEntireType
     saved: boolean
 }
@@ -32,6 +35,8 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     super(props);
     this.state = {
       isLoading: true,
+      token: '', 
+      user_id: '', 
       recipe: {
         recipe_id: JSON.parse(JSON.stringify(this.props.route.params.recipe_id)),
         recipe_name: '',
@@ -51,12 +56,23 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
   }
 
   async componentDidMount() {
+    const setToken = await AsyncStorage.getItem('@token')
+    const setUserID = await AsyncStorage.getItem('@user_id')
+    if (setToken && setUserID) {
+      this.setState({
+        token: setToken,
+        user_id: setUserID
+      })
+    }
+
+
     // hit api for single recipe
     let recipe_data = await fetch(`http://localhost:8000/homemade/single_recipe/${this.state.recipe.recipe_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
       .then(response => response.json())
@@ -66,11 +82,12 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     });
 
     // hit api for user's saved recipes
-    await fetch(`http://localhost:8000/homemade/many_saved_recipes/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+    await fetch(`http://localhost:8000/homemade/many_saved_recipes/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
       .then(response => response.json())
@@ -90,11 +107,12 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
   async saveRecipe() {
     // if the recipe is saved, delete it from saved recipes
     if (this.state.saved) {
-      await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${this.state.recipe.recipe_id}`, {
+      await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${this.state.recipe.recipe_id}`, {
         method: 'DELETE',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
         },
       })
       .catch(error => {
@@ -105,11 +123,12 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       })
     // if the recipe is not saved, save it to saved recipes
     } else {
-      await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${this.state.recipe.recipe_id}`, {
+      await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${this.state.recipe.recipe_id}`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
         },
       })
         .catch(error => {
@@ -132,8 +151,6 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
 
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
-
-    console.log(this.state.saved)
 
     let dietaryPrefs = ''
     this.state.recipe.diets.forEach((pref, index) => {

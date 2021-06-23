@@ -27,3 +27,5 @@ DESIGN:
         - change highlight border color
         - make image background lighter
         - make secondary text color darker
+    LoginScreen: 
+        - don't slide to other screens, just appear

@@ -98,7 +98,7 @@ export type userDataType = {
     username: string
     name: string
     origin_account_date: string
-    waste_count: number
+    wasted_count: number
     eaten_count: number
     produce_wasted: number
     meat_wasted: number

@@ -10,6 +10,7 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Text, View } from '../components/Themed';
 import { styling } from '../style';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
   navigation: StackNavigationProp<HomeParamList, 'HomeResultScreen'>,
@@ -18,6 +19,8 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  token: string
+  user_id: string
   specifiedItems: Array<fridgeItemType>
   recipes: Array<recipeType>
   dismissed: Set<string>
@@ -32,6 +35,8 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     const specifiedItems = JSON.parse(JSON.stringify(this.props.route.params.specifiedItems))
     this.state = { 
       isLoading: true,
+      token: '', 
+      user_id: '', 
       specifiedItems: specifiedItems,
       recipes: [],
       dismissed: new Set(),
@@ -55,6 +60,16 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
+    // set token and user_id
+    const setToken = await AsyncStorage.getItem('@token')
+    const setUserID = await AsyncStorage.getItem('@user_id')
+    if (setToken && setUserID) {
+      this.setState({
+        token: setToken,
+        user_id: setUserID
+      })
+    }
+    
     // hit api to get recipes that contain the ingredients from the specified items, must be a post request to be able to send a body
     let body = {"specifiedItems": this.state.specifiedItems}
     let recipe_data = await fetch('http://localhost:8000/homemade/many_recipes/', {
@@ -62,6 +77,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
       body: JSON.stringify(body)
     })
@@ -72,11 +88,12 @@ export default class HomeResultScreen extends React.Component<Props, State> {
       });
     
     // hit api to get the saved recipes from user
-    await fetch(`http://localhost:8000/homemade/many_saved_recipes/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+    await fetch(`http://localhost:8000/homemade/many_saved_recipes/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
     .then(response => response.json())
@@ -126,6 +143,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
       body: JSON.stringify(body)
     })
@@ -149,11 +167,12 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   async saveRecipe(recipeId: string) {
     // if the user has the recipe saved, delete it from saved
     if (this.state.user_saved.has(recipeId)) {
-      await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipeId}`, {
+      await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipeId}`, {
         method: 'DELETE',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
         },
       })
         .catch(error => {
@@ -167,11 +186,12 @@ export default class HomeResultScreen extends React.Component<Props, State> {
       })
     // if the user does not have the recipe saved, save it 
     } else {
-      await fetch(`http://localhost:8000/homemade/single_saved_recipe/3beea29d-19a3-4a8b-a631-ce9e1ef876ea/${recipeId}`, {
+      await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipeId}`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
         },
       })
         .catch(error => {

@@ -7,6 +7,8 @@ import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { SearchBar, Text, View } from '../components/Themed';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { styling } from '../style'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 interface Props {
   navigation: StackNavigationProp<FridgeParamList, 'AddFridgeItemScreen'>,
@@ -15,6 +17,8 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  token: string
+  user_id: string
   trigger: boolean
   search: string
   total_items: number
@@ -43,7 +47,9 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   constructor(props?: any) {
     super(props);
     this.state = { 
-      isLoading: true, 
+      isLoading: true,
+      token: '', 
+      user_id: '', 
       trigger: false,
       search: '',
       total_items: 0,
@@ -61,12 +67,23 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   async componentDidMount() {
+    // set token and user_id
+    const setToken = await AsyncStorage.getItem('@token')
+    const setUserID = await AsyncStorage.getItem('@user_id')
+    if (setToken && setUserID) {
+      this.setState({
+        token: setToken,
+        user_id: setUserID
+      })
+    }
+
     // hit api for fridge items
-    let fridgeData = await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+    let fridgeData = await fetch(`http://localhost:8000/homemade/many_fridge/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
     })
       .then(response => response.json())
@@ -76,11 +93,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       });
 
     // hit api for metrics data to keep track of total items
-    await fetch('http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+    await fetch(`http://localhost:8000/homemade/metric_data/${this.state.user_id}`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+          'Authorization': 'Token ' + this.state.token,
         },
       })
         .then(response => response.json())
@@ -96,11 +114,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         });
       
       // hit api for all foods excluding the unlisted food item
-      await fetch(`http://localhost:8000/homemade/many_foods`, {
+      await fetch(`http://localhost:8000/homemade/many_foods/`, {
           method: 'GET',
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
+            'Authorization': 'Token ' + this.state.token,
           },
         })
         .then(response => response.json())
@@ -137,11 +156,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   async OnPressSearch(id: string, food_name: string) { 
     // hit api to post newly added item to fridge
     let body = (food_name === "unlisted_food") ? JSON.stringify({food: id, unlisted_food: this.state.search}) : JSON.stringify({food: id})
-    await fetch('http://localhost:8000/homemade/many_fridge/3beea29d-19a3-4a8b-a631-ce9e1ef876ea', {
+    await fetch(`http://localhost:8000/homemade/many_fridge/${this.state.user_id}`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
       body: body
       })
@@ -150,11 +170,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       });
     
     // hit api to increment user's total items by 1
-    await fetch(`http://localhost:8000/homemade/metric_data/3beea29d-19a3-4a8b-a631-ce9e1ef876ea`, {
+    await fetch(`http://localhost:8000/homemade/metric_data/${this.state.user_id}`, {
       method: 'PATCH',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
       },
       body: JSON.stringify({
         total_items: this.state.total_items + 1,
