@@ -1,10 +1,6 @@
-Priority 4: (1 day)
-    authorization / admin (account screen)
-        6. UI of login and signup screens (2 hours)
-
 Priority 5 (1 day)
     Create Recipe functionality
-    Account screen functionality
+    Account Screen personal info changes functionality (name, email, password)
 
 Priority 6: (1 day)
     deployment of beta
@@ -31,6 +27,7 @@ Priority 9 (2 days):
 Priority 10 (2 days): 
     alpha version development
         style changes
+            including login, signup, account
         sorting algorithm for recipes (rating system)
         compatible with dark mode
 

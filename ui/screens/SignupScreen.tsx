@@ -118,14 +118,17 @@ export default class SignupScreen extends React.Component<Props, State> {
           this.setState({
             invalid: true,
           })
-          return
+        } else {
+          this.setState({
+            invalid: false,
+          })
         }
       })
       .catch(error => {
         console.error(error);
         return
       });
-    await this.login()
+    if (!this.state.invalid) await this.login()
   }
 
   setEmail(text: string) {
@@ -154,38 +157,52 @@ export default class SignupScreen extends React.Component<Props, State> {
 
   render() {
     return (
-      <View style={[styling.setFlex, {margin: 100}]}>
-        <Text>homemade</Text>
+      <View style={styling.container}>
+        <View style={{marginTop: 250}}>
+          <Text style={{textAlign: 'center', fontSize: 20}}>homemade</Text>
 
-        <TextInput 
-          style={{height: 30}}
-          placeholder="email"
-          onChangeText={text => this.setEmail(text)}
-          defaultValue={''}/>
+          <TextInput 
+            style={{marginTop: 20, fontSize: 15, textAlign: 'center', height: 30}}
+            placeholder="email"
+            autoCapitalize='none'
+            onChangeText={text => this.setEmail(text)}
+            defaultValue={''}/>
 
-        <TextInput 
-          style={{height: 30}}
-          placeholder="name"
-          onChangeText={text => this.setName(text)}
-          defaultValue={''}/>
+          <TextInput 
+            style={{marginTop: 20, fontSize: 15, textAlign: 'center', height: 30}}
+            placeholder="name"
+            autoCapitalize='none'
+            onChangeText={text => this.setName(text)}
+            defaultValue={''}/>
 
-        <TextInput 
-          style={{height: 30}}
-          placeholder="username"
-          onChangeText={text => this.setUsername(text)}
-          defaultValue={''}/>
+          <TextInput 
+            style={{marginTop: 20, fontSize: 15, textAlign: 'center', height: 30}}
+            placeholder="username"
+            autoCapitalize='none'
+            onChangeText={text => this.setUsername(text)}
+            defaultValue={''}/>
 
-        <TextInput 
-          style={{height: 30}}
-          placeholder="password"
-          onChangeText={text => this.setPassword(text)}
-          defaultValue={''}/>
+          <TextInput 
+            style={{marginTop: 20, fontSize: 15, textAlign: 'center', height: 30}}
+            placeholder="password"
+            autoCapitalize='none'
+            secureTextEntry={true}
+            onChangeText={text => this.setPassword(text)}
+            defaultValue={''}/>
 
-        <Button title="signup" onPress={() => this.signup()}/>
-
-        <Button title="back to login" onPress={() => this.props.navigation.navigate('LoginScreen')}/>
-
-        {this.state.invalid ? <Text>Signup attempt failed, please try again with a different information.</Text> : <View></View> }
+          <View style={{marginTop: 10}}>
+            <Button title="signup" onPress={() => this.signup()}/>
+          </View>
+          <View style={{marginTop: 10}}>
+            <Button title="back to login" onPress={() => this.props.navigation.navigate('LoginScreen')}/>
+          </View>
+            
+          {this.state.invalid ? 
+          <Text style={{marginTop: 10, fontSize: 12, color: 'red', textAlign: 'center'}}>
+            Sign up attempt failed, please try again with a different information.
+            </Text> : 
+            <View></View> }
+        </View>
       </View>
     );
   }

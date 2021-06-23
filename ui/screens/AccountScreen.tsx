@@ -2,8 +2,8 @@ import * as React from 'react';
 import { ProfileParamList, RootStackParamList } from '../types'
 import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
-import { Text, View } from '../components/Themed';
+import { Button } from 'react-native';
+import { View } from '../components/Themed';
 import { styling } from '../style'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -34,13 +34,11 @@ export default class AccountScreen extends React.Component<Props> {
 
   render() {
     return (
-        <View style={styling.container}>
-          <TouchableWithoutFeedback onPress={() => this.logout()}>
-            <View style={{flexDirection: 'row'}}>
-                <Text style={{fontSize: 15, margin: 10, marginTop: 20}}>Log Out</Text>
-            </View>
-        </TouchableWithoutFeedback>
+      <View style={styling.container}>
+        <View style={styling.SectionBuffer}>
+        <Button title="logout" onPress={() => this.logout()} />
         </View>
+      </View>
     );
   }
 }

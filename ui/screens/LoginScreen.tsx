@@ -146,25 +146,34 @@ export default class LoginScreen extends React.Component<Props, State> {
   render() {
     if (this.state.isLoading) return (<View></View>)
     return (
-      <View style={[styling.setFlex, {margin: 100}]}>
-        <Text>homemade</Text>
+      <View style={styling.container}>
+        <View style={{marginTop: 300}}>
+          <Text style={{textAlign: 'center', fontSize: 20}}>homemade</Text>
 
-        <TextInput 
-          style={{height: 30}}
-          placeholder="username"
-          onChangeText={text => this.setUsername(text)}
-          defaultValue={''}/>
+          <TextInput 
+            style={{marginTop: 20, fontSize: 15, textAlign: 'center', height: 30}}
+            placeholder="username"
+            autoCapitalize='none'
+            onChangeText={text => this.setUsername(text)}
+            defaultValue={''}/>
 
-        <TextInput 
-          style={{height: 30}}
-          placeholder="password"
-          onChangeText={text => this.setPassword(text)}
-          defaultValue={''}/>
+          <TextInput 
+            style={{margin: 20, fontSize: 15, textAlign: 'center', height: 30}}
+            placeholder="password"
+            autoCapitalize='none'
+            secureTextEntry={true}
+            onChangeText={text => this.setPassword(text)}
+            defaultValue={''}/>
 
-        <Button title="login" onPress={() => this.login()}/>
+          <Button title="login" onPress={() => this.login()}/>
 
-        <Button title="signup" onPress={() => this.props.navigation.navigate('SignupScreen')}/>
-        {this.state.failed_attempt ? <Text>Login attempt failed, please try again with a different username or password.</Text> : <View></View> }
+          <Button title="signup" onPress={() => this.props.navigation.navigate('SignupScreen')}/>
+          {this.state.failed_attempt ? 
+            <Text style={{marginTop: 10, fontSize: 12, color: 'red', textAlign: 'center'}}>
+              Login attempt failed, please try again with a different username or password.
+              </Text> : 
+              <View></View> }
+        </View>
       </View>
     );
   }
