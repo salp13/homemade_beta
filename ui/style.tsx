@@ -207,6 +207,12 @@ export const styling = EStyleSheet.create({
     zIndex: 1, 
     backgroundColor: 'transparent'
   },
+  positioningBackArrow: {
+    position: 'absolute', 
+    marginLeft: '20rem', 
+    zIndex: 1, 
+    backgroundColor: 'transparent'
+  },
   recipeDirections: {
     marginVertical: '5rem', 
     marginLeft: '10rem',

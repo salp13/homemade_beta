@@ -20,6 +20,7 @@ import SettingsScreen from '../screens/SettingsScreen'
 import AccountScreen from '../screens/AccountScreen'
 import AboutScreen from '../screens/AboutScreen'
 import IndividualRecipeScreen from '../screens/IndividualRecipeScreen'
+import CreateRecipeScreen from '../screens/CreateRecipeScreen'
 
 import { 
   BottomTabParamList, 
@@ -207,7 +208,7 @@ function ProfileNavigator() {
           headerRight: () => (
             <View style={{marginRight: 20}}>
               <TouchableWithoutFeedback onPress={() => navigation.navigate('SettingsScreen')}>
-                <SimpleLineIcons name="settings" size={24} color="black" />
+                <SimpleLineIcons name="settings" size={20} color="black" />
               </TouchableWithoutFeedback>       
             </View>
             
@@ -232,6 +233,11 @@ function ProfileNavigator() {
       <ProfileStack.Screen
         name="IndividualRecipeScreen"
         component={IndividualRecipeScreen}
+        options={{ headerShown: false }}
+      />
+      <ProfileStack.Screen
+        name="CreateRecipeScreen"
+        component={CreateRecipeScreen}
         options={{ headerShown: false }}
       />
   </ProfileStack.Navigator>

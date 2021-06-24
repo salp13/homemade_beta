@@ -6,7 +6,8 @@ Priority 6: (1 day)
     deployment of beta
         1. package app
         2. host database
-        3. host app
+        3. legality of icons and food type images
+        4. host app
 
 Priority 7: (1 day)
     documentation
@@ -30,6 +31,7 @@ Priority 10 (2 days):
             including login, signup, account
         sorting algorithm for recipes (rating system)
         compatible with dark mode
+        add ingredients to shopping list from recipes 
 
 DONE BY JULY 27
 

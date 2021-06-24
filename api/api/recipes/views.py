@@ -60,6 +60,7 @@ def many_recipes(request):
                 recipes = Recipe.objects.all()
             recipe_serializer = RecipeOverview_GETSerializer(recipes, many=True)
             return Response(recipe_serializer.data, status=status.HTTP_201_CREATED)
+        #  TODO: add image functionality
         else:
             ingredients_data = request.data.pop('foods')
             try:
@@ -115,6 +116,14 @@ def single_recipe(request, pk):
         recipe.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['get'])
+def owned_recipe(request, user_id):
+    if request.method == 'GET':
+        recipes = Recipe.objects.filter(owner=user_id)
+        recipe_serializer = RecipeOverview_GETSerializer(recipes, many=True)
+        return Response(recipe_serializer.data)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['post'])

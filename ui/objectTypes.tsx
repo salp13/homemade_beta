@@ -68,6 +68,7 @@ export type ingredientType = {
 export type recipeEntireType = {
     recipe_id: string
     recipe_name: string
+    owner: string
     image: string
     diets: Array<{
         diet_id: number

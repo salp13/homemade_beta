@@ -40,6 +40,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       recipe: {
         recipe_id: JSON.parse(JSON.stringify(this.props.route.params.recipe_id)),
         recipe_name: '',
+        owner: '', 
         image: '',
         diets: [],
         cuisine: undefined,

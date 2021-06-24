@@ -67,6 +67,7 @@ export type ProfileParamList = {
   IndividualRecipeScreen: {
     recipe_id: string
   }
+  CreateRecipeScreen: undefined
 };
 
 export type LoginParamList = {

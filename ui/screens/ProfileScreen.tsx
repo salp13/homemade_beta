@@ -2,15 +2,15 @@ import * as React from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Image, Text, View } from '../components/Themed';
 import { ProfileParamList } from '../types'
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp, TabRouter } from '@react-navigation/native';
 import SavedRecipe from '../components/SavedRecipe'
 import { StackNavigationProp } from '@react-navigation/stack';
 import Swiper from 'react-native-swiper'
-import { userDataType } from '../objectTypes'
+import { recipeType, userDataType } from '../objectTypes'
 import { styling } from '../style';
 import { width, height } from '../App'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { Entypo } from '@expo/vector-icons';
 
 type ProfileScreenNavigationProp = StackNavigationProp<ProfileParamList, 'ProfileScreen'>;
 type ProfileScreenRouteProp = RouteProp<ProfileParamList, 'ProfileScreen'>;
@@ -27,6 +27,7 @@ interface State {
   toggle: boolean
   user_data: userDataType
   most_wasted_group: string
+  owned_recipes: Array<recipeType>
 }
 
 export default class HomeScreen extends React.Component<Props, State> {
@@ -53,7 +54,8 @@ export default class HomeScreen extends React.Component<Props, State> {
         shopping_list: [],
         fridge: []
       },
-      most_wasted_group: ""
+      most_wasted_group: "",
+      owned_recipes: []
     }
 
     this.unsaveRecipe = this.unsaveRecipe.bind(this)
@@ -102,33 +104,74 @@ export default class HomeScreen extends React.Component<Props, State> {
     else if (i === 1) group = 'protein'
     else group = 'dairy'
 
-    this.setState({
-      isLoading: false,
-      user_data: user_data,
-      most_wasted_group: group
-    });
-  }
-
-  async unsaveRecipe(recipe_id: string) {
-    // hit api to unsave saved recipe
-    await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipe_id}`, {
-      method: 'DELETE',
+    const owned_recipes = await fetch(`http://localhost:8000/homemade/owned_recipe/${this.state.user_id}`, {
+      method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
         'Authorization': 'Token ' + this.state.token,
       },
     })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+      return data
+    })
     .catch(error => {
       console.error(error);
     });
 
-    let assign_saved_recipes = this.state.user_data.saved_recipes.filter((recipe) => recipe.recipe_id !== recipe_id)
-    let assign_user_data = this.state.user_data
-    assign_user_data.saved_recipes = assign_saved_recipes
     this.setState({
-      user_data: assign_user_data,
+      isLoading: false,
+      user_data: user_data,
+      most_wasted_group: group,
+      owned_recipes: owned_recipes,
     });
+  }
+
+  async unsaveRecipe(recipe_id: string) {
+    if (this.state.user_data.saved_recipes.find(ele => (ele.recipe_id == recipe_id))) {
+      // hit api to unsave saved recipe
+      await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipe_id}`, {
+        method: 'DELETE',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + this.state.token,
+        },
+      })
+      .catch(error => {
+        console.error(error);
+      });
+
+      let assign_saved_recipes = this.state.user_data.saved_recipes.filter((recipe) => recipe.recipe_id !== recipe_id)
+      let assign_user_data = this.state.user_data
+      assign_user_data.saved_recipes = assign_saved_recipes
+      this.setState({
+        user_data: assign_user_data,
+      });
+    } else {
+        await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipe_id}`, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          'Authorization': 'Token ' + this.state.token,
+          },
+        })
+          .catch(error => {
+            console.error(error);
+          });
+
+          let new_saved_recipe = this.state.owned_recipes.filter((recipe) => recipe.recipe_id === recipe_id)
+          let assign_user_data = this.state.user_data
+          assign_user_data.saved_recipes = this.state.user_data.saved_recipes.concat(new_saved_recipe)
+
+        this.setState({
+          user_data: assign_user_data
+        })
+    }
+    
   }
 
   navigateRecipe(recipe_id: string) {
@@ -186,8 +229,7 @@ export default class HomeScreen extends React.Component<Props, State> {
       )
     } else {
       return (
-        <View style={styling.paddingMargin}>
-          <Text style={styling.username}>{this.state.user_data.name}</Text>
+        <View>
           <Text style={styling.metricsText}>Items in your fridge: {this.state.user_data.fridge.length}</Text>
           <Text style={styling.metricsText}>Ratio of food eaten instead of wasted: {percentage}%</Text>
           <Text style={styling.metricsText}>Average number of items in your fridge: {avg_items}</Text>
@@ -202,7 +244,17 @@ export default class HomeScreen extends React.Component<Props, State> {
 
     return (
       <View style={{flex: 1}}>
+        <View style={styling.paddingMargin}>
+          <View style={styling.flexRow}>
+            <Text style={styling.username}>{this.state.user_data.name}</Text>
+            <View style={styling.autoLeft}>
+            <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('CreateRecipeScreen')}>
+              <Entypo name="new-message" size={20} color="black" />
+            </TouchableWithoutFeedback>
+            </View>
+          </View>
           {this.MetricData()}
+        </View>
         <View style={styling.flexPadding}>
           <View style={styling.halfWidth}>
             <TouchableWithoutFeedback onPress={() => {
@@ -233,7 +285,20 @@ export default class HomeScreen extends React.Component<Props, State> {
           style={styling.paddingHorizontal}
           >
           <View>
-            <Text>Coming soon...</Text>
+          <FlatList 
+              data={this.state.owned_recipes}
+              ItemSeparatorComponent={() => (<View style={styling.elementBuffer}></View>)}
+              renderItem={({item}) => (
+                <SavedRecipe 
+                  recipe_id={item.recipe_id}
+                  recipe_name={item.recipe_name}
+                  image={item.image}
+                  dietaryPreferences={item.diets}
+                  saved={(this.state.user_data.saved_recipes.find(ele => (ele.recipe_id == item.recipe_id))) ? true : false}
+                  onPressNavigate={this.navigateRecipe}
+                  saveRecipe={this.unsaveRecipe}
+                />)}
+              />
           </View>
           <View>
             <FlatList 
