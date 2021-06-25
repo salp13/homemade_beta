@@ -80,7 +80,7 @@ export type recipeEntireType = {
     } | undefined
     meal_type: {
         meal_type_id: number
-        cuisine: string
+        meal_type: string
     } | undefined
     instructions: string
     description: string
