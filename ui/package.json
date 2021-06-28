@@ -28,6 +28,7 @@
     "expo-splash-screen": "^0.5.0",
     "expo-status-bar": "^1.0.2",
     "expo-web-browser": "~8.3.1",
+    "formik": "^2.2.9",
     "moment": "^2.29.1",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0",

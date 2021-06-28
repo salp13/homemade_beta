@@ -1,16 +1,16 @@
 import * as React from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, Button, StyleSheet, TextInput, ScrollView, ActionSheetIOS } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ProfileParamList } from '../types'
 import { Image, Text, View } from '../components/Themed';
-import { recipeEntireType } from '../objectTypes'
+import { ingredientType, recipeEntireType } from '../objectTypes'
 import { RouteProp } from '@react-navigation/native';
 import { FlatList, SectionList, TouchableWithoutFeedback } from 'react-native'
 import { StackNavigationProp } from '@react-navigation/stack';
 import { styling } from '../style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TextInput } from 'react-native-gesture-handler';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import { Formik, Form, FieldArray, Field, FormikProps } from 'formik'
 
 const sectionsArray = [{
   title: "mealType",
@@ -59,9 +59,17 @@ interface State {
     user_id: string
     recipe: recipeEntireType
     saved: boolean
+    temp_ingredients: Array<{
+      amount: string 
+      food: string
+    }>
+    temp_directions: Array<string>
 }
 
 export default class IndividualRecipeScreen extends React.Component<Props, State> {
+  private formikRef1 = React.createRef<FormikProps<any>>()
+  private formikRef2 = React.createRef<FormikProps<any>>()
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -78,16 +86,14 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
         meal_type: undefined,
         instructions: '',
         description: '',
-        ingredients: [{
-          description: '',
-          food: {
-            food_name: '', 
-            food_id: '', 
-          },
-          unlisted_food: ''
-        }],
+        ingredients: [],
       },
       saved: false,
+      temp_ingredients: [{
+        amount: '',
+        food: '',
+      }],
+      temp_directions: ['']
     };
 
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
@@ -95,8 +101,9 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     this.selectMealType = this.selectMealType.bind(this)
     this.selectDiet = this.selectDiet.bind(this)
     this.selectCuisine = this.selectCuisine.bind(this)
-    this.setIngredientAmount = this.setIngredientAmount.bind(this)
-    this.setIngredientFood = this.setIngredientFood.bind(this)
+    this.addIngredients = this.addIngredients.bind(this)
+    this.addDirections = this.addDirections.bind(this)
+    this.submitRecipe = this.submitRecipe.bind(this)
   }
 
   async componentDidMount() {
@@ -155,34 +162,160 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     })
   }
 
-  setIngredientAmount(text: string, index: number) {
-    let updated_recipe = this.state.recipe
-    if (index >= updated_recipe.ingredients.length) {
-      updated_recipe.ingredients = updated_recipe.ingredients.concat([{
-        description: "",
-        food: {food_id: "", food_name: ""},
-        unlisted_food: "",
-      }])
-    }
-    updated_recipe.ingredients[index].description = text + updated_recipe.ingredients[index].unlisted_food
-    this.setState({
-      recipe: updated_recipe,
-    })
+  addIngredients() {
+    return (
+      <View>
+          <Text style={{fontSize: 18, marginVertical: 10}}>Ingredients</Text>
+          <View style={styling.flexRow}>
+            <Formik 
+              initialValues={{ingredients: this.state.temp_ingredients}}
+              onSubmit={(values, actions) => {
+                console.log("HANDLING SUBMIT")
+                console.log({values})
+                this.setState({
+                  temp_ingredients: values.ingredients
+                })
+                actions.setSubmitting(false)
+                return values.ingredients
+              }}
+              innerRef={this.formikRef1}
+              render={({ values, handleChange, handleBlur })=> (
+                <FieldArray 
+                name="ingredients"
+                render={arrayHelpers => (
+                  <View>
+                    {values.ingredients && values.ingredients.length > 0 ? (
+                      values.ingredients.map((ingredient, index) => (
+                        <View key={`ingredients[${index}]`} style={styling.flexRow}>
+                          <TextInput 
+                            data-name={`ingredients[${index}].amount`}
+                            key={`ingredients[${index}].amount`} 
+                            value={values.ingredients[index].amount}
+                            placeholder="amount"
+                            style={[{marginHorizontal: 20, marginTop: 5}]}
+                            autoCapitalize='none'
+                            onChangeText={handleChange(`ingredients[${index}].amount`)}
+                            onBlur={handleBlur(`ingredients[${index}].amount`)}
+                            defaultValue={''} />
+                          <TextInput 
+                            data-name={`ingredients[${index}].food`} 
+                            key={`ingredients[${index}].food`} 
+                            value={values.ingredients[index].food}
+                            placeholder="ingredient"
+                            style={[{marginHorizontal: 20, marginTop: 5}]}
+                            autoCapitalize='none'
+                            onChangeText={handleChange(`ingredients[${index}].food`)}
+                            onBlur={handleBlur(`ingredients[${index}].food`)}
+                            defaultValue={''} />
+                            {(index === values.ingredients.length - 1) ? (
+                              <Button title="+" color='black' onPress={() => arrayHelpers.push({amount: '', food: ''})} />
+                            ) : (
+                              <Button title="-" color='black' onPress={() => arrayHelpers.remove(index)} /> 
+                            )}
+                            
+                          </View>
+                      ))) : (
+                      <View>
+                        <Button title="+" color='black' onPress={() => arrayHelpers.push({amount: '', food: ''})} />
+                      </View>
+                    )}
+
+                  </View>
+                )}
+                />
+              )}
+              />
+            </View>
+        </View>
+    )
   }
 
-  setIngredientFood(text: string, index: number) {
-    let updated_recipe = this.state.recipe
-    if (index >= updated_recipe.ingredients.length) {
-      updated_recipe.ingredients = updated_recipe.ingredients.concat([{
-        description: "",
-        food: {food_id: "", food_name: ""},
-        unlisted_food: text,
-      }])
-    }
-    updated_recipe.ingredients[index].unlisted_food = text
-    this.setState({
-      recipe: updated_recipe,
+  addDirections() {
+    return (
+      <View>
+          <Text style={{fontSize: 18, marginVertical: 10}}>Directions</Text>
+          <View style={styling.flexRow}>
+            <Formik 
+              initialValues={{directions: this.state.temp_directions}}
+              onSubmit={(values, actions) => {
+                console.log("HANDLING SUBMIT")
+                console.log({values})
+                this.setState({
+                  temp_directions: values.directions
+                })
+                actions.setSubmitting(false)
+                return values.directions
+              }}
+              innerRef={this.formikRef2}
+              render={({ values, handleChange, handleBlur, setSubmitting })=> (
+                <FieldArray 
+                name="directions"
+                render={arrayHelpers => (
+                  <View>
+                    {values.directions && values.directions.length > 0 ? (
+                      values.directions.map((direction, index) => (
+                        <View key={`directions[${index}]`} style={styling.flexRow}>
+                          <Text style={{marginTop: 12, marginLeft: 5}}>{index+1}. </Text>
+                          <TextInput 
+                            data-name={`directions[${index}]`} 
+                            key={`directions[${index}].directions`} 
+                            value={values.directions[index]}
+                            placeholder="direction"
+                            style={[{marginHorizontal: 20, marginTop: 5}]}
+                            autoCapitalize='none'
+                            onChangeText={handleChange(`directions[${index}]`)}
+                            onBlur={handleBlur(`directions[${index}]`)}
+                            defaultValue={''} />
+                            {(index === values.directions.length - 1) ? (
+                              <Button title="+" color='black' onPress={() => arrayHelpers.push('')} /> 
+                            ) : (
+                              <Button title="-" color='black' onPress={() => arrayHelpers.remove(index)} /> 
+                            )}
+                            
+                          </View>
+                      ))) : (
+                      <View>
+                        <Button title="+" color='black' onPress={() => arrayHelpers.push('')} />
+                      </View>
+                    )}
+
+                  </View>
+                )}
+                />
+              )}
+              />
+            </View>
+        </View>
+    )
+  }
+
+  async submitRecipe() {
+    await this.formikRef1.current?.submitForm()
+    await this.formikRef2.current?.submitForm()
+
+    let recipe = this.state.recipe
+    // format this.state.recipes.ingredients
+    let unformatted_ingredients = this.state.temp_ingredients
+    let ingredients = unformatted_ingredients.map((ingredient) => ({
+        description: ingredient.amount + " " + ingredient.food,
+        food: {
+          food_id: '', 
+          food_name: ingredient.food,
+        }, 
+        unlisted_food: ''
+      }))
+    recipe.ingredients = ingredients
+    // format this.state.recipes.directions
+    let unformatted_directions = this.state.temp_directions
+    let directions = ""
+    unformatted_directions.forEach((direction, index) => {
+      directions = `${directions}\n${index + 1}. ${direction}`
     })
+    recipe.instructions = directions
+    this.setState({ recipe })
+    console.log({recipe})
+    // post request to create a recipe
+    // await this.submitRecipe()
   }
 
   IsLoadingRender() {
@@ -196,63 +329,57 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
 
-    let dietaryPrefs = ''
-    this.state.recipe.diets.forEach((pref, index) => {
-    dietaryPrefs = dietaryPrefs.concat(pref.diet)
-    if (index !== this.state.recipe.diets.length - 1) dietaryPrefs = dietaryPrefs.concat(', ')
-    })
-    let instructions = this.state.recipe.instructions.split("\n").map((ele) => {return ele.trim()})
-
     return (
     <View style={styling.container}>
-      <View style={styling.positioningBackArrow}>
-        <TouchableWithoutFeedback onPress={this.props.navigation.goBack}>
-          <Ionicons name="ios-arrow-back" color="black" style={StyleSheet.flatten([styling.largeIconSize, styling.noHeader])}/>
-        </TouchableWithoutFeedback>
-      </View>
-      <View>
-        <View style={styling.flexRow}>
-            <TextInput
-                style={[styling.fullRecipeName, styling.noHeader, {marginHorizontal: 20}]}
-                placeholder="recipe name"
-                autoCapitalize='none'
-                onChangeText={text => this.setRecipeName(text)}
-                defaultValue={''} />
-          </View>
+      <ScrollView>
+        <View style={styling.positioningBackArrow}>
+          <TouchableWithoutFeedback onPress={this.props.navigation.goBack}>
+            <Ionicons name="ios-arrow-back" color="black" style={StyleSheet.flatten([{marginLeft: -10}, styling.largeIconSize, styling.noHeader])}/>
+          </TouchableWithoutFeedback>
         </View>
-        <View style={styling.flexRow}>
-          <View style={{marginHorizontal: 10}}>
-            <Text style={{fontSize: 18, marginVertical: 10}}>Meal Type</Text>
-            <FlatList
-              horizontal={false}
-              showsVerticalScrollIndicator={false}
-              showsHorizontalScrollIndicator={false}
-              ItemSeparatorComponent={() => (<View style={{marginVertical: 10}}></View>)}
-              data={sectionsArray[0].data} 
-              renderItem={({item}) => {
-                return (
-                  <TouchableWithoutFeedback onPress={() => this.selectMealType(item)}>
-                    <Text style={(this.state.recipe.meal_type?.meal_type === item) ? {color:'blue'} : {color:'black'}}>{item}</Text>
+        <View>
+          <View style={styling.flexRow}>
+              <TextInput
+                  style={[styling.fullRecipeName, styling.noHeader, {marginHorizontal: 40, marginBottom: 20}]}
+                  placeholder="recipe name"
+                  autoCapitalize='none'
+                  onChangeText={text => this.setRecipeName(text)}
+                  defaultValue={''} />
+            </View>
+          </View>
+          <View style={styling.flexRow}>
+            <View style={{marginHorizontal: 10}}>
+              <Text style={{fontSize: 18, marginVertical: 10}}>Meal Type</Text>
+              <FlatList
+                horizontal={false}
+                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
+                ItemSeparatorComponent={() => (<View style={{marginVertical: 10}}></View>)}
+                data={sectionsArray[0].data} 
+                renderItem={({item}) => {
+                  return (
+                    <TouchableWithoutFeedback onPress={() => this.selectMealType(item)}>
+                      <Text style={(this.state.recipe.meal_type?.meal_type === item) ? {color:'blue'} : {color:'black'}}>{item}</Text>
+                    </TouchableWithoutFeedback>
+                  )}}
+                keyExtractor={(item, index) => item} />
+            </View>
+            <View style={{marginHorizontal: 10}}>
+              <Text style={{fontSize: 18, marginVertical: 10}}>Dietary {'\n'}Preferences</Text>
+              <FlatList
+                horizontal={false}
+                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
+                ItemSeparatorComponent={() => (<View style={{marginVertical: 10}}></View>)}
+                data={sectionsArray[1].data} 
+                renderItem={({item}) => {
+                  return (
+                    <TouchableWithoutFeedback onPress={() => this.selectDiet(item)}>
+                    <Text style={(this.state.recipe.diets.findIndex((ele) => ele.diet === item) !== -1) ? {color:'blue'} : {color:'black'}}>{item}</Text>
                   </TouchableWithoutFeedback>
-                )}}
-              keyExtractor={(item, index) => item} />
-          </View>
-          <View style={{marginHorizontal: 10}}>
-            <Text style={{fontSize: 18, marginVertical: 10}}>Dietary {'\n'}Preferences</Text>
-            <FlatList
-              horizontal={false}
-              showsVerticalScrollIndicator={false}
-              showsHorizontalScrollIndicator={false}
-              ItemSeparatorComponent={() => (<View style={{marginVertical: 10}}></View>)}
-              data={sectionsArray[1].data} 
-              renderItem={({item}) => {
-                return (
-                  <TouchableWithoutFeedback onPress={() => this.selectDiet(item)}>
-                  <Text style={(this.state.recipe.diets.findIndex((ele) => ele.diet === item) !== -1) ? {color:'blue'} : {color:'black'}}>{item}</Text>
-                </TouchableWithoutFeedback>
-                )}}
-              keyExtractor={(item, index) => item} />
-          </View>
+                  )}}
+                keyExtractor={(item, index) => item} />
+            </View>
           <View style={{marginHorizontal: 10}}>
             <Text style={{fontSize: 18, marginVertical: 10}}>Cuisine</Text>
             <FlatList
@@ -270,103 +397,20 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
               keyExtractor={(item, index) => item} />
           </View>
         </View>
-        <View>
-          <Text style={{fontSize: 18, marginVertical: 10}}>Ingredients</Text>
-          <View style={styling.flexRow}>
-            <FlatList 
-              horizontal={false}
-              showsVerticalScrollIndicator={false}
-              showsHorizontalScrollIndicator={false}
-              ItemSeparatorComponent={() => (<View style={{marginVertical: 10}}></View>)}
-              data={this.state.recipe.ingredients} 
-              // ListHeaderComponent={(
-              //   <View style={styling.flexRow}>
-              //       <TextInput
-              //       style={[styling.noHeader, {marginHorizontal: 20}]}
-              //       placeholder="amount"
-              //       autoCapitalize='none'
-              //       onChangeText={text => this.setIngredientAmount(text, this.state.recipe.ingredients.length)}
-              //       defaultValue={''} />
-              //     <TextInput
-              //       style={[styling.noHeader, {marginHorizontal: 20}]}
-              //       placeholder="ingredient"
-              //       autoCapitalize='none'
-              //       onChangeText={text => this.setIngredientFood(text, this.state.recipe.ingredients.length)}
-              //       defaultValue={''} />
-              //   </View>
-              // )}
-              // ISSUE: RERENDERS EACH CHANGE TEXT -- cannot properly update
-              renderItem={({item, index}) => {
-                return (
-                  <View>
-                  <View style={styling.flexRow}>
-                    <TextInput
-                      style={[styling.noHeader, {marginHorizontal: 20}]}
-                      placeholder="amount"
-                      autoCapitalize='none'
-                      onChangeText={text => this.setIngredientAmount(text, index)}
-                      defaultValue={''} />
-                    <TextInput
-                      style={[styling.noHeader, {marginHorizontal: 20}]}
-                      placeholder="ingredient"
-                      autoCapitalize='none'
-                      onChangeText={text => this.setIngredientFood(text, index)}
-                      defaultValue={''} />
-                    </View>
-                    {((index === this.state.recipe.ingredients.length - 1) && (item.description != '')) ? (
-                    <View style={styling.flexRow}>
-                      <TextInput
-                        style={[styling.noHeader, {marginHorizontal: 20}]}
-                        placeholder="amount"
-                        autoCapitalize='none'
-                        onChangeText={text => this.setIngredientAmount(text, index)}
-                        defaultValue={''} />
-                      <TextInput
-                        style={[styling.noHeader, {marginHorizontal: 20}]}
-                        placeholder="ingredient"
-                        autoCapitalize='none'
-                        onChangeText={text => this.setIngredientFood(text, index)}
-                        defaultValue={''} />
-                    </View>) : 
-                    (<View></View>)}
-                    </View>
-                )}}
-              keyExtractor={(item, index) => item.description + index} />
-              {/* <View style={styling.flexRow}>
-                <TextInput
-                  style={[styling.fullRecipeName, styling.noHeader, {marginHorizontal: 20}]}
-                  placeholder="amount"
-                  autoCapitalize='none'
-                  onChangeText={text => this.setIngredientAmount(text, this.state.recipe.ingredients.length)}
-                  defaultValue={''} />
-                <TextInput
-                  style={[styling.fullRecipeName, styling.noHeader, {marginHorizontal: 20}]}
-                  placeholder="ingredient"
-                  autoCapitalize='none'
-                  onChangeText={text => this.setIngredientFood(text, this.state.recipe.ingredients.length)}
-                  defaultValue={''} />
-              </View> */}
-          </View>
-        </View> 
-        <View>
-          <Text style={{fontSize: 18, marginVertical: 10}}>Directions</Text>
-        </View> 
-        <SectionList
-          style={styling.sectionBuffer}
-          stickySectionHeadersEnabled={false}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          sections={[ 
-            {recipe_name: "Ingredients", data: this.state.recipe.ingredients.map((ingredient) => ingredient.description)}, 
-            {recipe_name: "Directions", data: instructions} ]}
-          renderItem={({item}) => ( <Text style={styling.recipeDirections}>{item}</Text> )}
-          renderSectionHeader={({section}) => ( 
-            <Text style={styling.recipeDirectionsHeader}>{section.recipe_name}</Text> 
-            )}
-          renderSectionFooter={() => ( <View style={styling.recipeDirectionsFooter}></View> )}
-          /> 
-          {/* TODO: Upload image */}
+        {this.addIngredients()}
+        {this.addDirections()}
+        {/* TODO: Upload image */}
+        <Button title="Submit" onPress={() => this.submitRecipe()}/>
+        </ScrollView>
       </View>
     );
   }
 }
+
+/*
+TODO:
+  - upload image
+  - format ingredients
+  - format directions
+  - post request to create recipe
+*/
