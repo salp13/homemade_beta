@@ -27,7 +27,7 @@ class Recipe(models.Model):
     recipe_name = models.CharField(max_length=128)
     owner = models.ForeignKey('users.User', on_delete=models.RESTRICT, null=True)
     image = models.ImageField(upload_to='recipes', null=True)
-    description = models.TextField()
+    description = models.TextField(null=True)
     instructions = models.TextField()
     diets = models.ManyToManyField(Diet)
     cuisine = models.ForeignKey(Cuisine, on_delete=models.RESTRICT, null=True)

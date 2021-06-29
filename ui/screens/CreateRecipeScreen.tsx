@@ -3,7 +3,7 @@ import { ActivityIndicator, Button, StyleSheet, TextInput, ScrollView, ActionShe
 import { Ionicons } from '@expo/vector-icons';
 import { ProfileParamList } from '../types'
 import { Image, Text, View } from '../components/Themed';
-import { ingredientType, recipeEntireType } from '../objectTypes'
+import { createRecipeType } from '../objectTypes'
 import { RouteProp } from '@react-navigation/native';
 import { FlatList, SectionList, TouchableWithoutFeedback } from 'react-native'
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -57,7 +57,7 @@ interface State {
     isLoading: boolean
     token: string
     user_id: string
-    recipe: recipeEntireType
+    recipe: createRecipeType
     saved: boolean
     temp_ingredients: Array<{
       amount: string 
@@ -77,16 +77,15 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       token: '', 
       user_id: '', 
       recipe: {
-        recipe_id: '',
         recipe_name: '',
-        owner: '', 
+        owner: '',
         image: '',
         diets: [],
         cuisine: undefined,
         meal_type: undefined,
         instructions: '',
         description: '',
-        ingredients: [],
+        foods: [],
       },
       saved: false,
       temp_ingredients: [{
@@ -103,6 +102,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     this.selectCuisine = this.selectCuisine.bind(this)
     this.addIngredients = this.addIngredients.bind(this)
     this.addDirections = this.addDirections.bind(this)
+    this.setDescription = this.setDescription.bind(this)
     this.submitRecipe = this.submitRecipe.bind(this)
   }
 
@@ -131,14 +131,14 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
 
   selectMealType(meal_type: string) {
     let updated_recipe = this.state.recipe
-    updated_recipe.meal_type = {meal_type_id: 0, meal_type: meal_type}
+    updated_recipe.meal_type = meal_type
     this.setState({
       recipe: updated_recipe,
     })
   }
 
   selectDiet(diet: string) {
-    let index = this.state.recipe.diets.findIndex((ele) => ele.diet === diet)
+    let index = this.state.recipe.diets.findIndex((ele) => ele === diet)
     if (index !== -1) {
       let updated_recipe = this.state.recipe
       updated_recipe.diets.splice(index, 1)
@@ -147,7 +147,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       })
     } else {
       let updated_recipe = this.state.recipe
-      updated_recipe.diets = updated_recipe.diets.concat([{diet_id: 0, diet: diet}])
+      updated_recipe.diets = updated_recipe.diets.concat([diet])
       this.setState({
         recipe: updated_recipe,
       })
@@ -156,7 +156,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
 
   selectCuisine(cuisine: string) {
     let updated_recipe = this.state.recipe
-    updated_recipe.cuisine = {cuisine_id: 0, cuisine: cuisine}
+    updated_recipe.cuisine = cuisine
     this.setState({
       recipe: updated_recipe,
     })
@@ -170,13 +170,9 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
             <Formik 
               initialValues={{ingredients: this.state.temp_ingredients}}
               onSubmit={(values, actions) => {
-                console.log("HANDLING SUBMIT")
-                console.log({values})
                 this.setState({
                   temp_ingredients: values.ingredients
                 })
-                actions.setSubmitting(false)
-                return values.ingredients
               }}
               innerRef={this.formikRef1}
               render={({ values, handleChange, handleBlur })=> (
@@ -238,13 +234,9 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
             <Formik 
               initialValues={{directions: this.state.temp_directions}}
               onSubmit={(values, actions) => {
-                console.log("HANDLING SUBMIT")
-                console.log({values})
                 this.setState({
                   temp_directions: values.directions
                 })
-                actions.setSubmitting(false)
-                return values.directions
               }}
               innerRef={this.formikRef2}
               render={({ values, handleChange, handleBlur, setSubmitting })=> (
@@ -289,6 +281,14 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     )
   }
 
+  setDescription(text: string) {
+    let updated_recipe = this.state.recipe
+    updated_recipe.description = text
+    this.setState({
+      recipe: updated_recipe,
+    })
+  }
+
   async submitRecipe() {
     await this.formikRef1.current?.submitForm()
     await this.formikRef2.current?.submitForm()
@@ -298,13 +298,9 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     let unformatted_ingredients = this.state.temp_ingredients
     let ingredients = unformatted_ingredients.map((ingredient) => ({
         description: ingredient.amount + " " + ingredient.food,
-        food: {
-          food_id: '', 
-          food_name: ingredient.food,
-        }, 
-        unlisted_food: ''
+        food: ingredient.food,
       }))
-    recipe.ingredients = ingredients
+    recipe.foods = ingredients
     // format this.state.recipes.directions
     let unformatted_directions = this.state.temp_directions
     let directions = ""
@@ -312,10 +308,21 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       directions = `${directions}\n${index + 1}. ${direction}`
     })
     recipe.instructions = directions
+    // recipe.description = "yummy food"
     this.setState({ recipe })
-    console.log({recipe})
     // post request to create a recipe
-    // await this.submitRecipe()
+    await fetch(`http://localhost:8000/homemade/many_recipes/`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      'Authorization': 'Token ' + this.state.token,
+      },
+      body: JSON.stringify(this.state.recipe)
+    })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
   IsLoadingRender() {
@@ -359,7 +366,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
                 renderItem={({item}) => {
                   return (
                     <TouchableWithoutFeedback onPress={() => this.selectMealType(item)}>
-                      <Text style={(this.state.recipe.meal_type?.meal_type === item) ? {color:'blue'} : {color:'black'}}>{item}</Text>
+                      <Text style={(this.state.recipe.meal_type === item) ? {color:'blue'} : {color:'black'}}>{item}</Text>
                     </TouchableWithoutFeedback>
                   )}}
                 keyExtractor={(item, index) => item} />
@@ -375,7 +382,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
                 renderItem={({item}) => {
                   return (
                     <TouchableWithoutFeedback onPress={() => this.selectDiet(item)}>
-                    <Text style={(this.state.recipe.diets.findIndex((ele) => ele.diet === item) !== -1) ? {color:'blue'} : {color:'black'}}>{item}</Text>
+                    <Text style={(this.state.recipe.diets.findIndex((ele) => ele === item) !== -1) ? {color:'blue'} : {color:'black'}}>{item}</Text>
                   </TouchableWithoutFeedback>
                   )}}
                 keyExtractor={(item, index) => item} />
@@ -391,7 +398,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
               renderItem={({item}) => {
                 return (
                   <TouchableWithoutFeedback onPress={() => this.selectCuisine(item)}>
-                  <Text style={(this.state.recipe.cuisine?.cuisine === item) ? {color:'blue'} : {color:'black'}}>{item}</Text>
+                  <Text style={(this.state.recipe.cuisine === item) ? {color:'blue'} : {color:'black'}}>{item}</Text>
                 </TouchableWithoutFeedback>
                 )}}
               keyExtractor={(item, index) => item} />
@@ -399,7 +406,14 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
         </View>
         {this.addIngredients()}
         {this.addDirections()}
-        {/* TODO: Upload image */}
+        <Text style={{fontSize: 18, marginVertical: 10}}>Description</Text>
+        <TextInput 
+          value={this.state.recipe.description}
+          placeholder="Description"
+          style={[{marginHorizontal: 20, marginTop: 5, fontSize: 16}]}
+          multiline
+          onChangeText={(text) => this.setDescription(text)}
+          defaultValue={''} />
         <Button title="Submit" onPress={() => this.submitRecipe()}/>
         </ScrollView>
       </View>
@@ -410,7 +424,5 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
 /*
 TODO:
   - upload image
-  - format ingredients
-  - format directions
-  - post request to create recipe
+  - page design
 */

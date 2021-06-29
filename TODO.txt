@@ -1,5 +1,6 @@
 Priority 5 (1 day)
     Create Recipe functionality
+    Delete and Edit Recipe functionality
     Account Screen personal info changes functionality (name, email, password)
 
 Priority 6: (1 day)
@@ -9,17 +10,18 @@ Priority 6: (1 day)
         3. legality of icons and food type images
         4. host app
 
-Priority 7: (1 day)
+Priority 7: (2 days)
     documentation
     comment and organize API code
+    clean up UI
 
-DONE BY JUNE 29
+DONE BY JULY 2
 
 
 Priority 8 (3 days): 
     fix issues in ISSUES.txt
 
-DONE BY JULY 6
+DONE BY JULY 27
 
 
 Priority 9 (2 days):
@@ -32,8 +34,10 @@ Priority 10 (2 days):
         sorting algorithm for recipes (rating system)
         compatible with dark mode
         add ingredients to shopping list from recipes 
+        ingredient quantities
+        validation of inputs (create recipe, signup)
 
-DONE BY JULY 27
+DONE BY AUGUST 6
 
 
 Priority 10 (1 day):
@@ -42,7 +46,7 @@ Priority 10 (1 day):
 Priority 11 (1 day): 
     deploy alpha version
 
-DONE BY AUGUST 1
+DONE BY AUGUST 13
 
 
 

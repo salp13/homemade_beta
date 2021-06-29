@@ -87,6 +87,21 @@ export type recipeEntireType = {
     ingredients: Array<ingredientType>
 }
 
+export type createRecipeType = {
+  recipe_name: string
+  owner: string
+  image: string
+  diets: Array<string>
+  cuisine: string | undefined
+  meal_type: string | undefined
+  instructions: string
+  description: string
+  foods: Array<{
+    food: string
+    description: string
+  }>
+}
+
 export type filterObjectType = {
     mealType: Array<string>
     dietaryPreference: Array<string>

@@ -1,15 +1,18 @@
 from django.shortcuts import render
 from django.db.models import Count
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from rest_framework import status
 from .serializers import Diet_Serializer, Cuisine_Serializer, Meal_Type_Serializer, Ingredient_GETSerializer, Ingredient_POSTSerializer
 from .serializers import Recipe_GETSerializer, RecipeOverview_GETSerializer, Recipe_POSTSerializer
 from .models import Diet, Cuisine, Meal_Type, Ingredient, Recipe
 from food.models import Food
+from users.models import User
 from food.serializers import Food_GETSerializer
 
 @api_view(['get', 'post', 'delete'])
+@permission_classes((AllowAny, ))
 def many_recipes(request):
     if request.method == 'GET':
         if request.query_params:
@@ -62,32 +65,47 @@ def many_recipes(request):
             return Response(recipe_serializer.data, status=status.HTTP_201_CREATED)
         #  TODO: add image functionality
         else:
+            print(request.data)
             ingredients_data = request.data.pop('foods')
+            request.data['image'] = None
+            # request.data.pop('owner')
+            print("1")
             try:
+                print("1.1")
                 request.data['diets'] = Diet.objects.filter(diet__in=request.data['diets']).values_list('diet_id', flat=True)
                 request.data['cuisine'] = Cuisine.objects.filter(cuisine=request.data['cuisine']).values_list('cuisine_id', flat=True)[0]
                 request.data['meal_type'] = Meal_Type.objects.filter(meal_type=request.data['meal_type']).values_list('meal_type_id', flat=True)[0]
+                request.data['owner'] = User.objects.filter(user_id=request.data['owner']).values_list('user_id', flat=True)[0]
             except:
+                print("2")
                 return Response(status=status.HTTP_400_BAD_REQUEST)
+            print(request.data)
             recipe_serializer = Recipe_POSTSerializer(data=request.data)
             if not recipe_serializer.is_valid():
+                    print("3")
                     return Response(recipe_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             recipe_serializer.save()
             try:
+                print("4")
                 for ele in ingredients_data:
                     ele['recipe'] = recipe_serializer.data['recipe_id']
                     try:
+                        print("5")
                         ele['food'] = Food.objects.filter(food_name=ele['food']).values_list('food_id', flat=True)[0]
                     except:
+                        print("6")
                         ele['unlisted_food'] = ele['food']
                         ele['food'] = '0508cd76-8fec-4739-b996-c7001763c98f'
                 ingredients_serializer = Ingredient_POSTSerializer(data=ingredients_data, many=True)
                 if ingredients_serializer.is_valid():
+                    print("7")
                     ingredients_serializer.save()
                     return Response(recipe_serializer.data, status=status.HTTP_201_CREATED)
+                    print("8")
                 created_recipe = Recipe.objects.get(pk=recipe_id).delete()
                 return Response(ingredients_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             except:
+                print("9")
                 created_recipe = Recipe.objects.get(pk=recipe_serializer.data['recipe_id']).delete()
                 return Response(status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'DELETE':
@@ -97,6 +115,7 @@ def many_recipes(request):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['get', 'patch', 'delete'])
+@permission_classes((AllowAny, ))
 def single_recipe(request, pk):
     try:
         recipe = Recipe.objects.get(pk=pk)
