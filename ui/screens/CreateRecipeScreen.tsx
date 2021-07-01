@@ -1,16 +1,22 @@
 import * as React from 'react';
-import { ActivityIndicator, Button, StyleSheet, TextInput, ScrollView, ActionSheetIOS } from 'react-native';
+import { ActivityIndicator, Button, StyleSheet, TextInput, ScrollView, TouchableWithoutFeedback, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ProfileParamList } from '../types'
 import { Image, Text, View } from '../components/Themed';
 import { createRecipeType } from '../objectTypes'
 import { RouteProp } from '@react-navigation/native';
-import { FlatList, SectionList, TouchableWithoutFeedback } from 'react-native'
+import { FlatList } from 'react-native'
 import { StackNavigationProp } from '@react-navigation/stack';
 import { styling } from '../style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+// import { launchCamera, CameraOptions, launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 import { Formik, Form, FieldArray, Field, FormikProps } from 'formik'
+import UploadImageModal from '../components/UploadImageModal'
+import * as ImagePicker from 'expo-image-picker'
+import * as Permissions from 'expo-permissions'
+import * as MediaLibrary from 'expo-media-library'
+import FormData from 'form-data'
+import * as ImageManipulator from 'expo-image-manipulator';
 
 const sectionsArray = [{
   title: "mealType",
@@ -45,6 +51,33 @@ const sectionsArray = [{
   ]
 }]
 
+// interface FormDataValue {
+//   uri: string;
+//   name: string;
+//   type: string;
+// }
+
+// interface FormData {
+//   append(name: string, value: string | Blob | FormDataValue, fileName?: string): void;
+//   delete(name: string): void;
+//   get(name: string): FormDataEntryValue | null;
+//   getAll(name: string): FormDataEntryValue[];
+//   has(name: string): boolean;
+//   set(name: string, value: string | Blob | FormDataValue, fileName?: string): void;
+// }
+
+// declare let FormData: {
+//   prototype: FormData;
+//   new (form?: HTMLFormElement): FormData;
+// };
+
+// interface FormData {
+//   entries(): IterableIterator<[string, string | File]>;
+//   keys(): IterableIterator<string>;
+//   values(): IterableIterator<string | File>;
+//   [Symbol.iterator](): IterableIterator<string | File>;
+// }
+
 type ProfileNavigationProp = StackNavigationProp<ProfileParamList, 'CreateRecipeScreen'>;
 type ProfileRouteProp = RouteProp<ProfileParamList, 'CreateRecipeScreen'>;
 
@@ -57,6 +90,11 @@ interface State {
     isLoading: boolean
     token: string
     user_id: string
+    modal: {
+      visible: boolean
+      take_photo: boolean
+      upload_photo: boolean
+    }
     recipe: createRecipeType
     saved: boolean
     temp_ingredients: Array<{
@@ -64,6 +102,8 @@ interface State {
       food: string
     }>
     temp_directions: Array<string>
+    temp_image: FormData
+    uri: string
 }
 
 export default class IndividualRecipeScreen extends React.Component<Props, State> {
@@ -76,10 +116,15 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       isLoading: true,
       token: '', 
       user_id: '', 
+      modal: {
+        visible: false,
+        take_photo: false,
+        upload_photo: false
+      },
       recipe: {
         recipe_name: '',
         owner: '',
-        image: '',
+        image: '', 
         diets: [],
         cuisine: undefined,
         meal_type: undefined,
@@ -92,7 +137,9 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
         amount: '',
         food: '',
       }],
-      temp_directions: ['']
+      temp_directions: [''],
+      temp_image: new FormData(),
+      uri: ''
     };
 
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
@@ -103,6 +150,9 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     this.addIngredients = this.addIngredients.bind(this)
     this.addDirections = this.addDirections.bind(this)
     this.setDescription = this.setDescription.bind(this)
+    this.launchingCamera = this.launchingCamera.bind(this)
+    this.launchLibrary = this.launchLibrary.bind(this)
+    this.uploadImageModalUpdate = this.uploadImageModalUpdate.bind(this)
     this.submitRecipe = this.submitRecipe.bind(this)
   }
 
@@ -289,6 +339,85 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     })
   }
 
+  async launchingCamera() {
+    const permissions = await Permissions.getAsync(Permissions.CAMERA)
+    if (permissions.status != 'granted' && Platform.OS !== 'web') {
+      const { status } = await Permissions.askAsync(Permissions.CAMERA);
+      if (status !== 'granted') {
+        alert('Sorry, we need camera permissions to make this work!');
+        return
+      }
+    } else if (permissions.status != 'granted') {
+      alert('Sorry, this functionality is not compatible. Please try again on a mobile device!');
+      return
+    }
+
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (result.cancelled != true) {
+      let form = this.state.temp_image 
+      form.append('file', {uri: result.uri})
+      this.setState({ temp_image: form })
+    }
+    
+  }
+
+  async launchLibrary() {
+    const permissions = await Permissions.getAsync(Permissions.CAMERA_ROLL)
+    if (permissions.status != 'granted' && Platform.OS !== 'web') {
+      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to make this work!');
+        return
+      }
+    } else if (permissions.status != 'granted') {
+      alert('Sorry, this functionality is not compatible. Please try again on a mobile device!');
+      return
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      // quality: 1,
+    });
+    console.log(result)
+    if (result.cancelled != true && result.uri) {
+      this.setState({uri: result.uri})
+      let new_uri = await ImageManipulator.manipulateAsync(result.uri,
+        [{ resize: { width: 100, height: 100 }}],
+        {format: ImageManipulator.SaveFormat.JPEG}
+        );
+      console.log(new_uri)
+      let form = this.state.temp_image 
+      const source = result.uri 
+      let obj: string | Blob
+      obj = new_uri.uri
+      form.append('image', {uri: obj, name: "image", contentType: 'image/jpg'}, 'image.jpg')
+      this.setState({ temp_image: form })
+    }
+  }
+
+  uploadImageModalUpdate(take_photo: boolean = false, upload_photo: boolean = false) {
+    this.setState({ 
+      modal: {
+        visible: !this.state.modal.visible,
+        take_photo: take_photo,
+        upload_photo: upload_photo
+      }
+    })
+    if (take_photo) {
+      this.launchingCamera()
+    } else if (upload_photo) {
+      this.launchLibrary()
+    }
+  }
+
   async submitRecipe() {
     await this.formikRef1.current?.submitForm()
     await this.formikRef2.current?.submitForm()
@@ -311,18 +440,33 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     // recipe.description = "yummy food"
     this.setState({ recipe })
     // post request to create a recipe
-    await fetch(`http://localhost:8000/homemade/many_recipes/`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      'Authorization': 'Token ' + this.state.token,
-      },
-      body: JSON.stringify(this.state.recipe)
-    })
-      .catch(error => {
-        console.error(error);
-      });
+    // let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes/`, {
+    //   method: 'POST',
+    //   headers: {
+    //     Accept: 'application/json',
+    //     'Content-Type': 'application/json',
+    //   'Authorization': 'Token ' + this.state.token,
+    //   },
+    //   body: JSON.stringify(this.state.recipe)
+    // }).then(response => response.json())
+    // .then(data => { return data })
+    //   .catch(error => {
+    //     console.error(error);
+    //   });
+    //   console.log(recipe_data)
+    console.log(this.state.temp_image)
+      await fetch(`http://localhost:8000/homemade/upload_recipe_image/07a59f84-b775-4b8b-8ef4-5b178cbbe349`, {
+        method: 'POST',
+        headers: {
+          // Accept: 'application/json',
+          'Content-Type': 'multipart/form-data',
+          'Authorization': 'Token ' + this.state.token,
+        },
+        body: this.state.temp_image
+      })
+        .catch(error => {
+          console.error(error);
+        });
   }
 
   IsLoadingRender() {
@@ -414,6 +558,15 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
           multiline
           onChangeText={(text) => this.setDescription(text)}
           defaultValue={''} />
+        <TouchableWithoutFeedback
+          onPress={() => this.uploadImageModalUpdate()}>
+          <Text> Upload Image </Text>
+        </TouchableWithoutFeedback>
+        <UploadImageModal modalProperties={this.state.modal} ModalResultFunc={this.uploadImageModalUpdate} />
+        {/* {this.state.uri !== '' ? 
+        <Image style={{height: 100, width: 100, alignContent: 'center'}} source={{uri:`${this.state.temp_image.uri}`}}/> : 
+        <View></View>
+  } */}
         <Button title="Submit" onPress={() => this.submitRecipe()}/>
         </ScrollView>
       </View>

@@ -1,5 +1,6 @@
 from django.db import models
 from uuid import uuid4
+from django.core.validators import FileExtensionValidator
 
 class Diet(models.Model):
     diet_id = models.AutoField(primary_key=True)
@@ -26,7 +27,7 @@ class Recipe(models.Model):
     recipe_id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     recipe_name = models.CharField(max_length=128)
     owner = models.ForeignKey('users.User', on_delete=models.RESTRICT, null=True)
-    image = models.ImageField(upload_to='recipes', null=True)
+    image = models.ImageField(upload_to='recipes', null=True, validators=[FileExtensionValidator([''])])
     description = models.TextField(null=True)
     instructions = models.TextField()
     diets = models.ManyToManyField(Diet)

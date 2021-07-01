@@ -19,7 +19,12 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Give homemade_beta permission to save photos",
+        "NSCameraUsageDescription": "Give homemade_beta permission to access your camera",
+        "NSMicrophoneUsageDescription": "Give homemade_beta permission to use your microphone"
+      }
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

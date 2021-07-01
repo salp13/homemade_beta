@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin, auth
 from django.urls import path
 from food.views import many_foods, single_food, admin_food_group, single_food_group
-from recipes.views import many_recipes, single_recipe, owned_recipe, admin_post
+from recipes.views import many_recipes, upload_recipe_image, single_recipe, owned_recipe, admin_post
 from users.views import login, signup, many_users, single_user, metric_data, many_fridge, single_fridge, many_shopping_list, single_shopping_list, many_saved_recipes, single_saved_recipe
 from rest_framework.authtoken import views
 
@@ -27,6 +27,7 @@ urlpatterns = [
     path('homemade/single_food_group/<int:pk>', single_food_group),
     path('homemade/admin_food_group', admin_food_group),
     path('homemade/many_recipes/', many_recipes),
+    path('homemade/upload_recipe_image/<uuid:pk>', upload_recipe_image),
     path('homemade/single_recipe/<uuid:pk>', single_recipe),
     path('homemade/owned_recipe/<uuid:user_id>', owned_recipe),
     path('homemade/admin_post', admin_post),
