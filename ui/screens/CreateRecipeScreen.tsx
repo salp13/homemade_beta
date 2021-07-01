@@ -384,20 +384,14 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      // quality: 1,
+      quality: 1,
     });
     console.log(result)
     if (result.cancelled != true && result.uri) {
       this.setState({uri: result.uri})
-      let new_uri = await ImageManipulator.manipulateAsync(result.uri,
-        [{ resize: { width: 100, height: 100 }}],
-        {format: ImageManipulator.SaveFormat.JPEG}
-        );
-      console.log(new_uri)
       let form = this.state.temp_image 
-      const source = result.uri 
       let obj: string | Blob
-      obj = new_uri.uri
+      obj = result.uri
       form.append('image', {uri: obj, name: "image", contentType: 'image/jpg'}, 'image.jpg')
       this.setState({ temp_image: form })
     }
@@ -423,42 +417,41 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     await this.formikRef2.current?.submitForm()
 
     let recipe = this.state.recipe
-    // format this.state.recipes.ingredients
+
     let unformatted_ingredients = this.state.temp_ingredients
     let ingredients = unformatted_ingredients.map((ingredient) => ({
         description: ingredient.amount + " " + ingredient.food,
         food: ingredient.food,
       }))
     recipe.foods = ingredients
-    // format this.state.recipes.directions
+
     let unformatted_directions = this.state.temp_directions
     let directions = ""
     unformatted_directions.forEach((direction, index) => {
       directions = `${directions}\n${index + 1}. ${direction}`
     })
     recipe.instructions = directions
-    // recipe.description = "yummy food"
     this.setState({ recipe })
     // post request to create a recipe
-    // let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes/`, {
-    //   method: 'POST',
-    //   headers: {
-    //     Accept: 'application/json',
-    //     'Content-Type': 'application/json',
-    //   'Authorization': 'Token ' + this.state.token,
-    //   },
-    //   body: JSON.stringify(this.state.recipe)
-    // }).then(response => response.json())
-    // .then(data => { return data })
-    //   .catch(error => {
-    //     console.error(error);
-    //   });
-    //   console.log(recipe_data)
+    let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes/`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      'Authorization': 'Token ' + this.state.token,
+      },
+      body: JSON.stringify(this.state.recipe)
+    }).then(response => response.json())
+    .then(data => { return data })
+      .catch(error => {
+        console.error(error);
+      });
+      console.log(recipe_data)
     console.log(this.state.temp_image)
-      await fetch(`http://localhost:8000/homemade/upload_recipe_image/07a59f84-b775-4b8b-8ef4-5b178cbbe349`, {
+      await fetch(`http://localhost:8000/homemade/upload_recipe_image/${recipe_data.recipe_id}`, {
         method: 'POST',
         headers: {
-          // Accept: 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'multipart/form-data',
           'Authorization': 'Token ' + this.state.token,
         },
@@ -558,15 +551,8 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
           multiline
           onChangeText={(text) => this.setDescription(text)}
           defaultValue={''} />
-        <TouchableWithoutFeedback
-          onPress={() => this.uploadImageModalUpdate()}>
-          <Text> Upload Image </Text>
-        </TouchableWithoutFeedback>
+        <Button title="Upload Image" onPress={() => this.uploadImageModalUpdate()}/>
         <UploadImageModal modalProperties={this.state.modal} ModalResultFunc={this.uploadImageModalUpdate} />
-        {/* {this.state.uri !== '' ? 
-        <Image style={{height: 100, width: 100, alignContent: 'center'}} source={{uri:`${this.state.temp_image.uri}`}}/> : 
-        <View></View>
-  } */}
         <Button title="Submit" onPress={() => this.submitRecipe()}/>
         </ScrollView>
       </View>
@@ -576,6 +562,5 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
 
 /*
 TODO:
-  - upload image
   - page design
 */

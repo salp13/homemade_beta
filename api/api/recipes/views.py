@@ -7,12 +7,9 @@ from rest_framework import status
 from .serializers import Diet_Serializer, Cuisine_Serializer, Meal_Type_Serializer, Ingredient_GETSerializer, Ingredient_POSTSerializer
 from .serializers import Recipe_GETSerializer, RecipeOverview_GETSerializer, Recipe_POSTSerializer
 from .models import Diet, Cuisine, Meal_Type, Ingredient, Recipe
-from .forms import RecipeForm
 from food.models import Food
 from users.models import User
 from food.serializers import Food_GETSerializer
-from PIL import Image
-from django.core.files.uploadedfile import InMemoryUploadedFile
 
 
 @api_view(['get', 'post', 'delete'])
@@ -72,44 +69,33 @@ def many_recipes(request):
             print(request.data)
             ingredients_data = request.data.pop('foods')
             request.data['image'] = None
-            # request.data.pop('owner')
-            print("1")
             try:
-                print("1.1")
                 request.data['diets'] = Diet.objects.filter(diet__in=request.data['diets']).values_list('diet_id', flat=True)
                 request.data['cuisine'] = Cuisine.objects.filter(cuisine=request.data['cuisine']).values_list('cuisine_id', flat=True)[0]
                 request.data['meal_type'] = Meal_Type.objects.filter(meal_type=request.data['meal_type']).values_list('meal_type_id', flat=True)[0]
                 request.data['owner'] = User.objects.filter(user_id=request.data['owner']).values_list('user_id', flat=True)[0]
             except:
-                print("2")
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             print(request.data)
             recipe_serializer = Recipe_POSTSerializer(data=request.data)
             if not recipe_serializer.is_valid():
-                    print("3")
                     return Response(recipe_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             recipe_serializer.save()
             try:
-                print("4")
                 for ele in ingredients_data:
                     ele['recipe'] = recipe_serializer.data['recipe_id']
                     try:
-                        print("5")
                         ele['food'] = Food.objects.filter(food_name=ele['food']).values_list('food_id', flat=True)[0]
                     except:
-                        print("6")
                         ele['unlisted_food'] = ele['food']
                         ele['food'] = '0508cd76-8fec-4739-b996-c7001763c98f'
                 ingredients_serializer = Ingredient_POSTSerializer(data=ingredients_data, many=True)
                 if ingredients_serializer.is_valid():
-                    print("7")
                     ingredients_serializer.save()
                     return Response(recipe_serializer.data, status=status.HTTP_201_CREATED)
-                    print("8")
                 created_recipe = Recipe.objects.get(pk=recipe_id).delete()
                 return Response(ingredients_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             except:
-                print("9")
                 created_recipe = Recipe.objects.get(pk=recipe_serializer.data['recipe_id']).delete()
                 return Response(status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'DELETE':
@@ -122,59 +108,14 @@ def many_recipes(request):
 @permission_classes((AllowAny, ))
 def upload_recipe_image(request, pk):
     if request.method == 'POST':
-        # print(request.FILES)
-        # print(request.data)
-        # print(request.FILES.getlist('file'))
         try:
             recipe = Recipe.objects.get(pk=pk)
         except Recipe.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
-        # file = request.FILES["image"]
-        # name_file = request.FILES.get('image')
-        # print(name_file)
-        # f = open("recipes/" + name_file, 'wb')
-        # print(f)
-
-        # f.resize(10,10)
-        # f.write(file.read())
-        # f.close()
-        # print("Upload new File: " + name_file)
-
-        # img = Image.open(request.FILES['image'])
-        # print(img)
-        # form = RecipeForm(request.POST, request.FILES)
-        # try:
-        #     img.save('image.jpg', format= 'JPEG')
-        # except img.OSError:
-        #     print("OSError")
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
-        # except img.ValueError:
-        #     print("ValueError")
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        recipe.image.save('image.jpg', request.FILES['image'])
-
-        # image_file = InMemoryUploadedFile(img, None, 'image.jpg','image/jpeg',img.tell, None)
-        # request.FILES['image'] = image_file
-        # form.image = request.FILES['image']
-        # print(request.FILES['image'])
-        # recipe.image.save('image_file.jpg', img)
-
-        # form = RecipeForm(request.POST, request.FILES)
-        # if form.is_valid():
-        #     form.save()
-        # #     print(form)
-        #     return Response(status=status.HTTP_204_NO_CONTENT)
-        # else:
-        #     print(form.errors)
-        #     return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        # recipe_partial_serializer = Recipe_GETSerializer(recipe, data=request.data, partial=True)
-        # if recipe_partial_serializer.is_valid():
-        #     recipe_partial_serializer.save()
-        #     return Response(status=status.HTTP_204_NO_CONTENT)
-        # return Response(recipe_partial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            recipe.image.save('image.jpg', request.FILES['image'])
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_204_NO_CONTENT)
     return Response(status=status.HTTP_400_BAD_REQUEST)
     

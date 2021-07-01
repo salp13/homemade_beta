@@ -1,5 +1,4 @@
 Priority 5 (1 day)
-    Create Recipe functionality (image)
     Delete and Edit Recipe functionality
     Account Screen personal info changes functionality (name, email, password)
 
@@ -30,7 +29,7 @@ Priority 9 (2 days):
 Priority 10 (4 days): 
     alpha version development
         style changes
-            including login, signup, account
+            including login, signup, account, create recipe
         sorting algorithm for recipes (rating system)
         compatible with dark mode
         add ingredients to shopping list from recipes 
