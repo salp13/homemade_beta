@@ -1,22 +1,19 @@
 import * as React from 'react';
 import { ActivityIndicator, Button, StyleSheet, TextInput, ScrollView, TouchableWithoutFeedback, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ProfileParamList } from '../types'
+import { ProfileParamList, RootStackParamList } from '../types'
 import { Image, Text, View } from '../components/Themed';
 import { createRecipeType } from '../objectTypes'
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { FlatList } from 'react-native'
 import { StackNavigationProp } from '@react-navigation/stack';
 import { styling } from '../style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { launchCamera, CameraOptions, launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
-import { Formik, Form, FieldArray, Field, FormikProps } from 'formik'
+import { Formik, FieldArray, FormikProps } from 'formik'
 import UploadImageModal from '../components/UploadImageModal'
 import * as ImagePicker from 'expo-image-picker'
 import * as Permissions from 'expo-permissions'
-import * as MediaLibrary from 'expo-media-library'
 import FormData from 'form-data'
-import * as ImageManipulator from 'expo-image-manipulator';
 
 const sectionsArray = [{
   title: "mealType",
@@ -50,35 +47,7 @@ const sectionsArray = [{
     "american"
   ]
 }]
-
-// interface FormDataValue {
-//   uri: string;
-//   name: string;
-//   type: string;
-// }
-
-// interface FormData {
-//   append(name: string, value: string | Blob | FormDataValue, fileName?: string): void;
-//   delete(name: string): void;
-//   get(name: string): FormDataEntryValue | null;
-//   getAll(name: string): FormDataEntryValue[];
-//   has(name: string): boolean;
-//   set(name: string, value: string | Blob | FormDataValue, fileName?: string): void;
-// }
-
-// declare let FormData: {
-//   prototype: FormData;
-//   new (form?: HTMLFormElement): FormData;
-// };
-
-// interface FormData {
-//   entries(): IterableIterator<[string, string | File]>;
-//   keys(): IterableIterator<string>;
-//   values(): IterableIterator<string | File>;
-//   [Symbol.iterator](): IterableIterator<string | File>;
-// }
-
-type ProfileNavigationProp = StackNavigationProp<ProfileParamList, 'CreateRecipeScreen'>;
+type ProfileNavigationProp = CompositeNavigationProp<StackNavigationProp<ProfileParamList, 'CreateRecipeScreen'>, StackNavigationProp<RootStackParamList>>;
 type ProfileRouteProp = RouteProp<ProfileParamList, 'CreateRecipeScreen'>;
 
 interface Props {
@@ -169,6 +138,56 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
         recipe: update_recipe,
       })
     }
+    console.log(`printing here: ${JSON.parse(JSON.stringify(this.props.route.params.recipe_id))}`)
+    let recipe_id = JSON.parse(JSON.stringify(this.props.route.params.recipe_id))
+    if (recipe_id !== '' ) {
+      console.log("entered anyways")
+      let recipe_data = await fetch(`http://localhost:8000/homemade/single_recipe/${recipe_id}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + this.state.token,
+        },
+      })
+        .then(response => response.json())
+        .then(data => { return data })
+        .catch(error => {
+        console.error(error);
+      });
+
+      let recipe = this.state.recipe
+      let temp_ingredients = this.state.temp_ingredients
+      let temp_directions = this.state.temp_directions
+      let temp_image = this.state.temp_image
+      
+      recipe.recipe_name = recipe_data.recipe_name 
+      recipe.image = recipe_data.image
+      recipe.cuisine = recipe_data.cuisine.cuisine
+      recipe.meal_type = recipe_data.meal_type.meal_type
+      recipe.diets = recipe_data.diets.map((ele) => { return ele.diet })
+      recipe.description = recipe_data.description
+      temp_ingredients = recipe_data.ingredients.map((ele) => {
+        let food_name = (ele.unlisted_food) ? ele.unlisted_food : ele.food.food_name
+        let amount = ele.description.slice(0, ele.description.length - food_name.length)
+        return {
+          amount: amount,
+          food: food_name
+        }
+      })
+      temp_directions = recipe_data.instructions.split("\n").map((ele) => {return ele.trim()})
+      let obj: string | Blob
+      obj = recipe_data.image
+      temp_image.append('image', {uri: obj, name: "image", contentType: 'image/jpg'}, 'image.jpg')
+      this.setState({
+        recipe: recipe,
+        temp_directions: temp_directions,
+        temp_ingredients: temp_ingredients,
+        temp_image: temp_image
+      })
+
+    }
+
   }
 
   setRecipeName(text: string) {
@@ -218,6 +237,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
           <Text style={{fontSize: 18, marginVertical: 10}}>Ingredients</Text>
           <View style={styling.flexRow}>
             <Formik 
+              enableReinitialize
               initialValues={{ingredients: this.state.temp_ingredients}}
               onSubmit={(values, actions) => {
                 this.setState({
@@ -225,7 +245,8 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
                 })
               }}
               innerRef={this.formikRef1}
-              render={({ values, handleChange, handleBlur })=> (
+              render={({ values, handleChange, handleBlur }) => {
+                return(
                 <FieldArray 
                 name="ingredients"
                 render={arrayHelpers => (
@@ -253,12 +274,13 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
                             onChangeText={handleChange(`ingredients[${index}].food`)}
                             onBlur={handleBlur(`ingredients[${index}].food`)}
                             defaultValue={''} />
+                            <View style={styling.autoLeft}>
                             {(index === values.ingredients.length - 1) ? (
                               <Button title="+" color='black' onPress={() => arrayHelpers.push({amount: '', food: ''})} />
                             ) : (
                               <Button title="-" color='black' onPress={() => arrayHelpers.remove(index)} /> 
                             )}
-                            
+                            </View>
                           </View>
                       ))) : (
                       <View>
@@ -269,7 +291,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
                   </View>
                 )}
                 />
-              )}
+              )}}
               />
             </View>
         </View>
@@ -282,6 +304,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
           <Text style={{fontSize: 18, marginVertical: 10}}>Directions</Text>
           <View style={styling.flexRow}>
             <Formik 
+              enableReinitialize
               initialValues={{directions: this.state.temp_directions}}
               onSubmit={(values, actions) => {
                 this.setState({
@@ -298,22 +321,26 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
                       values.directions.map((direction, index) => (
                         <View key={`directions[${index}]`} style={styling.flexRow}>
                           <Text style={{marginTop: 12, marginLeft: 5}}>{index+1}. </Text>
-                          <TextInput 
-                            data-name={`directions[${index}]`} 
-                            key={`directions[${index}].directions`} 
-                            value={values.directions[index]}
-                            placeholder="direction"
-                            style={[{marginHorizontal: 20, marginTop: 5}]}
-                            autoCapitalize='none'
-                            onChangeText={handleChange(`directions[${index}]`)}
-                            onBlur={handleBlur(`directions[${index}]`)}
-                            defaultValue={''} />
+                          <View style={{marginRight: 50}}>
+                            <TextInput 
+                              data-name={`directions[${index}]`} 
+                              key={`directions[${index}].directions`} 
+                              value={values.directions[index]}
+                              multiline
+                              placeholder="direction"
+                              style={[{marginTop: 5 }]}
+                              autoCapitalize='none'
+                              onChangeText={handleChange(`directions[${index}]`)}
+                              onBlur={handleBlur(`directions[${index}]`)}
+                              defaultValue={''} />
+                            </View>
+                            <View style={styling.autoLeft}>
                             {(index === values.directions.length - 1) ? (
                               <Button title="+" color='black' onPress={() => arrayHelpers.push('')} /> 
                             ) : (
                               <Button title="-" color='black' onPress={() => arrayHelpers.remove(index)} /> 
                             )}
-                            
+                            </View>
                           </View>
                       ))) : (
                       <View>
@@ -361,7 +388,9 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
 
     if (result.cancelled != true) {
       let form = this.state.temp_image 
-      form.append('file', {uri: result.uri})
+      let obj: string | Blob
+      obj = result.uri
+      form.append('image', {uri: obj, name: "image", contentType: 'image/jpg'}, 'image.jpg')
       this.setState({ temp_image: form })
     }
     
@@ -386,7 +415,6 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       aspect: [4, 3],
       quality: 1,
     });
-    console.log(result)
     if (result.cancelled != true && result.uri) {
       this.setState({uri: result.uri})
       let form = this.state.temp_image 
@@ -428,38 +456,72 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     let unformatted_directions = this.state.temp_directions
     let directions = ""
     unformatted_directions.forEach((direction, index) => {
-      directions = `${directions}\n${index + 1}. ${direction}`
+      directions = (index === 0) ? `${index + 1}. ${direction}` : `${directions}\n${index + 1}. ${direction}`
     })
     recipe.instructions = directions
     this.setState({ recipe })
+
+    let recipe_id = JSON.parse(JSON.stringify(this.props.route.params.recipe_id))
     // post request to create a recipe
-    let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes/`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      'Authorization': 'Token ' + this.state.token,
-      },
-      body: JSON.stringify(this.state.recipe)
-    }).then(response => response.json())
-    .then(data => { return data })
-      .catch(error => {
-        console.error(error);
-      });
-      console.log(recipe_data)
-    console.log(this.state.temp_image)
-      await fetch(`http://localhost:8000/homemade/upload_recipe_image/${recipe_data.recipe_id}`, {
+    if (recipe_id === '') {
+      let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes/`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'Authorization': 'Token ' + this.state.token,
+          'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
         },
-        body: this.state.temp_image
+        body: JSON.stringify(this.state.recipe)
+      }).then(response => response.json())
+      .then(data => { return data })
+        .catch(error => {
+          console.error(error);
+        });
+      recipe_id = recipe_data.recipe_id
+    } else {
+      await fetch(`http://localhost:8000/homemade/single_recipe/${recipe_id}`, {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
+        },
+        body: JSON.stringify(this.state.recipe)
       })
         .catch(error => {
           console.error(error);
         });
+    }
+
+    await fetch(`http://localhost:8000/homemade/upload_recipe_image/${recipe_id}`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+        'Authorization': 'Token ' + this.state.token,
+      },
+      body: this.state.temp_image
+    })
+      .catch(error => {
+        console.error(error);
+      });
+    this.props.navigation.goBack()
+  }
+
+  async deleteRecipe() {
+    let recipe_id = JSON.parse(JSON.stringify(this.props.route.params.recipe_id))
+    await fetch(`http://localhost:8000/homemade/single_recipe/${recipe_id}`, {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Token ' + this.state.token,
+      }
+    })
+      .catch(error => {
+        console.error(error);
+      });
+    this.props.navigation.replace('Root')
   }
 
   IsLoadingRender() {
@@ -488,7 +550,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
                   placeholder="recipe name"
                   autoCapitalize='none'
                   onChangeText={text => this.setRecipeName(text)}
-                  defaultValue={''} />
+                  defaultValue={this.state.recipe.recipe_name} />
             </View>
           </View>
           <View style={styling.flexRow}>
@@ -554,6 +616,9 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
         <Button title="Upload Image" onPress={() => this.uploadImageModalUpdate()}/>
         <UploadImageModal modalProperties={this.state.modal} ModalResultFunc={this.uploadImageModalUpdate} />
         <Button title="Submit" onPress={() => this.submitRecipe()}/>
+        {(JSON.parse(JSON.stringify(this.props.route.params.recipe_id)) !== '') ? 
+        (<Button title="Delete" onPress={() => this.deleteRecipe()}/>) :
+        (<View></View>)}
         </ScrollView>
       </View>
     );

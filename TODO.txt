@@ -1,7 +1,3 @@
-Priority 5 (1 day)
-    Delete and Edit Recipe functionality
-    Account Screen personal info changes functionality (name, email, password)
-
 Priority 6: (1 day)
     deployment of beta
         1. package app
@@ -14,7 +10,7 @@ Priority 7: (2 days)
     comment and organize API code
     clean up UI
 
-DONE BY JULY 2
+DONE BY JULY 6
 
 
 Priority 8 (4 days): 
@@ -36,6 +32,7 @@ Priority 10 (4 days):
         ingredient quantities
         validation of inputs (create recipe, signup)
         video functionality
+        private/public recipes
 
 DONE BY AUGUST 6
 

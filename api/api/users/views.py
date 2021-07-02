@@ -53,6 +53,23 @@ def signup(request):
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['patch'])
+def change_password(request):
+    print(request.data)
+    if request.method == 'PATCH':
+        print('1')
+        user = authenticate(username=request.data['username'], password=request.data['old_password'])
+        if user is not None:
+            print('2')
+            user.set_password(request.data['new_password'])
+            user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            print('3')
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    print('4')
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['get'])
 def many_users(request):
     if request.method == 'GET':

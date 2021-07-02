@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { ActivityIndicator, FlatList, TouchableWithoutFeedback } from 'react-native';
 import { Image, Text, View } from '../components/Themed';
 import { ProfileParamList } from '../types'
-import { RouteProp, TabRouter } from '@react-navigation/native';
+import { RouteProp } from '@react-navigation/native';
 import SavedRecipe from '../components/SavedRecipe'
 import { StackNavigationProp } from '@react-navigation/stack';
 import Swiper from 'react-native-swiper'
@@ -248,7 +248,7 @@ export default class HomeScreen extends React.Component<Props, State> {
           <View style={styling.flexRow}>
             <Text style={styling.username}>{this.state.user_data.name}</Text>
             <View style={styling.autoLeft}>
-            <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('CreateRecipeScreen')}>
+            <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('CreateRecipeScreen', {recipe_id: ''})}>
               <Entypo name="new-message" size={20} color="black" />
             </TouchableWithoutFeedback>
             </View>

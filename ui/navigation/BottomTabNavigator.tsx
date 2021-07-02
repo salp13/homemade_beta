@@ -130,6 +130,11 @@ function HomeNavigator() {
         name="IndividualRecipeScreen"
         component={IndividualRecipeScreen}
       />
+      <ProfileStack.Screen
+        name="CreateRecipeScreen"
+        component={CreateRecipeScreen}
+        options={{ headerShown: false }}
+      />
     </HomeStack.Navigator>
   );
 }
@@ -149,6 +154,11 @@ function SearchNavigator() {
       <SearchStack.Screen
         name="IndividualRecipeScreen"
         component={IndividualRecipeScreen}
+      />
+      <ProfileStack.Screen
+        name="CreateRecipeScreen"
+        component={CreateRecipeScreen}
+        options={{ headerShown: false }}
       />
     </SearchStack.Navigator>
   );

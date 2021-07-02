@@ -9,17 +9,25 @@ import { SectionList, TouchableWithoutFeedback } from 'react-native'
 import { StackNavigationProp } from '@react-navigation/stack';
 import { styling } from '../style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Entypo } from '@expo/vector-icons';
 
-type HomeNavigationProp = StackNavigationProp<HomeParamList, 'IndividualRecipeScreen'>;
-type HomeRouteProp = RouteProp<HomeParamList, 'IndividualRecipeScreen'>;
-type SearchNavigationProp = StackNavigationProp<SearchParamList, 'IndividualRecipeScreen'>;
-type SearchRouteProp = RouteProp<SearchParamList, 'IndividualRecipeScreen'>;
-type ProfileNavigationProp = StackNavigationProp<ProfileParamList, 'IndividualRecipeScreen'>;
-type ProfileRouteProp = RouteProp<ProfileParamList, 'IndividualRecipeScreen'>;
+type IndividualRecipeParamList = {
+  IndividualRecipeScreen: {
+    recipe_id: string
+  }
+  CreateRecipeScreen: {
+    recipe_id: string
+  }
+} & HomeParamList & SearchParamList & ProfileParamList;
+
+
+type IndividualRecipeProp = StackNavigationProp<IndividualRecipeParamList, 'IndividualRecipeScreen'>;
+type IndividualRecipeRouteProp = RouteProp<IndividualRecipeParamList, 'IndividualRecipeScreen'>;
+
 
 interface Props {
-  navigation: HomeNavigationProp | SearchNavigationProp | ProfileNavigationProp,
-  route: HomeRouteProp | SearchRouteProp | ProfileRouteProp
+  navigation: IndividualRecipeProp,
+  route: IndividualRecipeRouteProp
 }
 
 interface State {
@@ -172,6 +180,9 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
         <View style={styling.flexRow}>
           <Text style={styling.fullRecipeName}>{this.state.recipe.recipe_name}</Text>
           <View style={styling.formatSave}>  
+            <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('CreateRecipeScreen', { recipe_id: this.state.recipe.recipe_id })}>
+              <Entypo name="new-message" size={20} color="black" />
+            </TouchableWithoutFeedback>
             <TouchableWithoutFeedback onPress={this.saveRecipe}>
                 <Fontisto name={this.state.saved ? "bookmark-alt" : "bookmark"} style={styling.iconSize} color="black" />
             </TouchableWithoutFeedback>

@@ -31,6 +31,9 @@ export type HomeParamList = {
   }
   IndividualRecipeScreen: {
     recipe_id: string
+    CreateRecipeScreen: {
+      recipe_id: string
+    }
   }
 };
 
@@ -38,6 +41,9 @@ export type SearchParamList = {
   SearchScreen: undefined;
   IndividualRecipeScreen: {
     recipe_id: string
+    CreateRecipeScreen: {
+      recipe_id: string
+    }
   }
 };
 
@@ -67,7 +73,9 @@ export type ProfileParamList = {
   IndividualRecipeScreen: {
     recipe_id: string
   }
-  CreateRecipeScreen: undefined
+  CreateRecipeScreen: {
+    recipe_id: string
+  }
 };
 
 export type LoginParamList = {
@@ -79,4 +87,13 @@ export type RootStackParams = {
   Auth: NavigatorScreenParams<LoginParamList>
   Root: undefined;
   NotFound: undefined;
+}
+
+export type IndividualRecipeParamList = {
+  IndividualRecipeScreen: {
+    recipe_id: string
+  }
+  CreateRecipeScreen: {
+    recipe_id: string
+  }
 }
