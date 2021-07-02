@@ -74,7 +74,7 @@ export const styling = EStyleSheet.create({
   formatSave: {
     marginLeft: 'auto', 
     marginRight: '10rem', 
-    marginTop: '10rem'
+    marginTop: '10rem',
   },
   fridgeItemContainer: {
     flex: 1,

@@ -1,0 +1,10 @@
+SINGLE USER USE
+    - render on goBack (FridgeScreen from Add, ShoppingListScreen from Add, ProfileScreen from CreateRecipeScreen)
+    - duplicates in fridge that have been added from shopping list
+    - recipe search should be more lenient
+    - validation of inputs
+        - especially signup and create recipe
+    - style changes
+        - especially login, signup, account, create recipe
+    - add ingredients to shopping list from recipes 
+    - ingredient quantities

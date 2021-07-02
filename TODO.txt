@@ -13,37 +13,30 @@ Priority 7: (2 days)
 DONE BY JULY 6
 
 
-Priority 8 (4 days): 
-    fix issues in ISSUES.txt
+Priority 8 (2 days):
+    write test suite for beta version API and UI
 
 DONE BY JULY 27
 
 
-Priority 9 (2 days):
-    write test suite for beta version API and UI
-
-Priority 10 (4 days): 
-    alpha version development
-        style changes
-            including login, signup, account, create recipe
-        sorting algorithm for recipes (rating system)
-        compatible with dark mode
-        add ingredients to shopping list from recipes 
-        ingredient quantities
-        validation of inputs (create recipe, signup)
-        video functionality
-        private/public recipes
+Priority 9 (7 days): 
+    alpha version development found in ALPHA.txt
 
 DONE BY AUGUST 6
 
 
-Priority 10 (1 day):
-    conduct testing on alpha
+Priority 10 (2 days):
+    edit beta test suite for alpha version API and UI
 
 Priority 11 (1 day): 
     deploy alpha version
 
 DONE BY AUGUST 13
+
+
+Priority 12 (4 days): 
+    fix issues in ISSUES.txt
+
 
 
 

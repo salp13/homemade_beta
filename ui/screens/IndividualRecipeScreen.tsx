@@ -172,17 +172,19 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     <View style={styling.setFlex}>
       <View style={styling.positioningSetUp}>
         <TouchableWithoutFeedback onPress={this.props.navigation.goBack}>
-          <Ionicons name="ios-arrow-back" color="black" style={StyleSheet.flatten([styling.largeIconSize, styling.noHeader])}/>
+          <Ionicons name="ios-arrow-back" color="black" style={[styling.largeIconSize, styling.noHeader]}/>
         </TouchableWithoutFeedback>
       </View>
       <Image style={styling.fullRecipeImage} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.recipe.image}`}}/>
       <View style={styling.container}>
         <View style={styling.flexRow}>
           <Text style={styling.fullRecipeName}>{this.state.recipe.recipe_name}</Text>
-          <View style={styling.formatSave}>  
-            <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('CreateRecipeScreen', { recipe_id: this.state.recipe.recipe_id })}>
+          <View style={[styling.formatSave, styling.flexRow]}>  
+            <View style={{marginHorizontal: 20}}>  
+            <TouchableWithoutFeedback  onPress={() => this.props.navigation.navigate('CreateRecipeScreen', { recipe_id: this.state.recipe.recipe_id })}>
               <Entypo name="new-message" size={20} color="black" />
             </TouchableWithoutFeedback>
+            </View>
             <TouchableWithoutFeedback onPress={this.saveRecipe}>
                 <Fontisto name={this.state.saved ? "bookmark-alt" : "bookmark"} style={styling.iconSize} color="black" />
             </TouchableWithoutFeedback>
