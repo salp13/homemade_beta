@@ -10,3 +10,13 @@
 * UI is bundled and built using Expo
 * API web app and database are hosted in Azure Cloud using Azure Web App, PostgreSQL Database, and Azure Storage Account
 * UI is deployed using Apple Store Connect and Apple TestFlight for demoing and testing
+
+### Demo
+
+https://user-images.githubusercontent.com/44183105/148699699-998c33cf-29df-4653-a327-6f927a63aec9.mp4
+
+
+
+### Uploaded Demo
+https://youtu.be/bYILFVmOry0
+
