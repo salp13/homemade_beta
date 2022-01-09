@@ -1,0 +1,30 @@
+Bugs to fix: (4 days)
+    Title on app store should be Homemade: Eliminate Food Waste
+    
+    Fridge / Shopping List (1 day)
+        ease of dragging shopping list items -- seems to interfere with scroll bar
+            should vibrate a little when activated on an item
+    
+    Individual Recipe (1 day)
+        show owner of recipe in individualscreen 
+            return owner_name from request 
+                queries for user name based on uuid
+
+    Profile (1/2 day)
+        unsaving recipe from individual recipe within profile screen will not render on goback to profile screen
+    
+    Create Recipe (2 days)
+        createrecipescreen description at 0 chars should stop typing
+        after creating recipe it doesn't properly render on owned recipes in profilescreen
+            causes crash
+        createrecipescreen ingredient + direction input should be width of screen so you can onclick anywhere to type
+    
+    Home Results / Search (1/2 day)
+        x icon on filter should not render changes it should just close modal
+    
+    Overall (3 days)
+        unable to complete requests breaks app  
+            if error is caught on a request, set state to indicate couldn't load    
+                search: "Could not load results"
+                action: Alert: could not complete request, please check internet connection
+    
