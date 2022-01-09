@@ -12,7 +12,7 @@ MULTIPLE USER USE
         - if fridge is empty, add item button should be different color (and maybe bounce or pulse)
         - one button to add all items in shopping list to fridge
         - one button on recipe to add all ingredients to shopping list
-    
+  
 
 APP STORE REQUIREMENTS (3 days)
     - app icon, app name, splash screen
