@@ -1,9 +1,52 @@
 import EStyleSheet from 'react-native-extended-stylesheet';
 
 export const styling = EStyleSheet.create({
+  aboutArrow: {
+    fontSize: '20rem',
+    marginLeft: 'auto', 
+    marginRight: '20rem', 
+    marginTop: '10rem'
+  },
+  aboutOption: {
+    fontSize: '15rem', 
+    margin: '10rem'
+  },
+  accountArrow: {
+    fontSize: '20rem',
+    marginLeft: 'auto', 
+    marginRight: '20rem', 
+    marginTop: '20rem'
+  },
+  accountOption: {
+    fontSize: '15rem', 
+    margin: '10rem', 
+    marginTop: '20rem'
+  },
+  accountScreenInputs: {
+    marginTop: '15rem',
+    fontSize: '18rem',
+  },
+  activityMargin: {
+    marginBottom: '15rem',
+  },
   addButton: {
     marginTop: '18rem', 
     marginLeft: '10rem'
+  },
+  addItemButton : {
+    fontSize: '30rem', 
+    position: 'absolute', 
+    bottom: '-5rem', 
+    right: '20rem', 
+    alignSelf: 'flex-end'
+  },
+  addItemView: {
+    marginVertical: '17rem', 
+    flexDirection: 'row'
+  },
+  amount_props: {
+    marginTop: '5rem', 
+    fontSize: '18rem'
   },
   arrow: {
     fontSize: '75rem',
@@ -11,6 +54,17 @@ export const styling = EStyleSheet.create({
     marginLeft: 'auto',
     marginRight: '20rem',
     marginBottom: '-50rem',
+  },
+  arrowBackward: {
+    fontSize: '100rem', 
+    left: '20rem', 
+    alignSelf: 'flex-start'
+  },
+  arrowForward: {
+    fontSize: '100rem', 
+    position: 'absolute', 
+    right: '20rem', 
+    alignSelf: 'flex-end'
   },
   autoLeft: {
     marginLeft: 'auto'
@@ -22,12 +76,64 @@ export const styling = EStyleSheet.create({
     marginLeft: '5rem', 
     marginRight: '25rem'
   },
+  buttonTextLarge: {
+    fontSize: '20rem', 
+    bottom: '40rem', 
+    position: 'absolute', 
+    left: '20rem', 
+    color: '#339FFF', 
+    fontWeight: 'bold'
+  },
+  buttonTextLargeRight: {
+    fontSize: '20rem', 
+    alignSelf: 'center',
+    bottom: '40rem', 
+    position: 'absolute', 
+    right: '20rem', 
+    color: '#339FFF', 
+    fontWeight: 'bold'
+  },
+  buttonTextSmall: {
+    fontSize: '18rem', 
+    margin: '20rem',
+    color: '#339FFF', 
+    fontWeight: 'bold'
+  },
   container: {
     flex: 1,
     paddingHorizontal: '20rem',
   },
+  createRecipeHeader: {
+    fontSize: '25rem', 
+    marginBottom: '5rem'
+  },
+  createRecipeSubtext: {
+    fontSize: '10rem', 
+  },
   defaultFontSize: {
     fontSize: '15rem',
+  },
+  descriptionIndexFont: {
+    marginTop: '10rem', 
+    marginLeft: '5rem', 
+    fontSize: '18rem'
+  },
+  descriptionInput: {
+    fontSize: '25rem', 
+    marginHorizontal: '20rem', 
+    borderBottomWidth: '1rem', 
+    borderBottomColor: '#696969'
+  },
+  descriptionTextInput: {
+    marginTop: '5rem', 
+    fontSize: '16rem', 
+    borderBottomWidth: '1rem', 
+    borderBottomColor: '#696969'
+  },
+  direction_props: {
+    marginTop: '5rem', 
+    marginHorizontal: '10rem', 
+    fontSize: '18rem',
   },
   editFridgeText: {
     fontSize: '20rem', 
@@ -35,6 +141,12 @@ export const styling = EStyleSheet.create({
   },
   elementBuffer: {
     marginVertical: '10rem'
+  },
+  errorMessageText: {
+    marginTop: '10rem', 
+    fontSize: '12rem', 
+    color: 'red', 
+    textAlign: 'center'
   },
   filterModalElement: {
     flexDirection: 'row', 
@@ -69,7 +181,10 @@ export const styling = EStyleSheet.create({
     height: '20rem',
     marginTop: '3rem',
     left: '4rem',
-    backgroundColor: "#ccc"
+    backgroundColor: "#eaeaea"
+  },
+  fontSize20: {
+    fontSize: '20rem'
   },
   formatSave: {
     marginLeft: 'auto', 
@@ -123,7 +238,7 @@ export const styling = EStyleSheet.create({
     marginTop: '3rem',
     borderColor: "yellow",
     overflow: "hidden",
-    backgroundColor: "#ccc"
+    backgroundColor: "#eaeaea"
   },
   imageContainerNoBorder: {
     width: '30rem',
@@ -133,10 +248,27 @@ export const styling = EStyleSheet.create({
     marginTop: '3rem',
     borderColor: "transparent",
     overflow: "hidden",
-    backgroundColor: "#ccc"
+    backgroundColor: "#eaeaea"
+  },
+  imageContainerNoBorderMarginLeft: {
+    width: '30rem',
+    height: '30rem',
+    borderRadius: '15rem',
+    borderWidth: '1rem',
+    marginTop: '3rem',
+    marginLeft: '10rem',
+    borderColor: "transparent",
+    overflow: "hidden",
+    backgroundColor: "#eaeaea"
+  },
+  ingredientAdd: {
+    marginTop: '5rem', 
+    right: '0rem', 
+    position: 'absolute', 
+    alignSelf: 'flex-end'
   },
   largeIconSize: {
-    fontSize: '35rem'
+    fontSize: '30rem'
   },
   leftSwipeItem: {
     flex: 2,
@@ -146,8 +278,35 @@ export const styling = EStyleSheet.create({
     left: '-1rem',
     paddingRight: '20rem'
   },
+  loginTextInput: {
+    marginTop: '20rem', 
+    fontSize: '15rem', 
+    textAlign: 'center', 
+    height: '30rem'
+  },
+  marginHorizontal20: {
+    marginHorizontal: '20rem'
+  },
+  marginBottom30: {
+    marginBottom: '30rem'
+  },
+  marginRight10: {
+    marginRight: '10rem'
+  },
+  marginRight50: {
+    marginRight: '50rem'
+  },
+  marginTop100: {
+    marginTop: '100rem'
+  },
+  marginTop300: {
+    marginTop: '300rem'
+  },
+  mediumFont: {
+    fontSize: '18rem'
+  },
   metricsText: {
-    fontSize: '12rem',
+    fontSize: '15rem',
     marginVertical: '3rem',
   },
   modalBar: {
@@ -156,6 +315,13 @@ export const styling = EStyleSheet.create({
     width: '40rem',
     borderRadius: '3rem',
     alignSelf: 'center'
+  },
+  modalClear: {
+    position: 'absolute', 
+    right: '20rem', 
+    top: '30rem', 
+    fontSize: '24rem', 
+    alignSelf: 'flex-end'
   },
   modalContainer: {
     margin: '20rem',
@@ -180,7 +346,7 @@ export const styling = EStyleSheet.create({
     marginTop: '15rem'
   },
   noHeader: {
-    paddingTop: '60rem',
+    paddingTop: '40rem',
   },
   overviewContainer: {
     flex: 1/2,
@@ -213,9 +379,22 @@ export const styling = EStyleSheet.create({
     zIndex: 1, 
     backgroundColor: 'transparent'
   },
+  privateSwitch: {
+    position: 'absolute', 
+    right: '0rem', 
+    alignSelf: 'flex-end'
+  },
+  privateText: {
+    fontSize: '20rem', 
+    marginBottom: '5rem'
+  },
+  privateView: {
+    flexDirection: 'row',
+    margin: '20rem', 
+    marginTop: '50rem'
+  },
   recipeDirections: {
-    marginVertical: '5rem', 
-    marginLeft: '10rem',
+    marginVertical: '20rem',
     fontSize: '15rem'
   },
   recipeDirectionsFooter: {
@@ -224,7 +403,12 @@ export const styling = EStyleSheet.create({
   recipeDirectionsHeader: {
     fontWeight: 'bold', 
     marginTop: '10rem',
-    fontSize: '15rem'
+    marginBottom: '5rem',
+    fontSize: '18rem'
+  },
+  recipeTitlePadding: {
+    paddingTop: '30rem', 
+    backgroundColor: 'white'
   },
   reverseSkipped: {
     marginTop: '-20rem'
@@ -259,7 +443,7 @@ export const styling = EStyleSheet.create({
   },
   searchResultText: {
     marginLeft: '20rem',
-    marginTop: '15rem',
+    marginVertical: '7rem',
     fontSize: '15rem',
   },
   secondaryText: {
@@ -268,6 +452,9 @@ export const styling = EStyleSheet.create({
   sectionBuffer: {
     marginTop: '10rem'
   }, 
+  separatorMargin: {
+    margin: '15rem'
+  },
   setFlex: {
     flex: 1, 
   },
@@ -278,6 +465,13 @@ export const styling = EStyleSheet.create({
   shoppingListText: {
     fontSize: '15rem',
     marginLeft: '20rem', 
+    marginVertical: '7rem',
+  },
+  squarePicker: {
+    fontSize: '24rem', 
+    position: 'absolute', 
+    right: '0rem',
+    alignSelf: 'flex-end'
   },
   title: {
     fontSize: '30rem',

@@ -26,16 +26,16 @@ export default class SettingsScreen extends React.Component<Props> {
     return (
       <View style={styling.container}>
         <TouchableWithoutFeedback onPress={() => {this.props.navigation.navigate('AccountScreen')}}>
-            <View style={{flexDirection: 'row'}}>
-                <Text style={{fontSize: 15, margin: 10, marginTop: 20}}>Account</Text>
-                <Ionicons name="ios-arrow-forward" size={24} color="black" style={{marginLeft: 'auto', marginRight: 20, marginTop: 20}} />
+            <View style={styling.flexRow}>
+                <Text style={styling.accountOption}>Account</Text>
+                <Ionicons name="ios-arrow-forward" color="black" style={styling.accountArrow} />
             </View>
         </TouchableWithoutFeedback>
         <View style={styles.completeSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
         <TouchableWithoutFeedback onPress={() => {this.props.navigation.navigate('AboutScreen')}}>
-            <View style={{flexDirection: 'row'}}>
-                <Text style={{fontSize: 15, margin: 10}}>About</Text>
-                <Ionicons name="ios-arrow-forward" size={24} color="black" style={{marginLeft: 'auto', marginRight: 20, marginTop: 10}} />
+            <View style={styling.flexRow}>
+                <Text style={styling.aboutOption}>About</Text>
+                <Ionicons name="ios-arrow-forward" color="black" style={styling.aboutArrow} />
             </View>
         </TouchableWithoutFeedback>
         <View style={styles.completeSeparator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />

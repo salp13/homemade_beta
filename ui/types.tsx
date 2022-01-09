@@ -30,20 +30,24 @@ export type HomeParamList = {
     specifiedItems: Array<any>
   }
   IndividualRecipeScreen: {
-    recipe_id: string
-    CreateRecipeScreen: {
-      recipe_id: string
-    }
+    recipe_id: string,
+    trigger: boolean
+  }
+  CreateRecipeScreen: {
+    recipe_id: string,
+    trigger: boolean
   }
 };
 
 export type SearchParamList = {
   SearchScreen: undefined;
   IndividualRecipeScreen: {
-    recipe_id: string
-    CreateRecipeScreen: {
-      recipe_id: string
-    }
+    recipe_id: string,
+    trigger: boolean
+  }
+  CreateRecipeScreen: {
+    recipe_id: string,
+    trigger: boolean
   }
 };
 
@@ -51,7 +55,9 @@ export type FridgeParamList = {
   FridgeScreen: {
     trigger: boolean
   };
-  AddFridgeItemScreen: undefined;
+  AddFridgeItemScreen: {
+    trigger: boolean
+  };
 };
 
 export type ShoppingListParamList = {
@@ -60,21 +66,25 @@ export type ShoppingListParamList = {
   };
   AddShoppingListItemScreen: {
     orderNumber: number
+    trigger: boolean
   }
 };
 
 export type ProfileParamList = {
   ProfileScreen: {
     headerTitle: string
+    trigger: boolean
   }
   SettingsScreen: undefined
   AccountScreen: undefined
   AboutScreen: undefined
   IndividualRecipeScreen: {
-    recipe_id: string
+    recipe_id: string,
+    trigger: boolean
   }
   CreateRecipeScreen: {
-    recipe_id: string
+    recipe_id: string,
+    trigger: boolean
   }
 };
 
@@ -91,9 +101,11 @@ export type RootStackParams = {
 
 export type IndividualRecipeParamList = {
   IndividualRecipeScreen: {
-    recipe_id: string
+    recipe_id: string,
+    trigger: boolean
   }
   CreateRecipeScreen: {
-    recipe_id: string
+    recipe_id: string,
+    trigger: boolean
   }
 }

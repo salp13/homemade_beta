@@ -1,8 +1,9 @@
 import React from 'react';
-import { Modal, TouchableWithoutFeedback, StyleSheet, SectionList, ScrollView } from 'react-native';
+import { Modal, TouchableWithoutFeedback, SectionList, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import { Text, View } from './Themed'
 import { styling } from '../style'
+import { MaterialIcons } from '@expo/vector-icons'; 
 
 const sectionsArray = [{
   title: "mealType",
@@ -62,7 +63,7 @@ interface State {
   },
 }
 
-export default class HomeFridgeModal extends React.Component<Props, State> {
+export default class FilterModal extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = {
@@ -221,10 +222,12 @@ export default class HomeFridgeModal extends React.Component<Props, State> {
           transparent = {false}
           animationType = {"slide"}
           presentationStyle = "pageSheet"
-          visible = {this.state.modalVisible}
-          >
+          visible = {this.state.modalVisible} >
             <View>
               <View style={styling.modalBar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+              <TouchableWithoutFeedback onPress={this.modalResults}>
+                <MaterialIcons name="clear" style={styling.modalClear} color="black"/>
+              </TouchableWithoutFeedback>
               <Text style={styling.modalTitle}>Filters</Text>
               <View style={styling.modalContainer} >
                 <ScrollView

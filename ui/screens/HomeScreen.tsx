@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { ActivityIndicator, FlatList, Platform, SectionList, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { foodItemType, fridgeItemType } from '../objectTypes'
-import FridgeItem from '../components/FridgeItem'
-import HomeFridgeModal from '../components/HomeFridgeModal'
-import HomeIngredientModal from '../components/HomeIngredientModal'
 import { HomeParamList } from '../types'
 import { Ionicons } from '@expo/vector-icons';
 import { RouteProp } from '@react-navigation/native';
 import { SearchBar as SearchBarElement } from 'react-native-elements';
-import { SearchBar, Text, View } from '../components/Themed';
+import { SearchBar, Text, View, Image } from '../components/Themed';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { styling } from '../style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Dialog from 'react-native-dialog'
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 
 type HomeScreenNavigationProp = StackNavigationProp<HomeParamList, 'HomeScreen'>;
 type HomeScreenRouteProp = RouteProp<HomeParamList, 'HomeScreen'>;
@@ -31,13 +31,15 @@ interface State {
   ingredients: Array<fridgeItemType>
   not_viewable: Set<string>
   selected: Set<string>
-  modalFridge: {
-    modalVisible: boolean,
-    id: number | string | undefined
+  fridgeAlert: {
+    visible: boolean,
+    fridge_id: number,
+    food_name: string
   }
-  modalIngredient: {
-    modalVisible: boolean,
-    id: number | string | undefined
+  ingredientAlert: {
+    visible: boolean,
+    food_id: string,
+    food_name: string
   }
   swipingAction: boolean
 }
@@ -73,13 +75,15 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
       ingredients: [],
       not_viewable: new Set(),
       selected: new Set(),
-      modalFridge: {
-        modalVisible: false, 
-        id: undefined
+      fridgeAlert: {
+        visible: false,
+        fridge_id: -1,
+        food_name: ''
       },
-      modalIngredient: {
-        modalVisible: false, 
-        id: undefined
+      ingredientAlert: {
+        visible: false,
+        food_id: '',
+        food_name: ''
       },
       swipingAction: false,
     };
@@ -88,13 +92,10 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     this.OnChangeSearch = this.OnChangeSearch.bind(this)
     this.OnClearSearch = this.OnClearSearch.bind(this)
     this.OnPressSearch = this.OnPressSearch.bind(this)
-    this.OnSwipeNoScroll = this.OnSwipeNoScroll.bind(this)
-    this.OnSwipeScroll = this.OnSwipeScroll.bind(this)
-    this.modalUpdate = this.modalUpdate.bind(this)
-    this.modalResult = this.modalResult.bind(this)
     this.FridgeToIngredient = this.FridgeToIngredient.bind(this)
     this.IngredientRemove = this.IngredientRemove.bind(this)
     this.FridgeDismiss = this.FridgeDismiss.bind(this)
+    this.determineSecondaryText = this.determineSecondaryText.bind(this)
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
     this.SearchRender = this.SearchRender.bind(this)
     this.FoodRender = this.FoodRender.bind(this)
@@ -109,9 +110,62 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
         user_id: setUserID
       })
     }
+
+    await AsyncStorage.getItem('@all_foods')
+    .then( all_foods => {
+      if (all_foods) {
+        this.arrayholder = JSON.parse(all_foods).filter(item => item.food_name !== 'unlisted_food')
+      } else {
+        // hit api for all foods excluding the unlisted food item
+        fetch(`https://homemadeapp.azurewebsites.net/homemade/many_foods/`, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Token ' + this.state.token,
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          this.arrayholder = data.filter(item => item.food_name !== 'unlisted_food')
+          // set all_foods data
+          try {
+            AsyncStorage.setItem('@all_foods', JSON.stringify(data))
+          } catch (e) {
+            console.error(e)
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+      }
+    })
     
+    await AsyncStorage.getItem('@fridge_data')
+      .then((data) => { 
+        if (data) { 
+          let parsed_data = JSON.parse(data)
+          parsed_data = parsed_data.filter(item => item.food.food_name !== 'unlisted_food')
+          let data2 = (parsed_data) ? parsed_data.sort((a, b) => {
+            if (!b.expiration_date) return -1
+            else if (!a.expiration_date) return 1
+            else if (a.expiration_date > b.expiration_date) return 1
+            else if (b.expiration_date > a.expiration_date) return -1
+            else if (a.food.food_name > b.food.food_name) return 1
+            else if (a.food.food_name < b.food.food_name) return -1
+            else if (a.quantity > b.quantity) return -1
+            else if (a.quantity < b.quantity) return 1
+            else if (a.id > b.id) return 1
+            return -1 }) : parsed_data
+          this.setState({ 
+            fridgeItems: data2,
+            isLoading: false
+          })
+        }}
+      )
+
     // Load all items in user's fridge
-    let fridgeData = await fetch(`http://localhost:8000/homemade/many_fridge/${this.state.user_id}`, {
+    await fetch(`https://homemadeapp.azurewebsites.net/homemade/many_fridge/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -120,33 +174,27 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
       },
     })
       .then(response => response.json())
-      .then(data => {return data})
+      .then(data => {
+        // Filter out unlisted foods from user's fridge as they won't apply to existing recipes
+        data = data.filter(item => item.food.food_name !== 'unlisted_food')
+        this.setState({
+          isLoading: false,
+          fridgeItems: data.sort((a, b) => {
+            if (!b.expiration_date) return -1
+            else if (!a.expiration_date) return 1
+            else if (a.expiration_date > b.expiration_date) return 1
+            else if (b.expiration_date > a.expiration_date) return -1
+            else if (a.food.food_name > b.food.food_name) return 1
+            else if (a.food.food_name < b.food.food_name) return -1
+            else if (a.quantity > b.quantity) return -1
+            else if (a.quantity < b.quantity) return 1
+            else if (a.id > b.id) return 1
+            return -1 }),
+        });
+      })
       .catch(error => {
         console.error(error);
       });
-    
-    // Filter out unlisted foods from user's fridge as they won't apply to existing recipes
-    fridgeData = fridgeData.filter(item => item.food.food_name !== 'unlisted_food')
-    // Load all foods and store in the arrayholder for search filtering
-    await fetch(`http://localhost:8000/homemade/many_foods/`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Token ' + this.state.token,
-      },
-    })
-    .then(response => response.json())
-    .then(data => {
-      this.arrayholder = data.filter(item => item.food_name !== 'unlisted_food')
-      this.setState({
-        isLoading: false,
-        fridgeItems: fridgeData.sort((a, b) => (!b.expiration_date) ? 1 : ((!a.expiration_date) ? -1 : (a.expiration_date > b.expiration_date) ? 1 : -1)),
-      });
-    })
-    .catch(error => {
-      console.error(error);
-    });
   }
 
   OnChangeSearch(text: string) {
@@ -176,27 +224,19 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
   async OnPressSearch(food_id: string) {  
     // Check if the searched item is already in the fridge
     let item_to_add = this.state.fridgeItems.find((fridgeItem) => {return fridgeItem.food.food_id === food_id})
+    
     if (!item_to_add) {
-      // If item is not in fridge, load it from api
-      let food_item = await fetch(`http://localhost:8000/homemade/single_food/${food_id}`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Token ' + this.state.token,
-        },
-      })
-        .then(response => response.json())
-        .then(data => { return data })
-        .catch(error => { console.error(error); });
+      let food_item = this.arrayholder.find(ele => {return ele.food_id == food_id})
       item_to_add = {
         id: -1,
         user: "unowned_food_item",
         food: food_item,
         unlisted_food: undefined,
         expiration_date: undefined,
+        quantity: 1,
       }
     }
+
     // modify state to accomodate for added ingredient
     this.setState({
       allFood: [],
@@ -208,49 +248,17 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     if (this.searchRef.current?.cancel) this.searchRef.current.cancel()
   }
 
-  OnSwipeNoScroll() {
-    this.setState({ swipingAction: true })
-  }
-
-  OnSwipeScroll() {
-    this.setState({ swipingAction: false })
-  }
-
-  modalUpdate(id: number, selected: boolean) {
-    // set state's modal information (differs when the item is an ingredient vs just in the fridge)
-    const object = { 
-      modalVisible: true,
-      id: id
-    }
-    if (selected) this.setState({ modalIngredient: object })
-    else this.setState({ modalFridge: object })
-  }
-
-  modalResult(food_id: string, action?: string) {
-    // reset modal and call helper functions dependent on specified action
-    this.setState({
-      modalFridge: {
-        modalVisible: false,
-        id: undefined
-      },
-      modalIngredient: {
-        modalVisible: false,
-        id: undefined
-      }
-    })
-    if (action === "add") this.FridgeToIngredient(food_id)
-    else if (action === "dismiss") this.FridgeDismiss(food_id)
-    else if (action === "remove") this.IngredientRemove(food_id)
-  }
-
-  FridgeToIngredient(food_id: string) { 
+  FridgeToIngredient(fridge_id: number) { 
     // find the ingredient in the fridge and add it as an ingredient
-    const item = this.state.fridgeItems.find((fridgeItem) => { return fridgeItem.food.food_id === food_id })
-    this.setState({
-      not_viewable: this.state.not_viewable.add(food_id),
-      selected: this.state.selected.add(food_id),
-      ingredients: (item) ? this.state.ingredients.concat([item]) : this.state.ingredients,
-    })
+    const item = this.state.fridgeItems.find((fridgeItem) => { return fridgeItem.id === fridge_id })
+    if (item) {
+      this.setState({
+        not_viewable: this.state.not_viewable.add(item.food.food_id),
+        selected: this.state.selected.add(item.food.food_id),
+        ingredients: this.state.ingredients.concat([item]),
+      })
+    }
+    
   }
 
   IngredientRemove(food_id: string) {
@@ -264,17 +272,47 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
       not_viewable: assign_not_viewable,
       selected: assign_selected,
       ingredients: this.state.ingredients.filter((ingredient) => { return ingredient.food.food_id !== food_id }),
+      ingredientAlert: {
+        visible: false,
+        food_id: '',
+        food_name: ''
+      }
     })
   }
 
-  FridgeDismiss(food_id: string) {
+  FridgeDismiss(fridge_id: number) {
+    const item = this.state.fridgeItems.find((fridgeItem) => { return fridgeItem.id === fridge_id })
     // dismiss a certain food 
-    this.setState({ not_viewable: this.state.not_viewable.add(food_id) })
+    if (item) {
+      this.setState({ 
+        not_viewable: this.state.not_viewable.add(item.food.food_id),
+        fridgeAlert: {
+          visible: false,
+          fridge_id: -1, 
+          food_name: '', 
+        }
+      })
+    }
   }
+
+  determineSecondaryText(expiration_date: Date | undefined) {
+    // formatting for expiration date and sub text surrounding expiration date
+    let secondaryText = ''
+    if (expiration_date) {
+      let currentDate = new Date()
+      let placehold = new Date(expiration_date)
+      let daysToExp = Math.ceil((placehold.valueOf() - currentDate.valueOf())/(24 * 60 * 60 * 1000))
+      if (daysToExp === 1) secondaryText = 'this expires today'
+      else if (daysToExp < 1) secondaryText = 'expired'
+      else secondaryText = `this expires in ${daysToExp} days`
+    }
+    return secondaryText
+  }
+
 
   IsLoadingRender() {
     return (
-      <View style={styling.container}>
+      <View style={[styling.container, styling.noHeader]}>
         <ActivityIndicator />
       </View>
     )
@@ -284,17 +322,23 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     // flat list that will render list of filtered search items
     return (
     <FlatList
-          keyboardShouldPersistTaps='always'
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          data={this.state.allFood}
-          renderItem={({item, index}) => (
-            <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.food_id)}>
-              <Text style={styling.searchResultText}>{item.food_name}</Text>
-            </TouchableWithoutFeedback>
-          )}
-          keyExtractor={(item, index) => index.toString()}
-        />
+      keyboardShouldPersistTaps='always'
+      showsVerticalScrollIndicator={false}
+      showsHorizontalScrollIndicator={false}
+      data={this.state.allFood}
+      renderItem={({item, index}) => (
+        <TouchableWithoutFeedback onPress={() => this.OnPressSearch(item.food_id)}>
+          <View style={styling.addItemView}>
+            <View style={styling.imageContainerNoBorderMarginLeft}>
+              <Image style={styling.foodGroupImage} source={{ uri: item.food_group.image }}/>
+            </View>
+            <Text style={styling.searchResultText}>{item.food_name}</Text>
+            <Ionicons name="ios-add" color="black" style={styling.addItemButton}/>
+          </View>
+        </TouchableWithoutFeedback>
+      )}
+      keyExtractor={(item, index) => index.toString()}
+    />
     )
   }
 
@@ -302,28 +346,43 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     // section list that will render list of ingredients and fridge items
     return (
       <SectionList
-        scrollEnabled={!this.state.swipingAction}
         showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
         sections={[ 
           {title: "Ingredients", data: this.state.ingredients}, 
           {title: "fridgeItems", data: this.state.fridgeItems} ]}
         renderItem={({item, section, index}) => {
           if (this.state.not_viewable.has(item.food.food_id) && section.title === "fridgeItems") 
             return (<Text style={styling.reverseSkipped}></Text>)
-          else 
+          else {
+            let quantity = ` (${item.quantity})`
             return (
-              <FridgeItem
-                selected={(section.title === "Ingredients") ? true : false}
-                id={item.food.food_id}
-                item={item} 
-                modalUpdateFunc={this.modalUpdate}
-                swipeStart={this.OnSwipeNoScroll}
-                swipeEnd={this.OnSwipeScroll}
-                swipeLeftFunc={this.state.selected.has(item.food.food_id) ? this.IngredientRemove : this.FridgeDismiss}
-                swipeRightFunc={this.state.selected.has(item.food.food_id) ? () => { return item } : this.FridgeToIngredient}
-              />
-            )
+              <View>
+                <TouchableWithoutFeedback onPress={() => {
+                  if (section.title !== "Ingredients") this.FridgeToIngredient(item.id)
+                  else this.IngredientRemove(item.food.food_id)
+                  }}>
+                  <View style={styling.fridgeItemContainer}>
+                  <View style={section.title === "Ingredients" ? styling.imageContainerBorder : styling.imageContainerNoBorder}>
+                      <Image style={styling.foodGroupImage} source={{uri: item.food.food_group.image}}/>
+                  </View>
+                  {item.unlisted_food ? 
+                    <Text style={styling.fridgeItemName}>{item.unlisted_food + quantity + "\n"}
+                      <Text style={styling.secondaryText} lightColor="#ccc" darkColor="#ccc">{this.determineSecondaryText(item.expiration_date)}</Text>
+                    </Text> :
+                    <Text style={styling.fridgeItemName}>{item.food.food_name + quantity + "\n"}
+                      <Text style={styling.secondaryText} lightColor="#ccc" darkColor="#ccc">{this.determineSecondaryText(item.expiration_date)}</Text>
+                    </Text>
+                  }
+                  <View style={styling.autoLeft}>
+                      {(section.title === "Ingredients") ? (
+                        <Ionicons name="ios-remove" color="black" style={styling.addItemButton}/>
+                        ) : (
+                        <Ionicons name="ios-add" color="black" style={styling.addItemButton}/> ) }
+                  </View>
+                  </View>
+                </TouchableWithoutFeedback>
+            </View>
+            )}
         }}
         renderSectionHeader={() => ( <View style={styling.sectionBuffer}/> )}
         /> 
@@ -355,8 +414,6 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
           {...this.searchBarProps}
         />
         {this.state.search !== '' ? this.SearchRender() : this.FoodRender()}
-        <HomeFridgeModal modalProperties={this.state.modalFridge} ModalResultFunc={this.modalResult}/>
-        <HomeIngredientModal modalProperties={this.state.modalIngredient} ModalResultFunc={this.modalResult}/>
       </View>
     );
   }

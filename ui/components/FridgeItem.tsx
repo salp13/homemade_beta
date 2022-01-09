@@ -1,6 +1,5 @@
 import React from 'react';
 import { fridgeItemType } from '../objectTypes'
-import { StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Swipeable from 'react-native-swipeable';
@@ -9,6 +8,7 @@ import { styling } from '../style'
 
 interface Props {
   id: number | string
+  disabled: boolean
   selected: boolean
   item: fridgeItemType
   modalUpdateFunc: Function
@@ -20,9 +20,11 @@ interface Props {
 
 interface State {
   id: number | string
+  disabled: boolean
   image: string
   food_name: string
   unlisted_food: string | undefined
+  quantity: number
   expiration_date: Date | undefined
   selected: boolean
 }
@@ -32,9 +34,11 @@ export default class FridgeItem extends React.Component<Props, State> {
     super(props)
     this.state = {
       id: this.props.id,
+      disabled: this.props.disabled,
       image: this.props.item.food.food_group.image,
       food_name: this.props.item.food.food_name,
       unlisted_food: this.props.item.unlisted_food,
+      quantity: this.props.item.quantity,
       expiration_date: this.props.item.expiration_date,
       selected: this.props.selected,
     }
@@ -48,12 +52,15 @@ export default class FridgeItem extends React.Component<Props, State> {
   componentDidUpdate() {
     // if the new food name is different from stored state food name or if the expiration date has changed, update state
     // food name change comes from removing or adding items
-    if (this.props.item.food.food_name !== this.state.food_name || this.props.item.expiration_date !== this.state.expiration_date) {
+    if (this.props.item.food.food_name !== this.state.food_name || this.props.item.expiration_date !== this.state.expiration_date || this.props.item.quantity !== this.state.quantity ||  this.props.item.id !== this.state.id || this.props.disabled !== this.state.disabled) {
+
       this.setState({
         id: this.props.id,
+        disabled: this.props.disabled,
         image: this.props.item.food.food_group.image,
         food_name: this.props.item.food.food_name,
         unlisted_food: this.props.item.unlisted_food,
+        quantity: this.props.item.quantity,
         expiration_date: this.props.item.expiration_date,
         selected: this.props.selected,
       })
@@ -80,6 +87,7 @@ export default class FridgeItem extends React.Component<Props, State> {
     let secondaryText = ''
     if (this.state.expiration_date) {
       let currentDate = new Date()
+      currentDate.setHours(0, 0, 0, 0)
       let placehold = new Date(this.state.expiration_date)
       let daysToExp = Math.ceil((placehold.valueOf() - currentDate.valueOf())/(24 * 60 * 60 * 1000))
       if (daysToExp === 1) secondaryText = 'this expires today'
@@ -90,10 +98,10 @@ export default class FridgeItem extends React.Component<Props, State> {
   }
 
   render() {
-    let loadimage = `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`
-
+    let quantity = ` (${this.state.quantity})`
     return (
       <Swipeable
+        disabled={this.state.disabled}
         leftActionActivationDistance={70}
         rightActionActivationDistance={70}
         rightContent={this.state.selected ? (<Text></Text>) : 
@@ -108,19 +116,19 @@ export default class FridgeItem extends React.Component<Props, State> {
       >
         <View style={styling.fridgeItemContainer}>
             <View style={this.state.selected ? styling.imageContainerBorder : styling.imageContainerNoBorder} >
-                <Image style={styling.foodGroupImage} source={{uri: loadimage}}/>
+                <Image style={styling.foodGroupImage} source={{uri: this.state.image}}/>
             </View>
             {this.state.unlisted_food ? 
-            <Text style={styling.fridgeItemName}>{this.state.unlisted_food + "\n"}
+            <Text style={styling.fridgeItemName}>{this.state.unlisted_food + quantity + "\n"}
               <Text style={styling.secondaryText} lightColor="#ccc" darkColor="#ccc">{this.determineSecondaryText()}</Text>
             </Text> :
-            <Text style={styling.fridgeItemName}>{this.state.food_name + "\n"}
+            <Text style={styling.fridgeItemName}>{this.state.food_name + quantity + "\n"}
             <Text style={styling.secondaryText} lightColor="#ccc" darkColor="#ccc">{this.determineSecondaryText()}</Text>
           </Text>
             }
             
             <View style={styling.autoLeft}>
-              <TouchableWithoutFeedback onPress={this.updateModalVisible}>
+              <TouchableWithoutFeedback disabled={this.state.disabled} onPress={this.updateModalVisible}>
                 <MaterialCommunityIcons name="dots-horizontal" style={styling.iconSize}/>
               </TouchableWithoutFeedback>
             </View>

@@ -19,6 +19,7 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  updateLoading: boolean
   token: string
   user_id: string
   specifiedItems: Array<fridgeItemType>
@@ -35,6 +36,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     const specifiedItems = JSON.parse(JSON.stringify(this.props.route.params.specifiedItems))
     this.state = { 
       isLoading: true,
+      updateLoading: false,
       token: '', 
       user_id: '', 
       specifiedItems: specifiedItems,
@@ -72,7 +74,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     
     // hit api to get recipes that contain the ingredients from the specified items, must be a post request to be able to send a body
     let body = {"specifiedItems": this.state.specifiedItems}
-    let recipe_data = await fetch('http://localhost:8000/homemade/many_recipes/', {
+    let recipe_data = await fetch(`https://homemadeapp.azurewebsites.net/homemade/many_recipes/${this.state.user_id}`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -86,9 +88,25 @@ export default class HomeResultScreen extends React.Component<Props, State> {
       .catch(error => {
         console.error(error);
       });
+
+    await AsyncStorage.getItem('@saved_recipes')
+      .then((data) => { 
+        if (data) { 
+          let parsed_data = JSON.parse(data)
+          let saved_set = new Set<string>()
+          parsed_data.forEach((recipe) => {
+            saved_set.add(recipe.recipe_id)
+          })
+          this.setState({ 
+            isLoading: false,
+            recipes: recipe_data,
+            user_saved: saved_set,
+          })
+        }}
+      )
     
     // hit api to get the saved recipes from user
-    await fetch(`http://localhost:8000/homemade/many_saved_recipes/${this.state.user_id}`, {
+    await fetch(`https://homemadeapp.azurewebsites.net/homemade/many_saved_recipes/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -105,6 +123,11 @@ export default class HomeResultScreen extends React.Component<Props, State> {
         recipes: recipe_data,
         user_saved: saved_set,
       });
+      try {
+        AsyncStorage.setItem('@saved_recipes', JSON.stringify(data))
+      } catch (e) {
+        console.error(e)
+      }
     })
     .catch(error => {
       console.error(error);
@@ -125,10 +148,11 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   async filterModalResults(filters: filterObjectType) {
     await this.setState({
       filterModalViewable: false,
-      filters: filters
+      filters: filters,
+      updateLoading: true,
     })
     // format query url for filter results
-    let url = `http://localhost:8000/homemade/many_recipes/`
+    let url = `https://homemadeapp.azurewebsites.net/homemade/many_recipes/${this.state.user_id}`
     let query_string = "?"
 
     this.state.filters.mealType.forEach((type) => query_string = query_string.concat(`&meal_type=${type}`))
@@ -150,7 +174,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     .then(response => response.json())
     .then(data => {
       this.setState({
-        isLoading: false,
+        updateLoading: false,
         recipes: data,
       });
     })
@@ -161,13 +185,14 @@ export default class HomeResultScreen extends React.Component<Props, State> {
 
   navigateRecipe(recipe_id: string) {
     // navigate to the individual recipe
-    this.props.navigation.navigate('IndividualRecipeScreen', {recipe_id: recipe_id})
+    this.props.navigation.navigate('IndividualRecipeScreen', {recipe_id: recipe_id, trigger: false})
   }
 
   async saveRecipe(recipeId: string) {
+    this.setState({ updateLoading: true })
     // if the user has the recipe saved, delete it from saved
     if (this.state.user_saved.has(recipeId)) {
-      await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipeId}`, {
+      await fetch(`https://homemadeapp.azurewebsites.net/homemade/single_saved_recipe/${this.state.user_id}/${recipeId}`, {
         method: 'DELETE',
         headers: {
           Accept: 'application/json',
@@ -182,24 +207,40 @@ export default class HomeResultScreen extends React.Component<Props, State> {
       let assign_saved = this.state.user_saved
       assign_saved.delete(recipeId)
       this.setState({
-        user_saved: assign_saved
+        user_saved: assign_saved,
+        updateLoading: false,
       })
+      try {
+        await AsyncStorage.getItem('@saved_recipes').then(recipes => {
+          if (recipes) AsyncStorage.setItem('@saved_recipes', JSON.stringify(JSON.parse(recipes).filter(recipe => {return recipe.recipe_id !== recipeId})))
+        })
+      } catch (e) {
+        console.error(e)
+      }
     // if the user does not have the recipe saved, save it 
     } else {
-      await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipeId}`, {
+      await fetch(`https://homemadeapp.azurewebsites.net/homemade/single_saved_recipe/${this.state.user_id}/${recipeId}`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         'Authorization': 'Token ' + this.state.token,
         },
-      })
-        .catch(error => {
-          console.error(error);
-        });
+      }).then(response => response.json())
+      .then(data => { 
+        try {
+          AsyncStorage.getItem('@saved_recipes').then(recipes => {
+            if (recipes) AsyncStorage.setItem('@saved_recipes', JSON.stringify(JSON.parse(recipes).concat([data])))
+          })
+        } catch (e) { console.error(e) }
+       })
+      .catch(error => {
+        console.error(error);
+      });
 
       this.setState({
-        user_saved: this.state.user_saved.add(recipeId)
+        user_saved: this.state.user_saved.add(recipeId),
+        updateLoading: false,
       })
     }
   }
@@ -220,7 +261,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
 
   IsLoadingRender() {
     return (
-      <View style={styling.container}>
+      <View style={[styling.container, styling.noHeader]}>
         <ActivityIndicator />
       </View>
     )
@@ -229,6 +270,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
   RecipeRender(item) {
     return (
       <RecipeOverview 
+        updateLoading={this.state.updateLoading}
         recipe={item}
         saved={(this.state.user_saved.has(item.recipe_id)) ? true : false}
         onPressNavigate={this.navigateRecipe}
@@ -247,9 +289,11 @@ export default class HomeResultScreen extends React.Component<Props, State> {
           <TouchableWithoutFeedback onPress={this.props.navigation.goBack}>
             <Ionicons name="ios-arrow-back" color="black" style={styling.iconSize}/>
           </TouchableWithoutFeedback>
-          <TouchableWithoutFeedback onPress={this.onPressFilter}>
-            <MaterialIcons name="filter-list" color="black" style={StyleSheet.flatten([styling.iconSize, styling.autoLeft])}/>
-          </TouchableWithoutFeedback>
+          {this.state.updateLoading ? (<ActivityIndicator style={[styling.activityMargin, styling.autoLeft]} />) : (
+              <TouchableWithoutFeedback onPress={this.onPressFilter}>
+                <MaterialIcons name="filter-list" color="black" style={StyleSheet.flatten([styling.iconSize, styling.autoLeft])}/>
+              </TouchableWithoutFeedback>
+          )}
         </View>
         <View style={styling.filterTextContainer}>
           {(this.state.filters.mealType.length || 

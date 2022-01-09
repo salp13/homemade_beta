@@ -8,7 +8,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import Swiper from 'react-native-swiper'
 import { recipeType, userDataType } from '../objectTypes'
 import { styling } from '../style';
-import { width, height } from '../App'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Entypo } from '@expo/vector-icons';
 
@@ -25,6 +24,7 @@ interface State {
   token: string
   user_id: string
   toggle: boolean
+  update_trigger: boolean
   user_data: userDataType
   most_wasted_group: string
   owned_recipes: Array<recipeType>
@@ -39,6 +39,7 @@ export default class HomeScreen extends React.Component<Props, State> {
       token: '', 
       user_id: '', 
       toggle: true,
+      update_trigger: false,
       user_data: {
         user_id: "",
         saved_recipes: [],
@@ -67,7 +68,6 @@ export default class HomeScreen extends React.Component<Props, State> {
     this.MetricData = this.MetricData.bind(this)
   }
 
-
   async componentDidMount() {
     // set token and user_id
     const setToken = await AsyncStorage.getItem('@token')
@@ -78,9 +78,38 @@ export default class HomeScreen extends React.Component<Props, State> {
         user_id: setUserID
       })
     }
-    
+
+    // AsyncStorage for metric data, saved recipes, owned recipes
+    await AsyncStorage.getItem('@owned_recipes')
+    .then(data =>{ if (data) this.setState({ owned_recipes: JSON.parse(data) }) })
+
+    await AsyncStorage.getItem('@metric_data')
+    .then(data => {
+      if (data) {
+        let user_data = JSON.parse(data)
+        let group = ''
+        let comp_arr = [user_data.produce_wasted, user_data.meat_wasted, user_data.dairy_wasted]
+        let i = comp_arr.indexOf(Math.max(...comp_arr));
+        if ( i === 0) group = 'produce'
+        else if (i === 1) group = 'protein'
+        else group = 'dairy'
+        
+        AsyncStorage.getItem('@saved_recipes').then(saved_recipes => {
+          if (saved_recipes) {
+            console.log(JSON.parse(saved_recipes))
+            user_data.saved_recipes = JSON.parse(saved_recipes)
+            this.setState({
+              user_data: user_data,
+              most_wasted_group: group,
+              isLoading: false,
+            })
+          }
+        })
+    }})
+
+
     // hit api for user data
-    const user_data = await fetch(`http://localhost:8000/homemade/metric_data/${this.state.user_id}`, {
+    const user_data = await fetch(`https://homemadeapp.azurewebsites.net/homemade/metric_data/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -104,7 +133,7 @@ export default class HomeScreen extends React.Component<Props, State> {
     else if (i === 1) group = 'protein'
     else group = 'dairy'
 
-    const owned_recipes = await fetch(`http://localhost:8000/homemade/owned_recipe/${this.state.user_id}`, {
+    const owned_recipes = await fetch(`https://homemadeapp.azurewebsites.net/homemade/owned_recipe/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -114,7 +143,6 @@ export default class HomeScreen extends React.Component<Props, State> {
     })
     .then(response => response.json())
     .then(data => {
-      console.log(data)
       return data
     })
     .catch(error => {
@@ -127,12 +155,46 @@ export default class HomeScreen extends React.Component<Props, State> {
       most_wasted_group: group,
       owned_recipes: owned_recipes,
     });
+
+    // set owned_recipes and merge metric_data for any changes
+    try {
+      AsyncStorage.setItem('@owned_recipes', JSON.stringify(owned_recipes))
+      AsyncStorage.setItem('@metric_data', JSON.stringify(user_data))
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  async componentDidUpdate() {
+    if (this.state.update_trigger !== this.props.route.params.trigger) {
+      console.log('updating')
+      this.setState({isLoading: true, update_trigger: this.props.route.params.trigger})
+
+      const owned_recipes = await fetch(`https://homemadeapp.azurewebsites.net/homemade/owned_recipe/${this.state.user_id}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ' + this.state.token,
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        return data
+      })
+      .catch(error => {
+        console.error(error);
+      });
+      this.setState({ owned_recipes: owned_recipes, isLoading: false })
+      console.log("done updating")
+    }
   }
 
   async unsaveRecipe(recipe_id: string) {
     if (this.state.user_data.saved_recipes.find(ele => (ele.recipe_id == recipe_id))) {
+      
       // hit api to unsave saved recipe
-      await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipe_id}`, {
+      await fetch(`https://homemadeapp.azurewebsites.net/homemade/single_saved_recipe/${this.state.user_id}/${recipe_id}`, {
         method: 'DELETE',
         headers: {
           Accept: 'application/json',
@@ -150,33 +212,47 @@ export default class HomeScreen extends React.Component<Props, State> {
       this.setState({
         user_data: assign_user_data,
       });
+      
+      
     } else {
-        await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipe_id}`, {
+        await fetch(`https://homemadeapp.azurewebsites.net/homemade/single_saved_recipe/${this.state.user_id}/${recipe_id}`, {
           method: 'POST',
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
           'Authorization': 'Token ' + this.state.token,
           },
-        })
-          .catch(error => {
-            console.error(error);
-          });
+        }).then(response => response.json())
+        .then(data => { 
+          try {
+            AsyncStorage.getItem('@saved_recipes').then(recipes => {
+              if (recipes) AsyncStorage.setItem('@saved_recipes', JSON.stringify(JSON.parse(recipes).concat([data])))
+            })
+          } catch (e) { console.error(e) }
+         })
+        .catch(error => {
+          console.error(error);
+        });
 
-          let new_saved_recipe = this.state.owned_recipes.filter((recipe) => recipe.recipe_id === recipe_id)
-          let assign_user_data = this.state.user_data
-          assign_user_data.saved_recipes = this.state.user_data.saved_recipes.concat(new_saved_recipe)
+      let new_saved_recipe = this.state.owned_recipes.filter((recipe) => recipe.recipe_id === recipe_id)
+      let assign_user_data = this.state.user_data
+      assign_user_data.saved_recipes = this.state.user_data.saved_recipes.concat(new_saved_recipe)
 
-        this.setState({
-          user_data: assign_user_data
-        })
+      this.setState({
+        user_data: assign_user_data
+      })
+
+      try {
+        AsyncStorage.setItem('@metric_data', JSON.stringify(assign_user_data))
+      } catch (e) {
+        console.error(e)
+      }
     }
-    
   }
 
   navigateRecipe(recipe_id: string) {
     // navigate to individual recipe screen
-    this.props.navigation.navigate('IndividualRecipeScreen', {recipe_id: recipe_id})
+    this.props.navigation.navigate('IndividualRecipeScreen', {recipe_id: recipe_id, trigger: this.state.update_trigger})
   }
 
   onPressSettings() {
@@ -210,10 +286,10 @@ export default class HomeScreen extends React.Component<Props, State> {
     // metrics calculations and formatting 
     let percentage = Math.round((this.state.user_data.eaten_count / this.state.user_data.total_items)*100)
     let avg_items = this.CalculateAverageItems()
+
     if (this.state.user_data.total_items === 0 && this.state.user_data.wasted_count === 0) {
       return (
         <View style={styling.paddingMargin}>
-          <Text style={styling.username}>{this.state.user_data.name}</Text>
           <Text style={styling.metricsText}>Items in your fridge: {this.state.user_data.fridge.length}</Text>
           <Text style={styling.metricsText}>Average number of items in your fridge: {avg_items}</Text>
         </View>
@@ -221,7 +297,6 @@ export default class HomeScreen extends React.Component<Props, State> {
     } else if (this.state.user_data.wasted_count === 0) {
       return (
         <View style={styling.paddingMargin}>
-          <Text style={styling.username}>{this.state.user_data.name}</Text>
           <Text style={styling.metricsText}>Items in your fridge: {this.state.user_data.fridge.length}</Text>
           <Text style={styling.metricsText}>Ratio of food eaten instead of wasted: {percentage}%</Text>
           <Text style={styling.metricsText}>Average number of items in your fridge: {avg_items}</Text>
@@ -240,16 +315,16 @@ export default class HomeScreen extends React.Component<Props, State> {
   }
 
   render() {
-    if (this.state.isLoading) this.IsLoadingRender()
+    if (this.state.isLoading) return this.IsLoadingRender()
 
     return (
-      <View style={{flex: 1}}>
+      <View style={styling.setFlex}>
         <View style={styling.paddingMargin}>
           <View style={styling.flexRow}>
             <Text style={styling.username}>{this.state.user_data.name}</Text>
             <View style={styling.autoLeft}>
-            <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('CreateRecipeScreen', {recipe_id: ''})}>
-              <Entypo name="new-message" size={20} color="black" />
+            <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('CreateRecipeScreen', {recipe_id: '', trigger: this.state.update_trigger})}>
+              <Entypo name="new-message" style={styling.fontSize20} color="black" />
             </TouchableWithoutFeedback>
             </View>
           </View>
@@ -288,7 +363,7 @@ export default class HomeScreen extends React.Component<Props, State> {
           <FlatList 
               data={this.state.owned_recipes}
               ItemSeparatorComponent={() => (<View style={styling.elementBuffer}></View>)}
-              renderItem={({item}) => (
+              renderItem={({item, index}) => (
                 <SavedRecipe 
                   recipe_id={item.recipe_id}
                   recipe_name={item.recipe_name}
@@ -298,6 +373,7 @@ export default class HomeScreen extends React.Component<Props, State> {
                   onPressNavigate={this.navigateRecipe}
                   saveRecipe={this.unsaveRecipe}
                 />)}
+              keyExtractor={(item, index) => item.recipe_id}
               />
           </View>
           <View>
@@ -313,7 +389,8 @@ export default class HomeScreen extends React.Component<Props, State> {
                   saved={true}
                   onPressNavigate={this.navigateRecipe}
                   saveRecipe={this.unsaveRecipe}
-                />)}
+                />)
+              }
               />
           </View>
         </Swiper>
@@ -321,7 +398,3 @@ export default class HomeScreen extends React.Component<Props, State> {
     )
   }
 }
-
-/*
-TODO: fix issue with setState in onIndexChanged
-*/

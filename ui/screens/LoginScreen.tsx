@@ -2,7 +2,7 @@ import * as React from 'react';
 import { LoginParamList, RootStackParamList } from '../types'
 import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { TextInput, Button } from 'react-native'
+import { TextInput, Button, ActivityIndicator } from 'react-native'
 import { Text, View } from '../components/Themed';
 import { styling } from '../style'
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,6 +17,7 @@ interface Props {
   
 interface State {
   isLoading: boolean
+  updateLoading: boolean
   failed_attempt: boolean
   token: string
   username: string
@@ -29,6 +30,7 @@ export default class LoginScreen extends React.Component<Props, State> {
     super(props)
     this.state = {
       isLoading: true,
+      updateLoading: false,
       failed_attempt: false,
       token: '', 
       username: '',
@@ -50,7 +52,8 @@ export default class LoginScreen extends React.Component<Props, State> {
   }
 
   async login() {
-    await fetch('http://localhost:8000/api-token-auth/', {
+    this.setState({ updateLoading: true })
+    await fetch('https://homemadeapp.azurewebsites.net/api-token-auth/', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -63,10 +66,10 @@ export default class LoginScreen extends React.Component<Props, State> {
     })
       .then(response => response.json())
       .then(data => {
-        console.log(data)
         if (data.non_field_errors) {
           this.setState({
             failed_attempt: true,
+            updateLoading: false,
           })
           return
         } else {
@@ -81,6 +84,7 @@ export default class LoginScreen extends React.Component<Props, State> {
           AsyncStorage.setItem('@token', data.token)
         } catch (e) {
           console.error(e)
+          this.setState({ updateLoading: false })
           return
         }
       })
@@ -89,13 +93,14 @@ export default class LoginScreen extends React.Component<Props, State> {
         console.error(error);
         this.setState({
           failed_attempt: true,
+          updateLoading: false
         })
         return
       });
 
     if (this.state.failed_attempt) return
 
-    await fetch('http://localhost:8000/homemade/login', {
+    await fetch('https://homemadeapp.azurewebsites.net/homemade/login', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -112,11 +117,13 @@ export default class LoginScreen extends React.Component<Props, State> {
         if (data.non_field_errors) {
           this.setState({
             failed_attempt: true,
+            updateLoading: false,
           })
           return
         } else {
           this.setState({
             failed_attempt: false,
+            updateLoading: false,
           })
         }
         try {
@@ -145,31 +152,34 @@ export default class LoginScreen extends React.Component<Props, State> {
 
   render() {
     if (this.state.isLoading) return (<View></View>)
+
     return (
       <View style={styling.container}>
-        <View style={{marginTop: 300}}>
-          <Text style={{textAlign: 'center', fontSize: 20}}>homemade</Text>
-
+        <View style={styling.marginTop300}>
+          <Text style={[{textAlign: 'center'}, styling.fontSize20]}>homemade</Text>
+          {(this.state.updateLoading) ? (<ActivityIndicator/>) : (<View></View>)}
           <TextInput 
-            style={{marginTop: 20, fontSize: 15, textAlign: 'center', height: 30}}
+            style={styling.loginTextInput}
             placeholder="username"
+            placeholderTextColor='#696969'
             autoCapitalize='none'
             onChangeText={text => this.setUsername(text)}
             defaultValue={''}/>
 
           <TextInput 
-            style={{margin: 20, fontSize: 15, textAlign: 'center', height: 30}}
+            style={styling.loginTextInput}
             placeholder="password"
+            placeholderTextColor='#696969'
             autoCapitalize='none'
             secureTextEntry={true}
             onChangeText={text => this.setPassword(text)}
             defaultValue={''}/>
 
-          <Button title="login" onPress={() => this.login()}/>
+          <Button disabled={this.state.updateLoading} title="login" onPress={() => this.login()}/>
 
-          <Button title="signup" onPress={() => this.props.navigation.navigate('SignupScreen')}/>
+          <Button disabled={this.state.updateLoading} title="signup" onPress={() => this.props.navigation.navigate('SignupScreen')}/>
           {this.state.failed_attempt ? 
-            <Text style={{marginTop: 10, fontSize: 12, color: 'red', textAlign: 'center'}}>
+            <Text style={styling.errorMessageText}>
               Login attempt failed, please try again with a different username or password.
               </Text> : 
               <View></View> }

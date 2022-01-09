@@ -1,14 +1,15 @@
 {
   "expo": {
-    "name": "homemade_beta",
-    "slug": "homemade_beta",
-    "version": "1.0.0",
+    "name": "homemade",
+    "slug": "homemade",
+    "privacy": "unlisted",
+    "version": "1.0.9",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/fridge_icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/fridge_icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,11 +20,13 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.homemade.homemadeapp",
+      "buildNumber": "1.0.0",
       "supportsTablet": true,
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Give homemade_beta permission to save photos",
-        "NSCameraUsageDescription": "Give homemade_beta permission to access your camera",
-        "NSMicrophoneUsageDescription": "Give homemade_beta permission to use your microphone"
+        "NSPhotoLibraryUsageDescription": "Give homemade permission to save photos",
+        "NSCameraUsageDescription": "Give homemade permission to access your camera",
+        "NSMicrophoneUsageDescription": "Give homemade permission to use your microphone"
       }
     },
     "web": {

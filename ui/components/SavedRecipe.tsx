@@ -86,7 +86,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
             <View style={{flex: 6}}>
               <TouchableWithoutFeedback onPress={this.OnPressNavigate}>
                   <View style={[styling.flexRow]}>
-                      <Image style={styling.savedRecipeImage} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`}}/>
+                      <Image style={styling.savedRecipeImage} source={{uri: this.state.image}}/>
                       <View style={styling.upRightBuffer}>
                           <Text style={styling.savedRecipeText}>{recipe_name}</Text>
                           <Text style={styling.defaultFontSize}>{dietaryPrefs}</Text>

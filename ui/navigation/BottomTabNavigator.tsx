@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import { MaterialIcons } from '@expo/vector-icons'; 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
+import { createStackNavigator, HeaderStyleInterpolators, StackNavigationProp } from '@react-navigation/stack';
 import * as React from 'react';
 import { TouchableWithoutFeedback } from 'react-native'
 import { SimpleLineIcons } from '@expo/vector-icons'; 
@@ -35,11 +35,13 @@ import { StackActions } from '@react-navigation/native';
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
 export default function BottomTabNavigator() {
-  const colorScheme = useColorScheme();
+  // const colorScheme = useColorScheme();
+  const colorScheme = 'light'
   return (
     <BottomTab.Navigator
       initialRouteName="Fridge"
       tabBarOptions={{ activeTintColor: Colors[colorScheme].tint, showLabel: false }}
+
       >
       <BottomTab.Screen
         name="Home"
@@ -115,7 +117,7 @@ function HomeNavigator() {
     <HomeStack.Navigator
       initialRouteName="HomeScreen"
       screenOptions={{
-        headerShown: false
+        headerShown: false,
       }}
       >
       <HomeStack.Screen
@@ -172,7 +174,9 @@ function FridgeNavigator() {
       <FridgeStack.Screen
         name="FridgeScreen"
         component={FridgeScreen}
-        options={{ headerTitle: 'your fridge' }}
+        options={{ 
+          headerTitle: 'your fridge',
+        }}
         initialParams={{trigger: false}}
       />
       <FridgeStack.Screen
@@ -192,7 +196,9 @@ function ShoppingListNavigator() {
       <ShoppingListStack.Screen
         name="ShoppingListScreen"
         component={ShoppingListScreen}
-        options={{ headerTitle: 'shopping list' }}
+        options={{ 
+          headerTitle: 'shopping list',
+        }}
         initialParams={{trigger: false}}
         />
       <ShoppingListStack.Screen
@@ -212,7 +218,7 @@ function ProfileNavigator() {
       <ProfileStack.Screen
         name="ProfileScreen"
         component={ProfileScreen}
-        initialParams={{headerTitle: 'profile'}}
+        initialParams={{headerTitle: 'profile', trigger: false}}
         options={({ navigation, route }) => ({ 
           title: route.params.headerTitle,
           headerRight: () => (

@@ -10,7 +10,7 @@ npm-debug.*
 *.orig.*
 web-build/
 yarn.lock
-package.json
+package.json.lock
 package-lock.json
 *.pyc
 

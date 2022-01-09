@@ -19,6 +19,7 @@ export type fridgeItemType = {
         image: string
       }
     }
+    quantity: number
     unlisted_food: string | undefined
     expiration_date: Date | undefined
 }
@@ -31,10 +32,11 @@ export type shoppingListItemType = {
         food_id: string
         food_name: string
         food_group: {
-        food_group_id: string
-        image: string | undefined
+          food_group_id: string
+          image: string | undefined
         }
     }
+    quantity: number
     unlisted_food: string | undefined
 }
 
@@ -69,6 +71,7 @@ export type recipeEntireType = {
     recipe_id: string
     recipe_name: string
     owner: string
+    private: boolean
     image: string
     diets: Array<{
         diet_id: number
@@ -90,6 +93,7 @@ export type recipeEntireType = {
 export type createRecipeType = {
   recipe_name: string
   owner: string
+  private: boolean
   image: string
   diets: Array<string>
   cuisine: string | undefined

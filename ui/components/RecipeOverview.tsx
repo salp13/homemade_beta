@@ -1,5 +1,4 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import { Fontisto } from '@expo/vector-icons'; 
 import { recipeType } from '../objectTypes'
@@ -8,6 +7,7 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { styling } from '../style'
 
 interface Props {
+  updateLoading: boolean
   recipe: recipeType
   saved: boolean
   onPressNavigate: Function
@@ -16,6 +16,7 @@ interface Props {
 }
 
 interface State {
+  updateLoading: boolean
   recipe_id: string
   recipe_name: string
   image: string
@@ -31,6 +32,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
     super(props)
 
     this.state = {
+      updateLoading: this.props.updateLoading,
       recipe_id: this.props.recipe.recipe_id,
       recipe_name: this.props.recipe.recipe_name,
       image: this.props.recipe.image,
@@ -45,8 +47,9 @@ export default class RecipeOverview extends React.Component<Props, State> {
 
   componentDidUpdate() {
     // if the new recipe id is different from stored state recipe id or if the saved flag has changed, update state
-    if (this.state.recipe_id !== this.props.recipe.recipe_id || this.state.saved !== this.props.saved) {
+    if (this.state.recipe_id !== this.props.recipe.recipe_id || this.state.saved !== this.props.saved || this.state.updateLoading !== this.props.updateLoading) {
       this.setState({
+        updateLoading: this.props.updateLoading,
         recipe_id: this.props.recipe.recipe_id,
         recipe_name: this.props.recipe.recipe_name,
         image: this.props.recipe.image,
@@ -82,9 +85,9 @@ export default class RecipeOverview extends React.Component<Props, State> {
     return (
       <View style={styling.overviewContainer}>
         <View style={{flex: 5}}>
-        <TouchableWithoutFeedback onPress={this.OnPressNavigate}>
+        <TouchableWithoutFeedback disabled={this.state.updateLoading} onPress={this.OnPressNavigate}>
           <View>
-            <Image style={styling.overviewImage} source={{uri: `/Users/susiealptekin/Desktop/homemade/homemade_beta/homemade_beta/api/api${this.state.image}`}}/>
+            <Image style={styling.overviewImage} source={{uri: this.state.image}}/>
           </View>
           <View>
             <Text style={styling.overviewName}>{this.state.recipe_name}</Text>
@@ -93,12 +96,12 @@ export default class RecipeOverview extends React.Component<Props, State> {
         </View>
             <View style={styling.iconContainer}> 
               <View style={styling.iconSpacing}>
-                <TouchableWithoutFeedback onPress={this.OnPressSave}>
+                <TouchableWithoutFeedback disabled={this.state.updateLoading} onPress={this.OnPressSave}>
                   <Fontisto name={this.state.saved ? "bookmark-alt" : "bookmark"} style={styling.iconSize} color="black" />
                 </TouchableWithoutFeedback>
               </View>
               <View style={styling.iconSpacing}>
-                <TouchableWithoutFeedback onPress={this.OnPressDismiss}>
+                <TouchableWithoutFeedback disabled={this.state.updateLoading} onPress={this.OnPressDismiss}>
                   <MaterialIcons name="clear" style={styling.iconSize} color="black"/>
                 </TouchableWithoutFeedback>
               </View>

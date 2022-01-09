@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { ActivityIndicator, Button, StyleSheet, TextInput, ScrollView, TouchableWithoutFeedback, Platform } from 'react-native';
+import { ActivityIndicator, Alert, Button, Keyboard, TextInput, ScrollView, Switch, TouchableWithoutFeedback, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ProfileParamList, RootStackParamList } from '../types'
-import { Image, Text, View } from '../components/Themed';
+import { Text, View } from '../components/Themed';
 import { createRecipeType } from '../objectTypes'
 import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { FlatList } from 'react-native'
@@ -14,6 +14,7 @@ import UploadImageModal from '../components/UploadImageModal'
 import * as ImagePicker from 'expo-image-picker'
 import * as Permissions from 'expo-permissions'
 import FormData from 'form-data'
+import * as yup from 'yup'
 
 const sectionsArray = [{
   title: "mealType",
@@ -47,6 +48,7 @@ const sectionsArray = [{
     "american"
   ]
 }]
+
 type ProfileNavigationProp = CompositeNavigationProp<StackNavigationProp<ProfileParamList, 'CreateRecipeScreen'>, StackNavigationProp<RootStackParamList>>;
 type ProfileRouteProp = RouteProp<ProfileParamList, 'CreateRecipeScreen'>;
 
@@ -59,6 +61,11 @@ interface State {
     isLoading: boolean
     token: string
     user_id: string
+    indicator: string
+    private: boolean
+    trigger: boolean
+    no_alert: boolean
+    invalid: boolean
     modal: {
       visible: boolean
       take_photo: boolean
@@ -75,9 +82,28 @@ interface State {
     uri: string
 }
 
-export default class IndividualRecipeScreen extends React.Component<Props, State> {
+export default class CreateRecipeScreen extends React.Component<Props, State> {
   private formikRef1 = React.createRef<FormikProps<any>>()
   private formikRef2 = React.createRef<FormikProps<any>>()
+  private amount_props = {
+    placeholder: "amount",
+    placeholderTextColor: '#696969',
+    style: styling.amount_props,
+    defaultValue: '',
+  }
+  private food_props = {
+    placeholder: "ingredient",
+    placeholderTextColor: '#696969',
+    style: [styling.amount_props, styling.marginHorizontal20],
+    defaultValue: '',
+  }
+  private dir_props = {
+    multiline: true,
+    placeholder: "direction",
+    placeholderTextColor: '#696969',
+    style: styling.direction_props,
+    defaultValue: '',
+  }
 
   constructor(props: Props) {
     super(props);
@@ -85,6 +111,11 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       isLoading: true,
       token: '', 
       user_id: '', 
+      indicator: 'start',
+      private: false,
+      trigger: this.props.route.params.trigger,
+      no_alert: false,
+      invalid: false,
       modal: {
         visible: false,
         take_photo: false,
@@ -93,6 +124,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       recipe: {
         recipe_name: '',
         owner: '',
+        private: false,
         image: '', 
         diets: [],
         cuisine: undefined,
@@ -112,16 +144,23 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     };
 
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
+    this.renderStart = this.renderStart.bind(this)
+    this.renderMealTypes = this.renderMealTypes.bind(this)
+    this.renderDietaryPrefs = this.renderDietaryPrefs.bind(this)
+    this.renderCuisines = this.renderCuisines.bind(this)
+    this.renderIngredients = this.renderIngredients.bind(this)
+    this.renderDirections = this.renderDirections.bind(this)
+    this.renderDescription = this.renderDescription.bind(this)
+    this.submitSetState = this.submitSetState.bind(this)
     this.setRecipeName = this.setRecipeName.bind(this)
     this.selectMealType = this.selectMealType.bind(this)
     this.selectDiet = this.selectDiet.bind(this)
     this.selectCuisine = this.selectCuisine.bind(this)
-    this.addIngredients = this.addIngredients.bind(this)
-    this.addDirections = this.addDirections.bind(this)
     this.setDescription = this.setDescription.bind(this)
     this.launchingCamera = this.launchingCamera.bind(this)
     this.launchLibrary = this.launchLibrary.bind(this)
     this.uploadImageModalUpdate = this.uploadImageModalUpdate.bind(this)
+    this.verifyRecipe = this.verifyRecipe.bind(this)
     this.submitRecipe = this.submitRecipe.bind(this)
   }
 
@@ -134,15 +173,12 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       this.setState({
         token: setToken,
         user_id: setUserID,
-        isLoading: false,
         recipe: update_recipe,
       })
     }
-    console.log(`printing here: ${JSON.parse(JSON.stringify(this.props.route.params.recipe_id))}`)
     let recipe_id = JSON.parse(JSON.stringify(this.props.route.params.recipe_id))
     if (recipe_id !== '' ) {
-      console.log("entered anyways")
-      let recipe_data = await fetch(`http://localhost:8000/homemade/single_recipe/${recipe_id}`, {
+      let recipe_data = await fetch(`https://homemadeapp.azurewebsites.net/homemade/single_recipe/${recipe_id}`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
@@ -162,6 +198,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       let temp_image = this.state.temp_image
       
       recipe.recipe_name = recipe_data.recipe_name 
+      recipe.private = recipe_data.private
       recipe.image = recipe_data.image
       recipe.cuisine = recipe_data.cuisine.cuisine
       recipe.meal_type = recipe_data.meal_type.meal_type
@@ -179,16 +216,38 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       let obj: string | Blob
       obj = recipe_data.image
       temp_image.append('image', {uri: obj, name: "image", contentType: 'image/jpg'}, 'image.jpg')
+
       this.setState({
         recipe: recipe,
+        private: recipe_data.private,
         temp_directions: temp_directions,
         temp_ingredients: temp_ingredients,
-        temp_image: temp_image
+        temp_image: temp_image,
+        isLoading: false,
       })
 
-    }
+    } else this.setState({ isLoading: false })
 
   }
+
+  private goingBack = this.props.navigation.addListener('beforeRemove', async (e) => {
+    if (this.state.no_alert) return
+    await e.preventDefault();
+    await this.setState({ no_alert: true })
+    Alert.alert(
+      'Discard changes?',
+      'You may have unsaved changes. Are you sure to discard them and leave the screen?',
+      [
+        { text: "Don't leave", style: 'cancel', onPress: () => {} },
+        {
+          text: 'Discard',
+          style: 'destructive',
+          onPress: () => this.props.navigation.dispatch(e.data.action),
+        },
+      ],
+    )
+    await this.setState({ no_alert: false })
+  })
 
   setRecipeName(text: string) {
     let updated_recipe = this.state.recipe
@@ -229,133 +288,6 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     this.setState({
       recipe: updated_recipe,
     })
-  }
-
-  addIngredients() {
-    return (
-      <View>
-          <Text style={{fontSize: 18, marginVertical: 10}}>Ingredients</Text>
-          <View style={styling.flexRow}>
-            <Formik 
-              enableReinitialize
-              initialValues={{ingredients: this.state.temp_ingredients}}
-              onSubmit={(values, actions) => {
-                this.setState({
-                  temp_ingredients: values.ingredients
-                })
-              }}
-              innerRef={this.formikRef1}
-              render={({ values, handleChange, handleBlur }) => {
-                return(
-                <FieldArray 
-                name="ingredients"
-                render={arrayHelpers => (
-                  <View>
-                    {values.ingredients && values.ingredients.length > 0 ? (
-                      values.ingredients.map((ingredient, index) => (
-                        <View key={`ingredients[${index}]`} style={styling.flexRow}>
-                          <TextInput 
-                            data-name={`ingredients[${index}].amount`}
-                            key={`ingredients[${index}].amount`} 
-                            value={values.ingredients[index].amount}
-                            placeholder="amount"
-                            style={[{marginHorizontal: 20, marginTop: 5}]}
-                            autoCapitalize='none'
-                            onChangeText={handleChange(`ingredients[${index}].amount`)}
-                            onBlur={handleBlur(`ingredients[${index}].amount`)}
-                            defaultValue={''} />
-                          <TextInput 
-                            data-name={`ingredients[${index}].food`} 
-                            key={`ingredients[${index}].food`} 
-                            value={values.ingredients[index].food}
-                            placeholder="ingredient"
-                            style={[{marginHorizontal: 20, marginTop: 5}]}
-                            autoCapitalize='none'
-                            onChangeText={handleChange(`ingredients[${index}].food`)}
-                            onBlur={handleBlur(`ingredients[${index}].food`)}
-                            defaultValue={''} />
-                            <View style={styling.autoLeft}>
-                            {(index === values.ingredients.length - 1) ? (
-                              <Button title="+" color='black' onPress={() => arrayHelpers.push({amount: '', food: ''})} />
-                            ) : (
-                              <Button title="-" color='black' onPress={() => arrayHelpers.remove(index)} /> 
-                            )}
-                            </View>
-                          </View>
-                      ))) : (
-                      <View>
-                        <Button title="+" color='black' onPress={() => arrayHelpers.push({amount: '', food: ''})} />
-                      </View>
-                    )}
-
-                  </View>
-                )}
-                />
-              )}}
-              />
-            </View>
-        </View>
-    )
-  }
-
-  addDirections() {
-    return (
-      <View>
-          <Text style={{fontSize: 18, marginVertical: 10}}>Directions</Text>
-          <View style={styling.flexRow}>
-            <Formik 
-              enableReinitialize
-              initialValues={{directions: this.state.temp_directions}}
-              onSubmit={(values, actions) => {
-                this.setState({
-                  temp_directions: values.directions
-                })
-              }}
-              innerRef={this.formikRef2}
-              render={({ values, handleChange, handleBlur, setSubmitting })=> (
-                <FieldArray 
-                name="directions"
-                render={arrayHelpers => (
-                  <View>
-                    {values.directions && values.directions.length > 0 ? (
-                      values.directions.map((direction, index) => (
-                        <View key={`directions[${index}]`} style={styling.flexRow}>
-                          <Text style={{marginTop: 12, marginLeft: 5}}>{index+1}. </Text>
-                          <View style={{marginRight: 50}}>
-                            <TextInput 
-                              data-name={`directions[${index}]`} 
-                              key={`directions[${index}].directions`} 
-                              value={values.directions[index]}
-                              multiline
-                              placeholder="direction"
-                              style={[{marginTop: 5 }]}
-                              autoCapitalize='none'
-                              onChangeText={handleChange(`directions[${index}]`)}
-                              onBlur={handleBlur(`directions[${index}]`)}
-                              defaultValue={''} />
-                            </View>
-                            <View style={styling.autoLeft}>
-                            {(index === values.directions.length - 1) ? (
-                              <Button title="+" color='black' onPress={() => arrayHelpers.push('')} /> 
-                            ) : (
-                              <Button title="-" color='black' onPress={() => arrayHelpers.remove(index)} /> 
-                            )}
-                            </View>
-                          </View>
-                      ))) : (
-                      <View>
-                        <Button title="+" color='black' onPress={() => arrayHelpers.push('')} />
-                      </View>
-                    )}
-
-                  </View>
-                )}
-                />
-              )}
-              />
-            </View>
-        </View>
-    )
   }
 
   setDescription(text: string) {
@@ -426,6 +358,8 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
   }
 
   uploadImageModalUpdate(take_photo: boolean = false, upload_photo: boolean = false) {
+    Keyboard.dismiss() 
+
     this.setState({ 
       modal: {
         visible: !this.state.modal.visible,
@@ -440,77 +374,150 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     }
   }
 
+  async verifyRecipe() {
+    let schema = yup.object().shape({
+      recipe_name: yup.string().min(2).max(30).required(),
+      owner: yup.string().uuid().required(),
+      private: yup.boolean().required(),
+      diets: yup.array().of(yup.string().required()),
+      cuisine: yup.string().required(),
+      meal_type: yup.string().required(),
+      instructions: yup.string().min(2).required(),
+      description: yup.string().min(2).max(150).required(),
+      foods: yup.array().of(yup.object().shape({
+        description: yup.string().required(),
+        food: yup.string().required(),
+      })),
+    });
+
+    let image_schema = yup.object().shape({
+      image: yup.mixed().required('Image is required'),
+    })
+
+    
+      
+    return schema.isValid(this.state.recipe).then(valid => {
+      if (valid) {
+        let image = this.state.temp_image.getParts().find(item => item.fieldName === 'image')
+        return image_schema.isValid({image}).then(valid => { return valid })
+      }
+      return valid
+    })
+  }
+
   async submitRecipe() {
-    await this.formikRef1.current?.submitForm()
-    await this.formikRef2.current?.submitForm()
-
+    await this.setState({ no_alert: true, invalid: false, })
+    
     let recipe = this.state.recipe
-
     let unformatted_ingredients = this.state.temp_ingredients
     let ingredients = unformatted_ingredients.map((ingredient) => ({
         description: ingredient.amount + " " + ingredient.food,
         food: ingredient.food,
       }))
     recipe.foods = ingredients
-
     let unformatted_directions = this.state.temp_directions
     let directions = ""
+    let recipe_id_test = JSON.parse(JSON.stringify(this.props.route.params.recipe_id))
     unformatted_directions.forEach((direction, index) => {
-      directions = (index === 0) ? `${index + 1}. ${direction}` : `${directions}\n${index + 1}. ${direction}`
+      if (recipe_id_test === '') { directions = (index === 0) ? `${index + 1}. ${direction}` : `${directions}\n${index + 1}. ${direction}` }
+      else { directions = (index === 0) ? `${direction}` : `${directions}\n${direction}` }
     })
     recipe.instructions = directions
-    this.setState({ recipe })
+    recipe.private = this.state.private
+
+    let valid = await this.verifyRecipe()
+    if (!valid) {
+      this.setState({ no_alert: false, invalid: true })
+      return
+    }
+
+    let temp_image = this.state.temp_image
+    temp_image.append('recipe', JSON.stringify(recipe))
+
+    await this.setState({ recipe: recipe, temp_image: temp_image })
+    
 
     let recipe_id = JSON.parse(JSON.stringify(this.props.route.params.recipe_id))
     // post request to create a recipe
     if (recipe_id === '') {
-      let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes/`, {
+      let recipe_data = await fetch(`https://homemadeapp.azurewebsites.net/homemade/many_recipes/${this.state.user_id}`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'application/json',
-        'Authorization': 'Token ' + this.state.token,
+          'Content-Type': 'multipart/form-data',
+          'Authorization': 'Token ' + this.state.token,
         },
-        body: JSON.stringify(this.state.recipe)
+        body: this.state.temp_image
+
       }).then(response => response.json())
       .then(data => { return data })
         .catch(error => {
           console.error(error);
         });
       recipe_id = recipe_data.recipe_id
+
+      // add this new recipe to owned_recipes
+      let arr = await AsyncStorage.getItem('@owned_recipes')
+        .then((data) => { 
+          if (data) { 
+            let parsed_data = JSON.parse(data)
+            parsed_data.push(recipe_id)
+            return parsed_data
+          }}
+        )
+      try {
+        await AsyncStorage.setItem('@owned_recipes', JSON.stringify(arr))
+      } catch (e) {
+        console.error(e)
+      }
     } else {
-      await fetch(`http://localhost:8000/homemade/single_recipe/${recipe_id}`, {
+      await fetch(`https://homemadeapp.azurewebsites.net/homemade/single_recipe/${recipe_id}`, {
         method: 'PATCH',
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'application/json',
-        'Authorization': 'Token ' + this.state.token,
+          'Content-Type': 'multipart/form-data',
+          'Authorization': 'Token ' + this.state.token,
         },
-        body: JSON.stringify(this.state.recipe)
+        body: this.state.temp_image
       })
         .catch(error => {
           console.error(error);
         });
     }
-
-    await fetch(`http://localhost:8000/homemade/upload_recipe_image/${recipe_id}`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'multipart/form-data',
-        'Authorization': 'Token ' + this.state.token,
-      },
-      body: this.state.temp_image
-    })
-      .catch(error => {
-        console.error(error);
-      });
-    this.props.navigation.goBack()
+    
+    this.props.navigation.replace('Root')
   }
 
   async deleteRecipe() {
+    if (JSON.parse(JSON.stringify(this.props.route.params.recipe_id)) === '') {
+      this.props.navigation.goBack()
+      return
+    }
+
+    const AsyncAlert = async () => new Promise((resolve) => {
+      Alert.alert(
+        'Delete',
+        'Are you sure you want to delete this recipe?',
+        [
+          { text: "Cancel", style: 'cancel', onPress: () => {resolve('YES')} },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+              await this.setState({no_alert: true})
+              resolve('YES')
+            },
+          },
+        ],
+      )
+    });
+    
+    await AsyncAlert();
+    
+    if (!this.state.no_alert) return
+
     let recipe_id = JSON.parse(JSON.stringify(this.props.route.params.recipe_id))
-    await fetch(`http://localhost:8000/homemade/single_recipe/${recipe_id}`, {
+    await fetch(`https://homemadeapp.azurewebsites.net/homemade/single_recipe/${recipe_id}`, {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
@@ -521,111 +528,385 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       .catch(error => {
         console.error(error);
       });
+
+    // delete this owned_recipes
+    let arr = await AsyncStorage.getItem('@owned_recipes')
+      .then((data) => { 
+        if (data) { 
+          let parsed_data = JSON.parse(data)
+          let index = parsed_data.findIndex((ele) => { return ele === recipe_id })
+          parsed_data.splice(index, 1)
+          return parsed_data
+        }}
+      )
+    try {
+      AsyncStorage.setItem('@owned_recipes', JSON.stringify(arr))
+    } catch (e) {
+      console.error(e)
+    }
+
     this.props.navigation.replace('Root')
+  }
+
+  async submitSetState(indicator: string, ingredient: boolean) {
+    if (ingredient) await this.formikRef1.current?.submitForm()
+    else await this.formikRef2.current?.submitForm()
+    this.setState({ indicator: indicator })
   }
 
   IsLoadingRender() {
     return (
-      <View style={styling.container}>
+      <View style={[styling.container, styling.noHeader]}>
         <ActivityIndicator />
       </View>
     )
   }
 
-  render() {
-    if (this.state.isLoading) return this.IsLoadingRender()
-
+  renderStart() {
     return (
-    <View style={styling.container}>
-      <ScrollView>
-        <View style={styling.positioningBackArrow}>
-          <TouchableWithoutFeedback onPress={this.props.navigation.goBack}>
-            <Ionicons name="ios-arrow-back" color="black" style={StyleSheet.flatten([{marginLeft: -10}, styling.largeIconSize, styling.noHeader])}/>
+      <View style={[styling.container, styling.noHeader]}>
+        <View style={{flex: 3, justifyContent: 'center'}}>
+        {(this.state.no_alert) ? (<ActivityIndicator />) : (<View></View>)}
+          <TextInput
+              style={[styling.noHeader, styling.descriptionInput]}
+              placeholder="recipe name"
+              placeholderTextColor='#696969'
+              autoCapitalize='none'
+              editable={!this.state.no_alert}
+              onChangeText={text => (!this.state.no_alert) ? this.setRecipeName(text) : {}}
+              defaultValue={this.state.recipe.recipe_name} />
+          <Text style={[styling.errorMessageText, styling.marginHorizontal20, {textAlign: 'left'}]}>
+            {(this.state.invalid && (this.state.recipe.recipe_name.length > 30 || this.state.recipe.recipe_name.length < 2)) ? 
+              "recipe name must be between 2 and 30 characters" : ""}</Text>
+          <View style={styling.privateView}>
+            <Text style={styling.privateText}>Private</Text>
+            <Switch disabled={this.state.no_alert} style={styling.privateSwitch} value={this.state.private} onValueChange={() => {
+              this.setState({ private: !this.state.private })
+              Keyboard.dismiss()
+              }} />
+          </View>
+          <TouchableWithoutFeedback disabled={this.state.no_alert} onPress={() => (!this.state.no_alert) ? this.uploadImageModalUpdate() : {}} >
+            <Text style={styling.buttonTextSmall}>{this.state.temp_image.getParts().find(item => item.fieldName === 'image') ? `Upload Different Image` : `Upload Image`}</Text>
+          </TouchableWithoutFeedback>
+          <Text style={[styling.errorMessageText, styling.marginHorizontal20, {textAlign: 'left'}]}>
+            {(this.state.invalid && !this.state.temp_image.getParts().find(item => item.fieldName === 'image')) ? 
+              "must upload an image" : ""}</Text>
+        </View>
+        <View style={styling.flexRow}>
+          <TouchableWithoutFeedback disabled={this.state.no_alert} onPress={() => (!this.state.no_alert) ? this.deleteRecipe() : {}} >
+              <Text style={styling.buttonTextLarge}>Delete</Text>
+            </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback disabled={this.state.no_alert} onPress={() => (!this.state.no_alert) ? this.setState({ indicator: "meal_type" }) : {}}>
+            <Ionicons name="ios-arrow-round-forward" color="black" style={styling.arrowForward}/>
           </TouchableWithoutFeedback>
         </View>
-        <View>
-          <View style={styling.flexRow}>
-              <TextInput
-                  style={[styling.fullRecipeName, styling.noHeader, {marginHorizontal: 40, marginBottom: 20}]}
-                  placeholder="recipe name"
-                  autoCapitalize='none'
-                  onChangeText={text => this.setRecipeName(text)}
-                  defaultValue={this.state.recipe.recipe_name} />
-            </View>
-          </View>
-          <View style={styling.flexRow}>
-            <View style={{marginHorizontal: 10}}>
-              <Text style={{fontSize: 18, marginVertical: 10}}>Meal Type</Text>
-              <FlatList
-                horizontal={false}
-                showsVerticalScrollIndicator={false}
-                showsHorizontalScrollIndicator={false}
-                ItemSeparatorComponent={() => (<View style={{marginVertical: 10}}></View>)}
-                data={sectionsArray[0].data} 
-                renderItem={({item}) => {
-                  return (
-                    <TouchableWithoutFeedback onPress={() => this.selectMealType(item)}>
-                      <Text style={(this.state.recipe.meal_type === item) ? {color:'blue'} : {color:'black'}}>{item}</Text>
-                    </TouchableWithoutFeedback>
-                  )}}
-                keyExtractor={(item, index) => item} />
-            </View>
-            <View style={{marginHorizontal: 10}}>
-              <Text style={{fontSize: 18, marginVertical: 10}}>Dietary {'\n'}Preferences</Text>
-              <FlatList
-                horizontal={false}
-                showsVerticalScrollIndicator={false}
-                showsHorizontalScrollIndicator={false}
-                ItemSeparatorComponent={() => (<View style={{marginVertical: 10}}></View>)}
-                data={sectionsArray[1].data} 
-                renderItem={({item}) => {
-                  return (
-                    <TouchableWithoutFeedback onPress={() => this.selectDiet(item)}>
-                    <Text style={(this.state.recipe.diets.findIndex((ele) => ele === item) !== -1) ? {color:'blue'} : {color:'black'}}>{item}</Text>
-                  </TouchableWithoutFeedback>
-                  )}}
-                keyExtractor={(item, index) => item} />
-            </View>
-          <View style={{marginHorizontal: 10}}>
-            <Text style={{fontSize: 18, marginVertical: 10}}>Cuisine</Text>
+        <UploadImageModal modalProperties={this.state.modal} ModalResultFunc={this.uploadImageModalUpdate} />
+      </View>)
+  }
+
+  renderMealTypes() {
+    return (
+      <View style={[styling.container, styling.noHeader]}>
+        <View style={[styling.marginHorizontal20, {flex: 3, justifyContent: 'center'}]}>
+          <Text style={styling.createRecipeHeader}>Meal Type</Text>
+          <Text style={styling.createRecipeSubtext}>  (select one)</Text>
+          <Text style={[styling.errorMessageText, {textAlign: 'left'}]}>
+            {(this.state.invalid && !this.state.recipe.meal_type) ? 
+              "must select one meal type" : ""}</Text>
+          <View style={styling.activityMargin}></View>
+          <View style={{justifyContent: 'center'}}>
             <FlatList
-              horizontal={false}
               showsVerticalScrollIndicator={false}
-              showsHorizontalScrollIndicator={false}
-              ItemSeparatorComponent={() => (<View style={{marginVertical: 10}}></View>)}
-              data={sectionsArray[2].data} 
+              ItemSeparatorComponent={() => (<View style={styling.separatorMargin}></View>)}
+              data={sectionsArray[0].data} 
               renderItem={({item}) => {
                 return (
-                  <TouchableWithoutFeedback onPress={() => this.selectCuisine(item)}>
-                  <Text style={(this.state.recipe.cuisine === item) ? {color:'blue'} : {color:'black'}}>{item}</Text>
-                </TouchableWithoutFeedback>
+                  <View style={styling.flexRow}>
+                    <Text style={styling.mediumFont}>{item}</Text>
+                    <TouchableWithoutFeedback onPress={() => this.selectMealType(item)}>
+                      {(this.state.recipe.meal_type !== item) ? 
+                      (<Ionicons name="ios-square-outline" style={styling.squarePicker}/>) :
+                      (<Ionicons name="ios-square" style={styling.squarePicker}/>)}
+                    </TouchableWithoutFeedback>
+                  </View>
+                )}}
+              keyExtractor={(item, index) => item} />
+              </View>
+        </View>
+        <View style={styling.flexRow}>
+          <TouchableWithoutFeedback onPress={() => this.setState({ indicator: "start" })}>
+            <Ionicons name="ios-arrow-round-back" color="black" style={styling.arrowBackward}/>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={() => this.setState({ indicator: "diet_pref" })}>
+            <Ionicons name="ios-arrow-round-forward" color="black" style={styling.arrowForward}/>
+          </TouchableWithoutFeedback>
+        </View>
+      </View>)
+  }
+
+  renderDietaryPrefs() {
+    return (
+      <View style={[styling.container, styling.noHeader]}>
+        <View style={[styling.marginHorizontal20, {flex: 3, justifyContent: 'center'}]}>
+          <Text style={styling.createRecipeHeader}>Dietary Preferences</Text>
+          <Text style={styling.createRecipeSubtext}>  (select multiple if applicable)</Text>
+          <Text style={[styling.errorMessageText, {textAlign: 'left'}]}>
+            {(this.state.invalid && this.state.recipe.diets.length === 0) ? 
+              "must select at least one dietary preference" : ""}</Text>
+          <View style={styling.activityMargin}></View>
+          <View style={{justifyContent: 'center'}}>
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              ItemSeparatorComponent={() => (<View style={styling.separatorMargin}></View>)}
+              data={sectionsArray[1].data} 
+              renderItem={({item}) => {
+                return (
+                  <View style={styling.flexRow}>
+                    <Text style={styling.mediumFont}>{item}</Text>
+                    <TouchableWithoutFeedback onPress={() => this.selectDiet(item)}>
+                      {(this.state.recipe.diets.findIndex((ele) => ele === item) === -1) ? 
+                      (<Ionicons name="ios-square-outline" style={styling.squarePicker}/>) :
+                      (<Ionicons name="ios-square" style={styling.squarePicker}/>)}
+                    </TouchableWithoutFeedback>
+                  </View>
                 )}}
               keyExtractor={(item, index) => item} />
           </View>
         </View>
-        {this.addIngredients()}
-        {this.addDirections()}
-        <Text style={{fontSize: 18, marginVertical: 10}}>Description</Text>
-        <TextInput 
-          value={this.state.recipe.description}
-          placeholder="Description"
-          style={[{marginHorizontal: 20, marginTop: 5, fontSize: 16}]}
-          multiline
-          onChangeText={(text) => this.setDescription(text)}
-          defaultValue={''} />
-        <Button title="Upload Image" onPress={() => this.uploadImageModalUpdate()}/>
+        <View style={styling.flexRow}>
+          <TouchableWithoutFeedback onPress={() => this.setState({ indicator: "meal_type" })}>
+            <Ionicons name="ios-arrow-round-back" color="black" style={styling.arrowBackward}/>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={() => this.setState({ indicator: "cuisine" })}>
+            <Ionicons name="ios-arrow-round-forward" color="black" style={styling.arrowForward}/>
+          </TouchableWithoutFeedback>
+        </View>
+      </View>)
+  }
+
+  renderCuisines() {
+    return (
+      <View style={[styling.container, styling.noHeader]}>
+        <View style={[styling.marginHorizontal20, {flex: 3, justifyContent: 'center'}]}>
+          <Text style={styling.createRecipeHeader}>Cuisine</Text>
+          <Text style={styling.createRecipeSubtext}>  (select one)</Text>
+          <Text style={[styling.errorMessageText, {textAlign: 'left'}]}>
+            {(this.state.invalid && !this.state.recipe.cuisine) ? 
+              "must select one cuisine" : ""}</Text>
+          <View style={styling.activityMargin}></View>
+          <View style={{justifyContent: 'center'}}>
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              ItemSeparatorComponent={() => (<View style={styling.separatorMargin}></View>)}
+              data={sectionsArray[2].data} 
+              renderItem={({item}) => {
+                return (
+                  <View style={styling.flexRow}>
+                    <Text style={styling.mediumFont}>{item}</Text>
+                    <TouchableWithoutFeedback onPress={() => this.selectCuisine(item)}>
+                      {(this.state.recipe.cuisine !== item) ? 
+                      (<Ionicons name="ios-square-outline" style={styling.squarePicker}/>) :
+                      (<Ionicons name="ios-square" style={styling.squarePicker}/>)}
+                    </TouchableWithoutFeedback>
+                  </View>
+                )}}
+              keyExtractor={(item, index) => item} />
+          </View>
+        </View>
+        <View style={styling.flexRow}>
+          <TouchableWithoutFeedback onPress={() => this.setState({ indicator: "diet_pref" })}>
+            <Ionicons name="ios-arrow-round-back" color="black" style={styling.arrowBackward}/>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={() => this.setState({ indicator: "ingredients" })}>
+            <Ionicons name="ios-arrow-round-forward" color="black" style={styling.arrowForward}/>
+          </TouchableWithoutFeedback>
+        </View>
         <UploadImageModal modalProperties={this.state.modal} ModalResultFunc={this.uploadImageModalUpdate} />
-        <Button title="Submit" onPress={() => this.submitRecipe()}/>
-        {(JSON.parse(JSON.stringify(this.props.route.params.recipe_id)) !== '') ? 
-        (<Button title="Delete" onPress={() => this.deleteRecipe()}/>) :
-        (<View></View>)}
+      </View>)
+  }
+
+  renderIngredients() {
+    return (
+      <View style={[styling.container, styling.noHeader]}>
+        <ScrollView showsVerticalScrollIndicator={false} style={{flex: 8}} contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
+        <View style={[styling.marginHorizontal20]}>
+          <Text style={styling.createRecipeHeader}>Ingredients</Text>
+          <View style={styling.flexRow}>
+            <Formik 
+              enableReinitialize
+              initialValues={{ingredients: this.state.temp_ingredients}}
+              onSubmit={(values, actions) => { this.setState({ temp_ingredients: values.ingredients }) }}
+              innerRef={this.formikRef1}
+              render={({ values, handleChange, handleBlur }) => {
+                return(
+                <FieldArray 
+                name="ingredients"
+                render={arrayHelpers => { 
+                  return (
+                    <View style={styling.setFlex}>
+                      {values.ingredients && values.ingredients.length > 0 ? (
+                        values.ingredients.map((ingredient, index) => {
+                          const key = `ingredients[${index}]`
+                          const amount_key = `ingredients[${index}].amount`
+                          const food_key = `ingredients[${index}].food`
+                          return (
+                            <View style={styling.elementBuffer}>
+                                <View key={key} style={styling.flexRow}>
+                                  <TextInput 
+                                    data-name={amount_key} 
+                                    key={amount_key} 
+                                    value={values.ingredients[index].amount} 
+                                    autoCapitalize='none'
+                                    onChangeText={handleChange(amount_key)} 
+                                    onBlur={handleBlur(amount_key)}
+                                    {...this.amount_props}/>
+                                  <TextInput 
+                                    data-name={food_key} 
+                                    key={food_key} 
+                                    value={values.ingredients[index].food} 
+                                    autoCapitalize='none'
+                                    onChangeText={handleChange(food_key)} 
+                                    onBlur={handleBlur(food_key)}
+                                    {...this.food_props}/>
+                                </View> 
+                                <View style={styling.ingredientAdd}>
+                                  {(index === values.ingredients.length - 1) ? (
+                                    <TouchableWithoutFeedback onPress={() => arrayHelpers.push({amount: '', food: ''})}>
+                                      <Ionicons name="ios-add" color="black" style={styling.largeIconSize}/>
+                                    </TouchableWithoutFeedback>) :
+                                    (
+                                    <TouchableWithoutFeedback onPress={() => arrayHelpers.remove(index)}>
+                                      <Ionicons name="ios-remove" color="black" style={styling.largeIconSize}/>
+                                    </TouchableWithoutFeedback>)}
+                                </View>
+                                <Text style={[styling.errorMessageText, {textAlign:'left'} ]}>{(this.state.invalid && (this.state.temp_ingredients[0].amount === '' || this.state.temp_ingredients[0].food === '')) ? `must have at least 1 ingredient` : ""}</Text>
+                            </View>
+                        )})) : ( 
+                      <View> 
+                        <Button title="+" onPress={() => arrayHelpers.push({amount: '', food: ''})} /> 
+                      </View> )}
+            </View> )}} /> )}} />
+          </View>
+        </View>
         </ScrollView>
-      </View>
-    );
+        <View style={{flex: 0.4}}></View>
+        <View style={styling.flexRow}>
+          <TouchableWithoutFeedback onPress={() => this.submitSetState('cuisine', true)}>
+            <Ionicons name="ios-arrow-round-back" color="black" style={styling.arrowBackward}/>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={() => this.submitSetState('directions', true)}>
+            <Ionicons name="ios-arrow-round-forward" color="black" style={styling.arrowForward}/>
+          </TouchableWithoutFeedback>
+        </View>
+      </View>)
+  }
+
+  renderDirections() {
+    return (
+      <View style={[styling.container, styling.noHeader]}>
+        <ScrollView showsVerticalScrollIndicator={false} style={{flex: 8}} contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
+        <View style={[styling.marginHorizontal20]}>
+          <Text style={styling.createRecipeHeader}>Directions</Text>
+          <View style={styling.flexRow}>
+              <Formik 
+                enableReinitialize
+                initialValues={{directions: this.state.temp_directions}}
+                onSubmit={(values, actions) => { this.setState({ temp_directions: values.directions }) }}
+                innerRef={this.formikRef2}
+                render={({ values, handleChange, handleBlur })=> (
+                  <FieldArray 
+                  name="directions"
+                  render={arrayHelpers => (
+                    <View style={styling.setFlex}>
+                      {values.directions && values.directions.length > 0 ? (
+                        values.directions.map((direction, index) =>  {
+                          const key = `directions[${index}]`
+                          const dir_key = `directions[${index}].directions`
+                          return (
+                          <View key={key} style={[styling.flexRow, styling.elementBuffer]}>
+                            <Text style={styling.descriptionIndexFont}>{index+1}. </Text>
+                            <View style={styling.marginRight50}>
+                              <TextInput 
+                                data-name={key} 
+                                key={dir_key} 
+                                value={values.directions[index]} 
+                                autoCapitalize='none'
+                                onChangeText={handleChange(key)} 
+                                onBlur={handleBlur(key)}
+                                {...this.dir_props} />
+                              </View>
+                              <View style={styling.ingredientAdd}>
+                                {(index === values.directions.length - 1) ? (
+                                  <TouchableWithoutFeedback onPress={() => arrayHelpers.push({amount: '', food: ''})}>
+                                    <Ionicons name="ios-add" color="black" style={styling.largeIconSize}/>
+                                  </TouchableWithoutFeedback>) :
+                                  (
+                                  <TouchableWithoutFeedback onPress={() => arrayHelpers.remove(index)}>
+                                    <Ionicons name="ios-remove" color="black" style={styling.largeIconSize}/>
+                                  </TouchableWithoutFeedback>)}
+                              </View>
+                            </View> )})) : (
+                        <View> 
+                          <Button title="+" color='black' onPress={() => arrayHelpers.push('')} /> 
+                        </View> )} 
+                  <Text style={[styling.errorMessageText, styling.marginHorizontal20, {textAlign:'left'} ]}>{(this.state.invalid && this.state.temp_directions[0] === '') ? `must have at least 1 direction` : ""}</Text>
+                </View> )} /> )} /> 
+            </View>
+        </View>
+        </ScrollView>
+        <View style={{flex: 0.4}}></View>
+        <View style={styling.flexRow}>
+          <TouchableWithoutFeedback onPress={() => this.submitSetState('ingredients', false)}>
+            <Ionicons name="ios-arrow-round-back" color="black" style={styling.arrowBackward}/>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={() => this.submitSetState('description', false)}>
+            <Ionicons name="ios-arrow-round-forward" color="black" style={styling.arrowForward}/>
+          </TouchableWithoutFeedback>
+        </View>
+      </View>)
+  }
+
+  renderDescription() {
+    return (
+      <View style={[styling.container, styling.noHeader]}>
+        <View style={[styling.marginHorizontal20, {flex: 3, justifyContent: 'center'}]}>
+          {(this.state.no_alert) ? (<ActivityIndicator />) : (<View></View>)}
+          <Text style={styling.createRecipeHeader}>Description</Text>
+          <Text style={[styling.errorMessageText, {textAlign: 'left'}]}>
+            {(this.state.invalid && !this.state.recipe.meal_type) ? 
+              "description must be between 2 and 150 characters" : ""}</Text>
+          <View style={styling.activityMargin}></View>
+          <TextInput 
+            editable={!this.state.no_alert}
+            blurOnSubmit={true}
+            value={this.state.recipe.description}
+            placeholder="Please add a short description"
+            placeholderTextColor='#696969'
+            style={styling.descriptionTextInput}
+            multiline
+            onChangeText={(text) => (!this.state.no_alert) ? this.setDescription(text) : {}}
+            defaultValue={''} />
+          <Text style={[styling.errorMessageText, {color: 'black', textAlign: 'right'}]}>{`${150 - this.state.recipe.description.length} char left`}</Text>
+        </View>
+        <View style={styling.flexRow}>
+          <TouchableWithoutFeedback disabled={this.state.no_alert} onPress={() => {(!this.state.no_alert) ? this.setState({ indicator: "directions" }) : {}}}>
+            <Ionicons name="ios-arrow-round-back" color="black" style={styling.arrowBackward}/>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback disabled={this.state.no_alert} onPress={() => (!this.state.no_alert) ? this.submitRecipe() : {}}>
+            <Text style={styling.buttonTextLargeRight}>Submit</Text>
+          </TouchableWithoutFeedback>
+        </View>
+      </View>)
+  }
+
+  render() {
+    if (this.state.isLoading) return this.IsLoadingRender()
+    else if (this.state.indicator === "start") return this.renderStart()
+    else if (this.state.indicator === "meal_type") return this.renderMealTypes()
+    else if (this.state.indicator === "diet_pref") return this.renderDietaryPrefs()
+    else if (this.state.indicator === "cuisine") return this.renderCuisines()
+    else if (this.state.indicator === "ingredients") return this.renderIngredients()
+    else if (this.state.indicator === "directions") return this.renderDirections()
+    else if (this.state.indicator === "description") return this.renderDescription()
   }
 }
-
-/*
-TODO:
-  - page design
-*/

@@ -19,6 +19,7 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  updateLoading: boolean
   token: string
   user_id: string
   search: string
@@ -51,6 +52,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     super(props);
     this.state = { 
       isLoading: true,
+      updateLoading: false,
       token: '', 
       user_id: '', 
       search: '',
@@ -90,7 +92,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     }
 
     // hit api for all recipes
-    let recipe_data = await fetch(`http://localhost:8000/homemade/many_recipes/`, {
+    let recipe_data = await fetch(`https://homemadeapp.azurewebsites.net/homemade/many_recipes/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -104,8 +106,24 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       console.error(error);
     });
 
+    await AsyncStorage.getItem('@saved_recipes')
+      .then((data) => { 
+        if (data) { 
+          let parsed_data = JSON.parse(data)
+          let saved_set = new Set<string>()
+          parsed_data.forEach((recipe) => {
+            saved_set.add(recipe.recipe_id)
+          })
+          this.setState({ 
+            isLoading: false,
+            recipes: recipe_data,
+            user_saved: saved_set,
+          })
+        }}
+      )
+
     // hit api for user's saved recipes
-    await fetch(`http://localhost:8000/homemade/many_saved_recipes/${this.state.user_id}`, {
+    await fetch(`https://homemadeapp.azurewebsites.net/homemade/many_saved_recipes/${this.state.user_id}`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -123,6 +141,11 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         recipes: recipe_data,
         user_saved: saved_set,
       });
+      try {
+        AsyncStorage.setItem('@saved_recipes', JSON.stringify(data))
+      } catch (e) {
+        console.error(e)
+      }
     })
     .catch(error => {
       console.error(error);
@@ -134,7 +157,9 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     const allRecipesSearched = this.arrayholder.filter(function(item: recipeType) {
       const itemData = item.recipe_name ? item.recipe_name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
-      return itemData.startsWith(textData);
+      let lenientData = ''
+      if (textData != '') lenientData = " " + textData
+      return itemData.startsWith(textData) || itemData.includes(lenientData);
     });
 
     this.setState({
@@ -165,10 +190,11 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   async filterModalResults(filters: any) {
     await this.setState({
       filterModalViewable: false,
-      filters: filters
+      filters: filters,
+      updateLoading: true,
     })
     // format query url using results from filter modal
-    let url = `http://localhost:8000/homemade/many_recipes/`
+    let url = `https://homemadeapp.azurewebsites.net/homemade/many_recipes/${this.state.user_id}`
     let query_string = "?"
 
     this.state.filters.mealType.forEach((type) => query_string = query_string.concat(`&meal_type=${type}`))
@@ -188,9 +214,18 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     .then(response => response.json())
     .then(data => {
       this.arrayholder = data
+      const search_text = this.state.search
+      let recipes = this.arrayholder.filter(function(item: recipeType) {
+        const itemData = item.recipe_name ? item.recipe_name.toUpperCase() : ''.toUpperCase();
+        const textData = search_text.toUpperCase();
+        let lenientData = ''
+        if (textData != '') lenientData = " " + textData
+        return itemData.startsWith(textData) || itemData.includes(lenientData);
+      });
+
       this.setState({
-        isLoading: false,
-        recipes: data,
+        updateLoading: false,
+        recipes: recipes,
       });
     })
     .catch(error => {
@@ -199,14 +234,15 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   navigateRecipe(recipe_id: string) {
-    // navigte to individual recipe screen
-    this.props.navigation.navigate('IndividualRecipeScreen', {recipe_id: recipe_id})
+    // navigate to individual recipe screen
+    this.props.navigation.navigate('IndividualRecipeScreen', {recipe_id: recipe_id, trigger: false })
   }
 
   async saveRecipe(recipeId: string) {
+    this.setState({ updateLoading: true })
     // if user has recipe saved, delete it from saved
     if (this.state.user_saved.has(recipeId)) {
-      await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipeId}`, {
+      await fetch(`https://homemadeapp.azurewebsites.net/homemade/single_saved_recipe/${this.state.user_id}/${recipeId}`, {
         method: 'DELETE',
         headers: {
           Accept: 'application/json',
@@ -221,23 +257,39 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       let assign_saved = this.state.user_saved
       assign_saved.delete(recipeId)
       this.setState({
-        user_saved: assign_saved
+        user_saved: assign_saved,
+        updateLoading: false,
       })
+      try {
+        await AsyncStorage.getItem('@saved_recipes').then(recipes => {
+          if (recipes) AsyncStorage.setItem('@saved_recipes', JSON.stringify(JSON.parse(recipes).filter(recipe => {return recipe.recipe_id !== recipeId})))
+        })
+      } catch (e) {
+        console.error(e)
+      }
     // if user does not have recipe saved, save it 
     } else {
-      await fetch(`http://localhost:8000/homemade/single_saved_recipe/${this.state.user_id}/${recipeId}`, {
+      await fetch(`https://homemadeapp.azurewebsites.net/homemade/single_saved_recipe/${this.state.user_id}/${recipeId}`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         'Authorization': 'Token ' + this.state.token,
         },
-      })
-        .catch(error => {
-          console.error(error);
-        });
+      }).then(response => response.json())
+      .then(data => { 
+        try {
+          AsyncStorage.getItem('@saved_recipes').then(recipes => {
+            if (recipes) AsyncStorage.setItem('@saved_recipes', JSON.stringify(JSON.parse(recipes).concat([data])))
+          })
+        } catch (e) { console.error(e) }
+       })
+      .catch(error => {
+        console.error(error);
+      });
       this.setState({
-        user_saved: this.state.user_saved.add(recipeId)
+        user_saved: this.state.user_saved.add(recipeId),
+        updateLoading: false,
       })
     }
   }
@@ -258,7 +310,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   IsLoadingRender() {
     return (
-      <View style={styling.container}>
+      <View style={[styling.container, styling.noHeader]}>
         <ActivityIndicator />
       </View>
     )
@@ -268,6 +320,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     return (
       <RecipeOverview 
         recipe={item}
+        updateLoading={this.state.updateLoading}
         saved={(this.state.user_saved.has(item.recipe_id)) ? true : false}
         onPressNavigate={this.navigateRecipe}
         saveRecipe={this.saveRecipe}
@@ -289,11 +342,13 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
             platform={Platform.OS === "android" || Platform.OS === "ios" ? Platform.OS : "default"}
             {...this.searchBarProps}
           />
-          <View style={styling.addButton}>
-            <TouchableWithoutFeedback onPress={this.onPressFilter}>
-              <MaterialIcons name="filter-list" color="black" style={StyleSheet.flatten([styling.iconSize, styling.autoLeft])}/>
-            </TouchableWithoutFeedback>
-          </View>
+          {this.state.updateLoading ? (<ActivityIndicator style={styling.activityMargin} />) : (
+            <View style={styling.addButton}>
+              <TouchableWithoutFeedback onPress={this.onPressFilter}>
+                <MaterialIcons name="filter-list" color="black" style={StyleSheet.flatten([styling.iconSize, styling.autoLeft])}/>
+              </TouchableWithoutFeedback>
+            </View>
+          )}
         </View>
         <View style={styling.filterTextContainer}>
           {(this.state.filters.mealType.length || 

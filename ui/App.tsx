@@ -24,7 +24,9 @@ EStyleSheet.build({
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
-  const colorScheme = useColorScheme();
+  // const colorScheme = useColorScheme();
+  const colorScheme = "light"
+
 
   // const [token, setToken] = useState('')
 
