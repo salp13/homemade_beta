@@ -8,9 +8,12 @@ ui/npm-debug.*
 *.key
 *.mobileprovision
 *.orig.*
+*.lock
 ui/web-build/
 ui/yarn.lock
 ui/package.json.lock
+ui/package.json
+ui/package-lock.json
 *.pyc
 
 # macOS
