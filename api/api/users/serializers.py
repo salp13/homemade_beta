@@ -49,6 +49,11 @@ class User_POSTSerializer(ModelSerializer):
 		model = User
 		fields = '__all__'
 
+class Username_GetSerializer(ModelSerializer):
+	class Meta:
+		model = User
+		fields = ['username']
+
 class User_GETSerializer(ModelSerializer):
 	saved_recipes = RecipeOverview_GETSerializer(read_only=True, many=True)
 	

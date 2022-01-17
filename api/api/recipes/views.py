@@ -10,6 +10,7 @@ from .models import Diet, Cuisine, Meal_Type, Ingredient, Recipe
 from food.models import Food
 from users.models import User
 from food.serializers import Food_GETSerializer
+from users.serializers import Username_GetSerializer
 
 
 @api_view(['get', 'post', 'delete'])
@@ -130,7 +131,11 @@ def single_recipe(request, pk):
     
     if request.method == 'GET':
         recipe_serializer = Recipe_GETSerializer(recipe)
-        return Response(recipe_serializer.data)
+        user = User.objects.get(pk=recipe_serializer.data['owner'])
+        user_serializer = Username_GetSerializer(user)
+        recipe_data = recipe_serializer.data
+        recipe_data['owner_username'] = user_serializer.data['username']
+        return Response(recipe_data)
     elif request.method == 'PATCH':
         recipe_partial_serializer = Recipe_GETSerializer(recipe, data=request.data, partial=True)
         if recipe_partial_serializer.is_valid():

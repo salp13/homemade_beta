@@ -43,7 +43,7 @@ class Recipe_GETSerializer(ModelSerializer):
 	
 	class Meta:
 		model = Recipe
-		fields = ['recipe_id', 'recipe_name', 'image', 'diets', 'cuisine', 'meal_type', 'instructions', 'description', 'image', 'ingredients']
+		fields = ['recipe_id', 'recipe_name', 'owner', 'private', 'image', 'diets', 'cuisine', 'meal_type', 'instructions', 'description', 'ingredients']
 
 class RecipeOverview_GETSerializer(ModelSerializer):
 	diets = Diet_Serializer(read_only=True, many=True)
@@ -52,4 +52,4 @@ class RecipeOverview_GETSerializer(ModelSerializer):
 	
 	class Meta:
 		model = Recipe
-		fields = ['recipe_id', 'recipe_name', 'image', 'diets', 'cuisine', 'meal_type']
+		fields = ['recipe_id', 'recipe_name', 'owner', 'private', 'image', 'diets', 'cuisine', 'meal_type']
