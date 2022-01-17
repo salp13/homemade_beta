@@ -106,7 +106,6 @@ export default class AccountScreen extends React.Component<Props, State> {
   async verifySubmit() {
     let is_valid = false
     if (this.state.name !== this.state.old_name) {
-      console.log('check names')
       let schema = yup.object().shape({
         name: yup.string().min(2).max(30).required(),
       });
@@ -132,10 +131,8 @@ export default class AccountScreen extends React.Component<Props, State> {
   }
 
   async submit() {
-    console.log(this.state.name)
     await this.formikRef.current?.submitForm()
     await this.formikRef2.current?.submitForm()
-    console.log(this.state.name)
     await this.setState({ updateLoading: true })
 
     let valid = await this.verifySubmit()

@@ -455,7 +455,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
               onChangeText={text => this.setQuantity(text)}
               defaultValue={"1"} />
             {!this.state.fridgeItems.find(item => {
-              console.log(item)
               if (!item.unlisted_food) return item.food.food_name === this.state.current_item_name
               return item.unlisted_food === this.state.current_item_name
             }) ? 

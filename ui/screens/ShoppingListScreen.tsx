@@ -130,7 +130,6 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
 
     await AsyncStorage.getItem('@food_groups')
     .then( food_groups => {
-      // if (food_groups) console.log(JSON.parse(food_groups))
       if (food_groups && JSON.parse(food_groups).length !== 0) this.setState({ food_groups: JSON.parse(food_groups) })
       else {
         // hit api for all foods excluding the unlisted food item
@@ -612,7 +611,6 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     let quantity = `  (${item.quantity})`
     let food_group = this.state.food_groups.find(food_group => { return ( food_group.food_group_id === item.food.food_group )})
     let image_uri = (food_group) ? food_group.image : ''
-    // console.log(item)
     return (
       <View>
         <Swipeable

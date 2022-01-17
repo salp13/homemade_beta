@@ -96,7 +96,6 @@ export default class HomeScreen extends React.Component<Props, State> {
         
         AsyncStorage.getItem('@saved_recipes').then(saved_recipes => {
           if (saved_recipes) {
-            console.log(JSON.parse(saved_recipes))
             user_data.saved_recipes = JSON.parse(saved_recipes)
             this.setState({
               user_data: user_data,
@@ -167,7 +166,6 @@ export default class HomeScreen extends React.Component<Props, State> {
 
   async componentDidUpdate() {
     if (this.state.update_trigger !== this.props.route.params.trigger) {
-      console.log('updating')
       this.setState({isLoading: true, update_trigger: this.props.route.params.trigger})
 
       const owned_recipes = await fetch(`https://homemadeapp.azurewebsites.net/homemade/owned_recipe/${this.state.user_id}`, {
@@ -186,7 +184,6 @@ export default class HomeScreen extends React.Component<Props, State> {
         console.error(error);
       });
       this.setState({ owned_recipes: owned_recipes, isLoading: false })
-      console.log("done updating")
     }
   }
 

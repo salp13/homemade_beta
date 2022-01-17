@@ -448,7 +448,6 @@ export default class CreateRecipeScreen extends React.Component<Props, State> {
           'Authorization': 'Token ' + this.state.token,
         },
         body: this.state.temp_image
-
       }).then(response => response.json())
       .then(data => { return data })
         .catch(error => {
@@ -461,7 +460,7 @@ export default class CreateRecipeScreen extends React.Component<Props, State> {
         .then((data) => { 
           if (data) { 
             let parsed_data = JSON.parse(data)
-            parsed_data.push(recipe_id)
+            parsed_data.push(recipe_data)
             return parsed_data
           }}
         )

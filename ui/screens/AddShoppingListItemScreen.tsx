@@ -84,11 +84,9 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   }
 
   private goingBack = this.props.navigation.addListener('beforeRemove', async (e) => {
-    console.log(`goingback before: ${this.state.trigger}`)
     await this.setState({
       trigger: !this.state.trigger
     })
-    console.log(`FROM ADD SCREEN: ${this.state.trigger}`)
     this.props.navigation.navigate("ShoppingListScreen", {trigger: this.state.trigger})
   })
 
@@ -266,8 +264,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       let body = (food_name === "unlisted_food") ? 
         JSON.stringify({food: id, unlisted_food: this.state.search, order_index: this.state.orderNumber, quantity: new_quant}) : 
         JSON.stringify({food: id, order_index: this.state.orderNumber, quantity: new_quant})
-      console.log(food_name)
-      console.log(this.state.search)
       const shoppingListItem = await fetch(`https://homemadeapp.azurewebsites.net/homemade/many_shopping_list/${this.state.user_id}`, {
         method: 'POST',
         headers: {
@@ -317,10 +313,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     // if submitted manually, search for food if it exists, if so add it normally, otherwise mark as unlisted food
     let food_item = this.arrayholder.find(item => { return item.food_name.toUpperCase() === this.state.search.toUpperCase() })
     if (food_item) {
-      console.log(food_item)
       await this.OnPressSearch(food_item.food_id, food_item.food_name)
     } else {
-      console.log('hittin unlisted food')
       await this.OnPressSearch("f423fee8-fa24-45eb-818a-a2a2dabff417", "unlisted_food")
     }
   }
