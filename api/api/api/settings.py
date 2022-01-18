@@ -21,7 +21,8 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', '')
+# SECRET_KEY = os.environ.get('SECRET_KEY', '')
+SECRET_KEY = '9^cxx97m=-u#9xu-gs2573%zo&o-eiirck&p#bi#@3jl-6g%g3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -94,6 +95,16 @@ REST_FRAMEWORK = {
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+# DATABASES = {	
+#     'default': {	
+#         'ENGINE': 'django.db.backends.postgresql',	
+#         'NAME': 'homemade_db',	
+#         'USER': 'susiealptekin',	
+#         'PASSWORD': 'Derbydog3',	
+#         'HOST': 'localhost',	
+#         'PORT': '5432',	
+#     }	
+# }	
 
 DATABASES = {
     'default': {
@@ -154,17 +165,21 @@ CORS_ORIGIN_WHITELIST = [
     'exp://192.168.142.237:19000',
 ]
 
-DEFAULT_FILE_STORAGE = 'custom_azure.AzureMediaStorage'
-STATICFILES_STORAGE = 'custom_azure.AzureStaticStorage'
+STATIC_URL = '/static/'
+MEDIA_URL='/media/'	
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-STATIC_LOCATION = "static"
-MEDIA_LOCATION = "media"
+# DEFAULT_FILE_STORAGE = 'custom_azure.AzureMediaStorage'
+# STATICFILES_STORAGE = 'custom_azure.AzureStaticStorage'
 
-AZURE_ACCOUNT_NAME = "homemadeblob"
-AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
+# STATIC_LOCATION = "static"
+# MEDIA_LOCATION = "media"
 
-STATIC_ROOT = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{STATIC_LOCATION}'
-MEDIA_ROOT = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{MEDIA_LOCATION}'
+# AZURE_ACCOUNT_NAME = "homemadeblob"
+# AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
 
-STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
-MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/'
+# STATIC_ROOT = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{STATIC_LOCATION}'
+# MEDIA_ROOT = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{MEDIA_LOCATION}'
+
+# STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+# MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/'
