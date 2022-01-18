@@ -35,6 +35,7 @@ interface Props {
 interface State {
     isLoading: boolean
     updateLoading: boolean
+    errorText: string
     token: string
     user_id: string
     trigger: boolean
@@ -59,6 +60,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     this.state = {
       isLoading: true,
       updateLoading: false,
+      errorText: '',
       token: '', 
       user_id: '', 
       trigger: this.props.route.params.trigger,
@@ -66,6 +68,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
         recipe_id: JSON.parse(JSON.stringify(this.props.route.params.recipe_id)),
         recipe_name: '',
         owner: '', 
+        owner_username: '',
         private: false,
         image: '',
         diets: [],
@@ -92,6 +95,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     this.saveRecipe = this.saveRecipe.bind(this)
     this.addToShoppingList = this.addToShoppingList.bind(this)
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
+    this.errorMessage = this.errorMessage.bind(this)
   }
 
   async componentDidMount() {
@@ -129,6 +133,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
         })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
       }
     })
@@ -154,8 +159,9 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       .then(response => response.json())
       .then(data => { return data })
       .catch(error => {
-      console.error(error);
-    });
+        console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
+      });
 
     await AsyncStorage.getItem('@saved_recipes')
       .then((data) => { 
@@ -169,7 +175,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
           })
         }}
       )
-
+    console.log(recipe_data)
     // hit api for user's saved recipes
     await fetch(`https://homemadeapp.azurewebsites.net/homemade/many_saved_recipes/${this.state.user_id}`, {
       method: 'GET',
@@ -195,6 +201,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
       // hit api for fridge items
@@ -208,7 +215,10 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     })
       .then(response => response.json())
       .then(data => { return data })
-      .catch(error => { console.error(error); });
+      .catch(error => { 
+        console.error(error); 
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
+      });
 
     // set shopping_list 
     try {
@@ -232,6 +242,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       })
       .catch(error => {
       console.error(error);
+      this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
       this.setState({
         saved: false,
@@ -263,6 +274,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
        })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
       this.setState({
@@ -307,6 +319,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
         
       this.setState({
@@ -339,7 +352,10 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
         body: body
         }).then(response => response.json())
         .then( data => { return data })
-        .catch(error => { console.error(error); });
+        .catch(error => { 
+          console.error(error); 
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
+        });
         
       this.setState({
         shoppingList: this.state.shoppingList.concat([shopping_list_item]),
@@ -372,8 +388,18 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
     )
   }
 
+  errorMessage() {
+    return (
+      <View style={[styling.container, styling.noHeader]}>
+        <Text>{this.state.errorText}</Text>
+       </View>
+    )
+  }
+
+
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
+    if (this.state.errorText !== '') return this.errorMessage()
 
     let dietaryPrefs = ''
     this.state.recipe.diets.forEach((pref, index) => {
@@ -406,6 +432,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
               </TouchableWithoutFeedback>
             </View>
           </View>
+          <Text style={[styling.fontSize20, styling.activityMargin]}>by {this.state.recipe.owner_username}</Text>
 
           <View style={styling.flexRow}>
               <Text>{dietaryPrefs}</Text>

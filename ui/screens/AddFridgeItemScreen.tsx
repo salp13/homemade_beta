@@ -20,6 +20,7 @@ interface Props {
 interface State {
   isLoading: boolean
   updateLoading: boolean
+  errorText: string
   token: string
   user_id: string
   trigger: boolean
@@ -58,6 +59,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.state = { 
       isLoading: true,
       updateLoading: false,
+      errorText: '',
       token: '', 
       user_id: '', 
       trigger: this.props.route.params.trigger,
@@ -82,6 +84,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.returnFridge = this.returnFridge.bind(this)
     this.OnSubmit = this.OnSubmit.bind(this)
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
+    this.errorMessage = this.errorMessage.bind(this)
   }
 
   private goingBack = this.props.navigation.addListener('beforeRemove', async (e) => {
@@ -132,6 +135,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
       }
     })
@@ -173,6 +177,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     // hit api for metrics data to keep track of total items
@@ -195,6 +200,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
 
     // set fridge_data and merge metric data
@@ -276,6 +282,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
         
       this.setState({
@@ -310,6 +317,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
         
       this.setState({
@@ -347,6 +355,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
     
       // set changes to AsyncStorage
@@ -388,8 +397,17 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     )
   }
 
+  errorMessage() {
+    return (
+      <View style={[styling.container, styling.noHeader]}>
+        <Text>{this.state.errorText}</Text>
+      </View>
+    )
+  }
+
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
+    if (this.state.errorText !== '') return this.errorMessage()
 
     return (
       <View style={StyleSheet.flatten([styling.noHeader, styling.container])}>

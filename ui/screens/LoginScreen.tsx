@@ -17,6 +17,7 @@ interface Props {
   
 interface State {
   isLoading: boolean
+  errorText: string
   updateLoading: boolean
   failed_attempt: boolean
   token: string
@@ -30,6 +31,7 @@ export default class LoginScreen extends React.Component<Props, State> {
     super(props)
     this.state = {
       isLoading: true,
+      errorText: '',
       updateLoading: false,
       failed_attempt: false,
       token: '', 
@@ -40,6 +42,7 @@ export default class LoginScreen extends React.Component<Props, State> {
     this.login = this.login.bind(this)
     this.setUsername = this.setUsername.bind(this)
     this.setPassword = this.setPassword.bind(this)
+    this.errorMessage = this.errorMessage.bind(this)
   }
 
   async componentDidMount() {
@@ -135,6 +138,7 @@ export default class LoginScreen extends React.Component<Props, State> {
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
   }
 
@@ -150,8 +154,17 @@ export default class LoginScreen extends React.Component<Props, State> {
     })
   }
 
+  errorMessage() {
+    return (
+        <View style={[styling.container, styling.noHeader]}>
+        <Text>{this.state.errorText}</Text>
+        </View>
+    )
+  }
+
   render() {
     if (this.state.isLoading) return (<View></View>)
+    if (this.state.errorText !== '') return this.errorMessage()
 
     return (
       <View style={styling.container}>

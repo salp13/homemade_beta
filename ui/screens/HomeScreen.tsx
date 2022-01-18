@@ -9,8 +9,6 @@ import { SearchBar, Text, View, Image } from '../components/Themed';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { styling } from '../style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Dialog from 'react-native-dialog'
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 
 type HomeScreenNavigationProp = StackNavigationProp<HomeParamList, 'HomeScreen'>;
@@ -23,6 +21,7 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  errorText: string
   token: string
   user_id: string
   search: string
@@ -67,6 +66,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
 
     this.state = { 
       isLoading: true, 
+      errorText: '',
       token: '', 
       user_id: '', 
       search: '',
@@ -99,6 +99,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
     this.SearchRender = this.SearchRender.bind(this)
     this.FoodRender = this.FoodRender.bind(this)
+    this.errorMessage = this.errorMessage.bind(this)
   }
 
   async componentDidMount() {
@@ -137,6 +138,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
         })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
       }
     })
@@ -194,6 +196,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
   }
 
@@ -318,6 +321,14 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
     )
   }
 
+  errorMessage() {
+    return (
+        <View style={[styling.container, styling.noHeader]}>
+        <Text>{this.state.errorText}</Text>
+        </View>
+    )
+  }
+
   SearchRender() {
     // flat list that will render list of filtered search items
     return (
@@ -391,6 +402,7 @@ export default class HomeScreen extends React.Component<Props, State, Arrayholde
 
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
+    if (this.state.errorText !== '') return this.errorMessage()
 
     return (
       <View style={StyleSheet.flatten([styling.noHeader, styling.container])}>

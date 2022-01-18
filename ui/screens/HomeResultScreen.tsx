@@ -20,6 +20,7 @@ interface Props {
 interface State {
   isLoading: boolean
   updateLoading: boolean
+  errorText: string
   token: string
   user_id: string
   specifiedItems: Array<fridgeItemType>
@@ -37,6 +38,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     this.state = { 
       isLoading: true,
       updateLoading: false,
+      errorText: '',
       token: '', 
       user_id: '', 
       specifiedItems: specifiedItems,
@@ -59,6 +61,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     this.modalVisibility = this.modalVisibility.bind(this)
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
     this.RecipeRender = this.RecipeRender.bind(this)
+    this.errorMessage = this.errorMessage.bind(this)
   }
 
   async componentDidMount() {
@@ -87,6 +90,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     .then(data => { return data })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     await AsyncStorage.getItem('@saved_recipes')
@@ -131,6 +135,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     })
     .catch(error => {
       console.error(error);
+      this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
     });
   }
 
@@ -180,6 +185,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     })
     .catch(error => {
       console.error(error);
+      this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
     });
   }
 
@@ -202,6 +208,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
       })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
 
       let assign_saved = this.state.user_saved
@@ -236,6 +243,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
        })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
       this.setState({
@@ -267,6 +275,14 @@ export default class HomeResultScreen extends React.Component<Props, State> {
     )
   }
 
+  errorMessage() {
+    return (
+      <View style={[styling.container, styling.noHeader]}>
+        <Text>{this.state.errorText}</Text>
+       </View>
+    )
+  }
+
   RecipeRender(item) {
     return (
       <RecipeOverview 
@@ -282,6 +298,7 @@ export default class HomeResultScreen extends React.Component<Props, State> {
 
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
+    if (this.state.errorText !== '') return this.errorMessage()
 
     return (
       <View style={StyleSheet.flatten([styling.noHeader, styling.container])}>

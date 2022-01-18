@@ -8,6 +8,7 @@ import { styling } from '../style'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup'
 import { Formik, FormikProps, validateYupSchema } from 'formik'
+import { string } from 'yup/lib/locale';
 
 interface Props {
   navigation: CompositeNavigationProp<StackNavigationProp<LoginParamList>, StackNavigationProp<RootStackParamList, 'Auth'>>;
@@ -17,6 +18,7 @@ interface Props {
 interface State {
   invalid: boolean
   loading: boolean
+  errorText: string
   token: string
   user_id: string
   name: string
@@ -34,6 +36,7 @@ export default class SignupScreen extends React.Component<Props, State> {
     this.state = {
       invalid: false,
       loading: false,
+      errorText: '',
       token: '',
       user_id: '',
       name: '',
@@ -46,6 +49,7 @@ export default class SignupScreen extends React.Component<Props, State> {
     this.login = this.login.bind(this)
     this.validateInputs = this.validateInputs.bind(this)
     this.signup = this.signup.bind(this)
+    this.errorMessage = this.errorMessage.bind(this)
   }
 
   async login() {
@@ -74,6 +78,7 @@ export default class SignupScreen extends React.Component<Props, State> {
         })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
 
     // hit api for all foods excluding the unlisted food item
@@ -132,10 +137,12 @@ export default class SignupScreen extends React.Component<Props, State> {
           this.props.navigation.replace('Root')
         } catch (e) {
           console.error(e)
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         }
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
   }
 
@@ -197,6 +204,7 @@ export default class SignupScreen extends React.Component<Props, State> {
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         return
       });
     if (!this.state.invalid) await this.login()
@@ -204,7 +212,18 @@ export default class SignupScreen extends React.Component<Props, State> {
     
   }
 
+
+  errorMessage() {
+    return (
+        <View style={[styling.container, styling.noHeader]}>
+        <Text>{this.state.errorText}</Text>
+        </View>
+    )
+  }
+
   render() {
+    if (this.state.errorText !== '') return this.errorMessage()
+
     return (
       <View style={styling.container}>
         <View style={styling.marginTop100}>

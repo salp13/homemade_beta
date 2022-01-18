@@ -71,6 +71,7 @@ export type recipeEntireType = {
     recipe_id: string
     recipe_name: string
     owner: string
+    owner_username: string
     private: boolean
     image: string
     diets: Array<{

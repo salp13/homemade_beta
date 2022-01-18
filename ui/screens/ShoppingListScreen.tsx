@@ -22,6 +22,7 @@ interface Props {
 interface State {
   isLoading: boolean
   updateLoading: boolean
+  errorText: string
   token: string
   user_id: string
   trigger: boolean
@@ -74,6 +75,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     this.state = { 
       isLoading: true,
       updateLoading: false,
+      errorText: '',
       token: '', 
       user_id: '', 
       trigger: false,
@@ -115,6 +117,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
     this.DraggableListRender = this.DraggableListRender.bind(this)
     this.SwipableListRender = this.SwipableListRender.bind(this)
+    this.errorMessage = this.errorMessage.bind(this)
   }
 
   async componentDidMount() {
@@ -147,7 +150,10 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
           try { AsyncStorage.setItem('@food_groups', JSON.stringify(data)) }
           catch (e) { console.error(e) }
         })
-        .catch(error => { console.error(error); });
+        .catch(error => { 
+          console.error(error); 
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
+        });
       }
     })
 
@@ -199,6 +205,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     // hit api for fridge items
@@ -212,7 +219,10 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     })
       .then(response => response.json())
       .then(data => { return data })
-      .catch(error => { console.error(error); });
+      .catch(error => { 
+        console.error(error); 
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
+      });
 
     // hit api for metrics data to keep track of total items
     let metric_data = await fetch(`https://homemadeapp.azurewebsites.net/homemade/metric_data/${this.state.user_id}`, {
@@ -228,7 +238,10 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
           this.setState({ fridgeItems: fridgeData, total_items: data.total_items })
           return data
         })
-        .catch(error => { console.error(error); });
+        .catch(error => { 
+          console.error(error); 
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
+        });
   
     try {
       AsyncStorage.setItem('@fridge_data', JSON.stringify(fridgeData))
@@ -262,6 +275,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
         })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
 
       // update AsyncStorage after above fetch is successful
@@ -353,6 +367,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
       })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
 
       this.arrayholder = placeholderListItems
@@ -402,6 +417,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     placeholderListItems = placeholderListItems.filter(item => item.id !== id)
@@ -418,6 +434,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     this.setState({
@@ -471,6 +488,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
       })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
         
       this.setState({
@@ -506,6 +524,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
         })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
         
       this.setState({
@@ -562,6 +581,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     this.setState({ updateLoading: false })
@@ -580,6 +600,14 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
       <View style={styling.container}>
         <ActivityIndicator />
       </View>
+    )
+  }
+
+  errorMessage() {
+    return (
+        <View style={[styling.container, styling.noHeader]}>
+        <Text>{this.state.errorText}</Text>
+        </View>
     )
   }
 
@@ -663,6 +691,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
 
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
+    if (this.state.errorText !== '') return this.errorMessage()
 
     return (
       <View style={styling.container}>

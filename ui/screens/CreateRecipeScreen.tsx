@@ -59,6 +59,7 @@ interface Props {
 
 interface State {
     isLoading: boolean
+    errorText: string
     token: string
     user_id: string
     indicator: string
@@ -109,6 +110,7 @@ export default class CreateRecipeScreen extends React.Component<Props, State> {
     super(props);
     this.state = {
       isLoading: true,
+      errorText: '',
       token: '', 
       user_id: '', 
       indicator: 'start',
@@ -144,6 +146,7 @@ export default class CreateRecipeScreen extends React.Component<Props, State> {
     };
 
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
+    this.errorMessage = this.errorMessage.bind(this)
     this.renderStart = this.renderStart.bind(this)
     this.renderMealTypes = this.renderMealTypes.bind(this)
     this.renderDietaryPrefs = this.renderDietaryPrefs.bind(this)
@@ -189,8 +192,9 @@ export default class CreateRecipeScreen extends React.Component<Props, State> {
         .then(response => response.json())
         .then(data => { return data })
         .catch(error => {
-        console.error(error);
-      });
+          console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
+        });
 
       let recipe = this.state.recipe
       let temp_ingredients = this.state.temp_ingredients
@@ -452,6 +456,7 @@ export default class CreateRecipeScreen extends React.Component<Props, State> {
       .then(data => { return data })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
       recipe_id = recipe_data.recipe_id
 
@@ -481,6 +486,7 @@ export default class CreateRecipeScreen extends React.Component<Props, State> {
       })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
     }
     
@@ -526,6 +532,7 @@ export default class CreateRecipeScreen extends React.Component<Props, State> {
     })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     // delete this owned_recipes
@@ -559,6 +566,14 @@ export default class CreateRecipeScreen extends React.Component<Props, State> {
         <ActivityIndicator />
       </View>
     )
+  }
+
+  errorMessage() {
+      return (
+        <View style={[styling.container, styling.noHeader]}>
+          <Text>{this.state.errorText}</Text>
+        </View>
+      )
   }
 
   renderStart() {
@@ -883,7 +898,7 @@ export default class CreateRecipeScreen extends React.Component<Props, State> {
             placeholderTextColor='#696969'
             style={styling.descriptionTextInput}
             multiline
-            onChangeText={(text) => (!this.state.no_alert) ? this.setDescription(text) : {}}
+            onChangeText={(text) => (!this.state.no_alert && this.state.recipe.description.length < 150) ? this.setDescription(text) : {}}
             defaultValue={''} />
           <Text style={[styling.errorMessageText, {color: 'black', textAlign: 'right'}]}>{`${150 - this.state.recipe.description.length} char left`}</Text>
         </View>
@@ -900,6 +915,7 @@ export default class CreateRecipeScreen extends React.Component<Props, State> {
 
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
+    else if (this.state.errorText !== '') return this.errorMessage()
     else if (this.state.indicator === "start") return this.renderStart()
     else if (this.state.indicator === "meal_type") return this.renderMealTypes()
     else if (this.state.indicator === "diet_pref") return this.renderDietaryPrefs()

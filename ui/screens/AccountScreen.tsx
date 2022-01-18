@@ -6,7 +6,7 @@ import { Button, TextInput, ActivityIndicator } from 'react-native';
 import { View, Text } from '../components/Themed';
 import { styling } from '../style'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Formik, FieldArray, FormikProps } from 'formik'
+import { Formik, FieldArray, FormikProps, ErrorMessage } from 'formik'
 import * as yup from 'yup'
 
 type AccountScreenNavigationProp = CompositeNavigationProp<StackNavigationProp<ProfileParamList>, StackNavigationProp<RootStackParamList, 'Root'>>;
@@ -19,6 +19,7 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  errorText: string
   updateLoading: boolean
   invalid: boolean
   token: string
@@ -39,6 +40,7 @@ export default class AccountScreen extends React.Component<Props, State> {
     super(props);
     this.state = {
       isLoading: true,
+      errorText: '',
       updateLoading: false,
       invalid: false,
       token: '',
@@ -54,6 +56,7 @@ export default class AccountScreen extends React.Component<Props, State> {
     this.logout = this.logout.bind(this)
     this.submit = this.submit.bind(this)
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
+    this.errorMessage = this.errorMessage.bind(this)
   }
 
   async componentDidMount() {
@@ -84,7 +87,8 @@ export default class AccountScreen extends React.Component<Props, State> {
           })
          })
         .catch(error => {
-        console.error(error);
+          console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
   }
 
@@ -155,6 +159,7 @@ export default class AccountScreen extends React.Component<Props, State> {
       })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not update at this time. Please check you connection or try again later'})
         });
     }
     if (this.state.new_password !== '' && this.state.confirm_password === this.state.new_password) {
@@ -172,6 +177,7 @@ export default class AccountScreen extends React.Component<Props, State> {
         })})
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not update at this time. Please check you connection or try again later'})
         });
     }
     this.setState({ updateLoading: false })
@@ -185,8 +191,17 @@ export default class AccountScreen extends React.Component<Props, State> {
     )
   }
 
+  errorMessage() {
+    return (
+      <View style={styling.container}>
+        <Text>{this.state.errorText}</Text>
+      </View>
+    )
+  }
+
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
+    if (this.state.errorText !== '') return this.errorMessage()
 
     return (
       <View style={styling.container}>

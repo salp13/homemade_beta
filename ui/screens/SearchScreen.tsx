@@ -20,6 +20,7 @@ interface Props {
 interface State {
   isLoading: boolean
   updateLoading: boolean
+  errorText: string
   token: string
   user_id: string
   search: string
@@ -53,6 +54,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.state = { 
       isLoading: true,
       updateLoading: false,
+      errorText: '',
       token: '', 
       user_id: '', 
       search: '',
@@ -78,6 +80,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.modalVisibility = this.modalVisibility.bind(this)
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
     this.RecipeRender = this.RecipeRender.bind(this)
+    this.errorMessage = this.errorMessage.bind(this)
   }
 
   async componentDidMount() {
@@ -104,6 +107,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     .then(data => { return data })
     .catch(error => {
       console.error(error);
+      this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
     });
 
     await AsyncStorage.getItem('@saved_recipes')
@@ -149,6 +153,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
     .catch(error => {
       console.error(error);
+      this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
     });
   }
 
@@ -230,6 +235,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
     .catch(error => {
       console.error(error);
+      this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
     });
   }
 
@@ -252,6 +258,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
 
       let assign_saved = this.state.user_saved
@@ -286,6 +293,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
        })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
       this.setState({
         user_saved: this.state.user_saved.add(recipeId),
@@ -316,6 +324,14 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     )
   }
 
+  errorMessage() {
+    return (
+        <View style={[styling.container, styling.noHeader]}>
+        <Text>{this.state.errorText}</Text>
+        </View>
+    )
+  }
+
   RecipeRender(item) {
     return (
       <RecipeOverview 
@@ -331,6 +347,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
+    if (this.state.errorText !== '') return this.errorMessage()
 
     return (
       <View style={StyleSheet.flatten([styling.noHeader, styling.container])}>

@@ -7,7 +7,7 @@ import { fridgeItemType } from '../objectTypes'
 import { FridgeParamList } from '../types'
 import { RouteProp } from '@react-navigation/native';
 import {SearchBar as SearchBarElement} from 'react-native-elements'
-import { SearchBar, View } from '../components/Themed';
+import { SearchBar, Text, View } from '../components/Themed';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { styling } from '../style'
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -21,6 +21,7 @@ interface Props {
 interface State {
   isLoading: boolean
   updateLoading: boolean
+  errorText: string
   token: string
   user_id: string
   trigger: boolean
@@ -69,6 +70,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.state = { 
       isLoading: true, 
       updateLoading: false,
+      errorText: '',
       token: '',
       user_id: '',
       trigger: false,
@@ -107,6 +109,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.EditDialog = this.EditDialog.bind(this)
     this.DeleteDialog = this.DeleteDialog.bind(this)
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
+    this.errorMessage = this.errorMessage.bind(this)
     this.FridgeRender = this.FridgeRender.bind(this)
   }
 
@@ -182,6 +185,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     // hit api for metrics data to update later
@@ -205,6 +209,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     // set fridge_data and merge metric data for any changes
@@ -274,6 +279,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
 
       // set fridge data
@@ -337,7 +343,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       let someDate = new Date()
       someDate.setDate(someDate.getDate() + this.state.fridgeAlert.days_to_exp )
       someDate.setHours(0,0,0,0)
-      console.log(someDate)
       await this.itemEditExpDate(this.state.fridgeAlert.id, someDate)
     }
     
@@ -391,6 +396,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     // update AsyncStorage with setState after above fetch is successful
@@ -424,6 +430,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     // update AsyncStorage with setState after above fetch is successful
@@ -469,6 +476,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
     
     // hit api to update metric data with wasted counts
@@ -493,6 +501,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
     
       // set AsyncStorage after requests are successful (wasted_count, food_group_wasted, fridge)
@@ -528,6 +537,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     // hit api to update metric data to increment eaten count
@@ -554,6 +564,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
     // set AsyncStorage after requests are successful (eaten_count, fridge)
@@ -573,6 +584,16 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       </View>
     )
   }
+
+  errorMessage() {
+    return (
+      <View style={[styling.container, styling.noHeader]}>
+        <Text>{this.state.errorText}</Text>
+      </View>
+    )
+  }
+
+
 
   EditDialog() {
     return (
@@ -676,7 +697,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
 
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
-
+    if (this.state.errorText !== '') return this.errorMessage()
+    
     return (
       <View style={styling.container}>
         <View style={styling.flexRow}>

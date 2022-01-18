@@ -82,6 +82,7 @@ export default class FilterModal extends React.Component<Props, State> {
 
     this.modalResults = this.modalResults.bind(this)
     this.filterClear = this.filterClear.bind(this)
+    this.filterCancel = this.filterCancel.bind(this)
     this.markFilter = this.markFilter.bind(this)
     this.showAllOptions = this.showAllOptions.bind(this)
     this.showFewerOptions = this.showFewerOptions.bind(this)
@@ -117,6 +118,20 @@ export default class FilterModal extends React.Component<Props, State> {
     })
     this.props.modalResults(this.state.filters)
   }
+
+  filterCancel() {
+    // reset filters to what they were before opening modal
+    const filterDeepCopy = JSON.parse(JSON.stringify(this.props.filters));
+    this.setState({
+      showAll: {
+        mealType: false,
+        dietaryPreferences: false,
+        cuisine: false
+      }
+    })
+    this.props.modalResults(this.props.filters)
+  }
+
 
   filterClear() {
     // clear all filters and send results back to screen
@@ -225,7 +240,7 @@ export default class FilterModal extends React.Component<Props, State> {
           visible = {this.state.modalVisible} >
             <View>
               <View style={styling.modalBar} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-              <TouchableWithoutFeedback onPress={this.modalResults}>
+              <TouchableWithoutFeedback onPress={this.filterCancel}>
                 <MaterialIcons name="clear" style={styling.modalClear} color="black"/>
               </TouchableWithoutFeedback>
               <Text style={styling.modalTitle}>Filters</Text>

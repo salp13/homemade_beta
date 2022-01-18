@@ -21,6 +21,7 @@ interface Props {
 
 interface State {
   isLoading: boolean
+  errorText: string
   token: string
   user_id: string
   toggle: boolean
@@ -36,6 +37,7 @@ export default class HomeScreen extends React.Component<Props, State> {
     super(props)
     this.state = {
       isLoading: true,
+      errorText: '',
       token: '', 
       user_id: '', 
       toggle: true,
@@ -66,6 +68,7 @@ export default class HomeScreen extends React.Component<Props, State> {
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
     this.CalculateAverageItems = this.CalculateAverageItems.bind(this)
     this.MetricData = this.MetricData.bind(this)
+    this.errorMessage = this.errorMessage.bind(this)
   }
 
   async componentDidMount() {
@@ -122,6 +125,7 @@ export default class HomeScreen extends React.Component<Props, State> {
     })
     .catch(error => {
       console.error(error);
+      this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
     });
 
     // determine most wasted food group
@@ -146,6 +150,7 @@ export default class HomeScreen extends React.Component<Props, State> {
     })
     .catch(error => {
       console.error(error);
+      this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
     });
 
     this.setState({
@@ -182,6 +187,7 @@ export default class HomeScreen extends React.Component<Props, State> {
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
       this.setState({ owned_recipes: owned_recipes, isLoading: false })
     }
@@ -201,6 +207,7 @@ export default class HomeScreen extends React.Component<Props, State> {
       })
       .catch(error => {
         console.error(error);
+        this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
 
       let assign_saved_recipes = this.state.user_data.saved_recipes.filter((recipe) => recipe.recipe_id !== recipe_id)
@@ -229,6 +236,7 @@ export default class HomeScreen extends React.Component<Props, State> {
          })
         .catch(error => {
           console.error(error);
+          this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
         });
 
       let new_saved_recipe = this.state.owned_recipes.filter((recipe) => recipe.recipe_id === recipe_id)
@@ -269,6 +277,14 @@ export default class HomeScreen extends React.Component<Props, State> {
       <View style={styling.container}>
         <ActivityIndicator />
       </View>
+    )
+  }
+
+  errorMessage() {
+    return (
+        <View style={[styling.container, styling.noHeader]}>
+        <Text>{this.state.errorText}</Text>
+        </View>
     )
   }
 
@@ -313,6 +329,7 @@ export default class HomeScreen extends React.Component<Props, State> {
 
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
+    if (this.state.errorText !== '') return this.errorMessage()
 
     return (
       <View style={styling.setFlex}>
