@@ -6,6 +6,7 @@ from .serializers import Food_Group_Serializer, Food_GETSerializer, Food_POSTSer
 from .models import Food_Group
 from .models import Food
 
+
 @api_view(['get', 'post', 'delete'])
 def many_foods(request):
     if request.method == 'GET':

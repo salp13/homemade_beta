@@ -144,7 +144,10 @@ def many_fridge(request, user_pk):
         fridge_serializer = Fridge_Item_D_Serializer(data=request.data)
         if fridge_serializer.is_valid():
             fridge_serializer.save()
-            return Response(fridge_serializer.data, status=status.HTTP_201_CREATED)
+            # return all fridge_item information
+            fridge_item = Fridge_Item.objects.get(id=fridge_serializer.data['id'])
+            fridge_serializer_full = Fridge_Item_DNSN_Serializer(fridge_item)
+            return Response(fridge_serializer_full.data, status=status.HTTP_201_CREATED)
         return Response(fridge_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -189,7 +192,9 @@ def many_shopping_list(request, user_pk):
         shopping_list_serializer = Shopping_List_Item_D_Serializer(data=request.data)
         if shopping_list_serializer.is_valid():
             shopping_list_serializer.save()
-            return Response(shopping_list_serializer.data, status=status.HTTP_201_CREATED)
+            shopping_list = Shopping_List_Item.objects.get(id=shopping_list_serializer.data['id'])
+            shopping_list_serializer_full = Shopping_List_Item_DN_Serializer(shopping_list)
+            return Response(shopping_list_serializer_full.data, status=status.HTTP_201_CREATED)
         return Response(shopping_list_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'PATCH':
         arr_to_save = []

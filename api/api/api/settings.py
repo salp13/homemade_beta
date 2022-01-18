@@ -16,20 +16,18 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
-MEDIA_URL='/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '9^cxx97m=-u#9xu-gs2573%zo&o-eiirck&p#bi#@3jl-6g%g3'
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.environ.get('WEBSITE_HOSTNAME', ''), 'localhost']
+
 
 
 # Application definition
@@ -43,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'rest_framework',
+    'corsheaders',
+    'storages',
     'rest_framework.authtoken',
     'psycopg2',
     'food',
@@ -58,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'api.urls'
@@ -96,12 +97,15 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'homemade_db',
-        'USER': 'susiealptekin',
-        'PASSWORD': 'Derbydog3',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get('DATABASE_NAME', ''),
+        'USER': os.environ.get('DATABASE_USER', ''),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', ''),
+        'HOST': os.environ.get('DATABASE_HOST', ''),
+        'PORT': os.environ.get('DATABASE_PORT', ''),
+        'OPTIONS': {
+            'sslmode': 'require',
+        }
     }
 }
 
@@ -142,6 +146,25 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
+
+CORS_ORIGIN_WHITELIST = [
+    'https://localhost:19000',
+    'exp://192.168.142.237:19000',
+]
+
+DEFAULT_FILE_STORAGE = 'custom_azure.AzureMediaStorage'
+STATICFILES_STORAGE = 'custom_azure.AzureStaticStorage'
+
+STATIC_LOCATION = "static"
+MEDIA_LOCATION = "media"
+
+AZURE_ACCOUNT_NAME = "homemadeblob"
+AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
+
+STATIC_ROOT = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{STATIC_LOCATION}'
+MEDIA_ROOT = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{MEDIA_LOCATION}'
+
+STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/'

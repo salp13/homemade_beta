@@ -25,6 +25,7 @@ class User(models.Model):
 class Fridge_Item(models.Model):
     food = models.ForeignKey('food.Food', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
     unlisted_food = models.CharField(max_length=128, null=True)
     expiration_date = models.DateField(null=True)
     
@@ -34,6 +35,7 @@ class Fridge_Item(models.Model):
 class Shopping_List_Item(models.Model):
     food = models.ForeignKey('food.Food', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
     unlisted_food = models.CharField(max_length=128, null=True)
     order_index = models.PositiveIntegerField(default=0)
 

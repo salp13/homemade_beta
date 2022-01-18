@@ -1,0 +1,8 @@
+django
+djangorestframework
+Pillow
+django-filter
+psycopg2
+python-dotenv
+django-cors-headers
+django-storages[azure]
