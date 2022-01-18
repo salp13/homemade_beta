@@ -1,9 +1,9 @@
 MULTIPLE USER USE
-    hard: (3 days)
+    hard: (4 days)
         - infinite scroll for recipes -- account for higher load
-        - sorting algorithm for recipes (number of likes)
+        - sorting algorithm for recipes (number of saves?)
         - guest log in and log in through google/facebook/etc
-    easy: (1 day)
+    easy: (3 day)
         - pull down hard to reload 
         - sorting of editted food items 
         - cache username and name 

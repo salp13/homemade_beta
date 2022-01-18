@@ -1,11 +1,4 @@
 Bugs to fix: (1 day)
-    Title on app store should be Homemade: Eliminate Food Waste
-
-    Shopping List (1 day)
-        ease of dragging shopping list items -- seems to interfere with scroll bar
-            should vibrate a little when activated on an item
-            difficult to move item close to the save button
-    
     Create Recipe (1/2 day)
         createrecipescreen ingredient + direction input should be width of screen so you can onclick anywhere to type
     

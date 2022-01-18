@@ -14,7 +14,13 @@ ui/yarn.lock
 ui/package.json.lock
 ui/package-lock.json
 *.pyc
-
+api/bin/*
+api/api/bin/*
+api/env/*
+*.env
+api/lib/*
+api/include/*
+api/api/lib/*
 
 # macOS
 *.DS_Store
