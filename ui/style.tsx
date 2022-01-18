@@ -428,6 +428,9 @@ export const styling = EStyleSheet.create({
     width: '100rem',
     height: '80rem',
   },
+  saveFlex: {
+    flex: .13
+  },
   savedRecipeText: {
     fontWeight: 'bold', 
     fontSize: '15rem',

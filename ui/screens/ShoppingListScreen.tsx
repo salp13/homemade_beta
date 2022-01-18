@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, FlatList, ScrollView, TouchableWithoutFeedback } from 'react-native';
+import { ActivityIndicator, Platform, FlatList, ScrollView, TouchableWithoutFeedback, Vibration } from 'react-native';
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
 import DraggableFlatList from 'react-native-draggable-flatlist'
 import { RouteProp } from '@react-navigation/native';
@@ -118,6 +118,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     this.DraggableListRender = this.DraggableListRender.bind(this)
     this.SwipableListRender = this.SwipableListRender.bind(this)
     this.errorMessage = this.errorMessage.bind(this)
+    this.vibrate = this.vibrate.bind(this)
   }
 
   async componentDidMount() {
@@ -689,6 +690,10 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
     )
   }
 
+  vibrate() {
+    Vibration.vibrate()
+  }
+
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
     if (this.state.errorText !== '') return this.errorMessage()
@@ -704,8 +709,10 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
                 data={this.state.shoppingListItems}
                 renderItem={({ item, index, drag }) => this.DraggableListRender(item, drag)}
                 keyExtractor={(item, index) => index.toString()}
+                onDragBegin={this.vibrate}
                 onDragEnd={({data}) => this.setState({shoppingListItems: data})}
                   />
+              <View style={styling.saveFlex}></View>
                <TouchableWithoutFeedback onPress={this.stopReorder}>
                   <Text style={styling.buttonTextLargeRight}>Save</Text>
                </TouchableWithoutFeedback>
