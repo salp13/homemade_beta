@@ -21,8 +21,7 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = os.environ.get('SECRET_KEY', '')
-SECRET_KEY = '9^cxx97m=-u#9xu-gs2573%zo&o-eiirck&p#bi#@3jl-6g%g3'
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -95,28 +94,19 @@ REST_FRAMEWORK = {
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-# DATABASES = {	
-#     'default': {	
-#         'ENGINE': 'django.db.backends.postgresql',	
-#         'NAME': 'homemade_db',	
-#         'USER': 'susiealptekin',	
-#         'PASSWORD': 'Derbydog3',	
-#         'HOST': 'localhost',	
-#         'PORT': '5432',	
-#     }	
-# }	
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+      'ENGINE': 'django.db.backends.postgresql',	
+        # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.environ.get('DATABASE_NAME', ''),
         'USER': os.environ.get('DATABASE_USER', ''),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', ''),
         'HOST': os.environ.get('DATABASE_HOST', ''),
         'PORT': os.environ.get('DATABASE_PORT', ''),
-        'OPTIONS': {
-            'sslmode': 'require',
-        }
+        # 'OPTIONS': {
+        #     'sslmode': 'require',
+        # }
     }
 }
 
@@ -168,6 +158,8 @@ CORS_ORIGIN_WHITELIST = [
 STATIC_URL = '/static/'
 MEDIA_URL='/media/'	
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+#####
 
 # DEFAULT_FILE_STORAGE = 'custom_azure.AzureMediaStorage'
 # STATICFILES_STORAGE = 'custom_azure.AzureStaticStorage'
