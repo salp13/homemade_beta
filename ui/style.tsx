@@ -222,7 +222,7 @@ export const styling = EStyleSheet.create({
   iconContainer: {
     flex: 1, 
     flexDirection: 'row-reverse', 
-    marginTop: 10
+    marginTop: 3
   },
   iconSize: {
     fontSize: '24rem'
@@ -360,6 +360,11 @@ export const styling = EStyleSheet.create({
     fontWeight: 'bold', 
     fontSize: '15rem'
   },
+  ownerSpacing: {
+    marginTop: '3rem',
+    marginLeft: '5rem',
+    color: '#444444'
+  },
   paddingHorizontal: {
     paddingHorizontal: '20rem'
   },
@@ -469,6 +474,10 @@ export const styling = EStyleSheet.create({
     fontSize: '15rem',
     marginLeft: '20rem', 
     marginVertical: '7rem',
+  },
+  signifierIcon: {
+    fontSize: '100rem', 
+    textAlign: 'center'
   },
   squarePicker: {
     fontSize: '24rem', 

@@ -1,9 +1,0 @@
-Bugs to fix: (1 day)
-    Create Recipe (1/2 day)
-        createrecipescreen ingredient + direction input should be width of screen so you can onclick anywhere to type
-    
-    Profile (1/2 day)
-        unsaving recipe from individual recipe within profile screen will not render on goback to profile screen
-            this is an issue with how profile screen renders an update
-
-

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.db.models import Count, Q
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import Diet_Serializer, Cuisine_Serializer, Meal_Type_Serializer, Ingredient_GETSerializer, Ingredient_POSTSerializer
@@ -14,6 +15,7 @@ import json
 
 
 @api_view(['get', 'post'])
+@permission_classes((AllowAny, ))
 def many_recipes(request, user_pk):
     if request.method == 'GET':
         if request.query_params:
@@ -41,7 +43,12 @@ def many_recipes(request, user_pk):
         else: 
             recipes = Recipe.objects.filter(Q(private=False) | Q(owner=user_pk))
         recipe_serializer = RecipeOverview_GETSerializer(recipes, many=True)
-        return Response(recipe_serializer.data)
+        recipes_data = recipe_serializer.data
+        for ele in recipes_data: 
+            user = User.objects.get(pk=ele['owner'])
+            user_serializer = Username_GetSerializer(user)
+            ele['owner_username'] = user_serializer.data['username']
+        return Response(recipes_data)
     if request.method == 'POST':
         # this is a post because get requests do not allow a body to be sent
         if "specifiedItems" in request.data:

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import moment from 'moment';
-import { ActivityIndicator, FlatList, Platform, ScrollView, TouchableWithoutFeedback} from 'react-native';
+import { ActivityIndicator, Animated, FlatList, Platform, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
 import FridgeItem from '../components/FridgeItem'
 import { fridgeItemType } from '../objectTypes'
@@ -22,6 +22,7 @@ interface State {
   isLoading: boolean
   updateLoading: boolean
   errorText: string
+  bounceValue: Animated.Value
   token: string
   user_id: string
   trigger: boolean
@@ -71,6 +72,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       isLoading: true, 
       updateLoading: false,
       errorText: '',
+      bounceValue: new Animated.Value(0),
       token: '',
       user_id: '',
       trigger: false,
@@ -123,7 +125,17 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         user_id: setUserID
       })
     }
-
+    if (this.state.fridgeItems.length === 0) {
+      Animated.spring(
+        this.state.bounceValue, {
+          toValue: -7,
+          friction: 0,
+          tension: 20,
+          useNativeDriver: true
+        }
+      ).start();
+    }
+  
     // get fridge_data and wasted_count and eaten_count
     await AsyncStorage.getItem('@fridge_data')
       .then((data) => { 
@@ -593,8 +605,6 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     )
   }
 
-
-
   EditDialog() {
     return (
       <View>
@@ -698,6 +708,8 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
   render() {
     if (this.state.isLoading) return this.IsLoadingRender()
     if (this.state.errorText !== '') return this.errorMessage()
+
+    // if (this.state.fridgeItems.length === 0) this.bounceIcon()
     
     return (
       <View style={styling.container}>
@@ -713,7 +725,13 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
             <TouchableWithoutFeedback disabled={this.state.updateLoading} onPress={() => {
               this.props.navigation.navigate('AddFridgeItemScreen', {trigger: this.state.trigger})
               }}>
-              <AntDesign name="plus" style={styling.iconSize} color="black"/>
+              {(this.state.fridgeItems.length !== 0) ? (
+                <AntDesign name="plus" style={styling.iconSize} color="black"/>
+              ) : (
+                <Animated.View style={{transform: [ {translateY: this.state.bounceValue} ]}}>
+                  <AntDesign name="plus" style={[styling.largeIconSize]} color="#1ad59b"/>
+                </Animated.View>
+              )}
             </TouchableWithoutFeedback>
           </View>
         </View>

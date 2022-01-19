@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
-import { Fontisto, Ionicons } from '@expo/vector-icons';
+import { Fontisto, Ionicons, AntDesign } from '@expo/vector-icons';
 import { HomeParamList, ProfileParamList, SearchParamList } from '../types'
 import { Image, Text, View } from '../components/Themed';
 import { fridgeItemType, recipeEntireType, shoppingListItemType } from '../objectTypes'
@@ -42,6 +42,7 @@ interface State {
     recipe: recipeEntireType
     all_foods: Array<any>
     saved: boolean
+    signifier: boolean
     shoppingList: Array<shoppingListItemType>
     listAlert: {
       visible: boolean
@@ -80,6 +81,7 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
       },
       all_foods: [],
       saved: false,
+      signifier: false,
       shoppingList: [],
       listAlert: {
         visible: false,
@@ -371,13 +373,16 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
         }
       })
     }
+
+    await this.setState({ signifier: true})
+    setTimeout(() => this.setState({signifier: false}), 500)
     
-      // set changes to AsyncStorage
-      try {
-        AsyncStorage.setItem('@shopping_list', JSON.stringify(this.state.shoppingList))
-      } catch (e) {
-        console.error(e)
-      } 
+    // set changes to AsyncStorage
+    try {
+      AsyncStorage.setItem('@shopping_list', JSON.stringify(this.state.shoppingList))
+    } catch (e) {
+      console.error(e)
+    } 
   }
 
   IsLoadingRender() {
@@ -543,6 +548,10 @@ export default class IndividualRecipeScreen extends React.Component<Props, State
                 unlisted: false,
               } })}} />
             <Dialog.Button disabled={this.state.updateLoading} label="Add" onPress={this.addToShoppingList} />
+          </Dialog.Container>
+          <Dialog.Container visible={this.state.signifier} contentStyle={{opacity: 0.5}}>
+            <Dialog.Title>Shopping List Item Added</Dialog.Title>
+            <AntDesign name="check" style={styling.signifierIcon}/>
           </Dialog.Container>
     </View>
     );

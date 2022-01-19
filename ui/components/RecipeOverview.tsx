@@ -19,6 +19,7 @@ interface State {
   updateLoading: boolean
   recipe_id: string
   recipe_name: string
+  owner_username: string
   image: string
   dietaryPreferences: Array<{
     diet_id: number,
@@ -35,6 +36,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
       updateLoading: this.props.updateLoading,
       recipe_id: this.props.recipe.recipe_id,
       recipe_name: this.props.recipe.recipe_name,
+      owner_username: this.props.recipe.owner_username,
       image: this.props.recipe.image,
       dietaryPreferences: this.props.recipe.diets,
       saved: this.props.saved
@@ -52,6 +54,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
         updateLoading: this.props.updateLoading,
         recipe_id: this.props.recipe.recipe_id,
         recipe_name: this.props.recipe.recipe_name,
+        owner_username: this.props.recipe.owner_username,
         image: this.props.recipe.image,
         dietaryPreferences: this.props.recipe.diets,
         saved: this.props.saved
@@ -91,9 +94,11 @@ export default class RecipeOverview extends React.Component<Props, State> {
           </View>
           <View>
             <Text style={styling.overviewName}>{this.state.recipe_name}</Text>
+            <Text style={styling.ownerSpacing}>{this.state.owner_username}</Text>
           </View>
         </TouchableWithoutFeedback>
         </View>
+        <View style={styling.flexRow}>
             <View style={styling.iconContainer}> 
               <View style={styling.iconSpacing}>
                 <TouchableWithoutFeedback disabled={this.state.updateLoading} onPress={this.OnPressSave}>
@@ -105,7 +110,7 @@ export default class RecipeOverview extends React.Component<Props, State> {
                   <MaterialIcons name="clear" style={styling.iconSize} color="black"/>
                 </TouchableWithoutFeedback>
               </View>
-              
+            </View>
             </View>
       </View>
     );

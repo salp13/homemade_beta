@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ActivityIndicator, StyleSheet, FlatList, Platform, TouchableWithoutFeedback, TouchableNativeFeedbackBase } from 'react-native';
 import { foodItemType } from '../objectTypes'
 import { RouteProp } from '@react-navigation/native';
+import { AntDesign } from '@expo/vector-icons'; 
 import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { SearchBar, Text, View, Image } from '../components/Themed';
 import { ShoppingListParamList } from '../types'
@@ -29,6 +30,7 @@ interface State {
   shoppingListItems: Array<any>
   unlisted_food_image: string
   visible: boolean
+  signifier: boolean
   quantity: string
   current_item_name: string
   current_item_food_id: string
@@ -68,6 +70,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       shoppingListItems: [],
       unlisted_food_image: '',
       visible: false,
+      signifier: false,
       quantity: "1",
       current_item_name: "",
       current_item_food_id: "",
@@ -299,6 +302,9 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         add_to_existing: false,
       })
    }
+
+   await this.setState({ signifier: true})
+   setTimeout(() => this.setState({signifier: false}), 500)
     
     try {
       AsyncStorage.setItem('@shopping_list', JSON.stringify(this.state.shoppingListItems))
@@ -424,6 +430,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
             <Dialog.Button disabled={this.state.updateLoading} label="Add" onPress={this.saveItem} />
           </Dialog.Container>
         </View>
+        <View>
+          <Dialog.Container visible={this.state.signifier} contentStyle={{opacity: 0.5}}>
+            <Dialog.Title>Shopping List Item Added</Dialog.Title>
+            <AntDesign name="check" style={styling.signifierIcon}/>
+          </Dialog.Container>
+          </View>
       </View>
     );
   }

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ActivityIndicator, FlatList, Platform, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { foodItemType } from '../objectTypes'
 import { FridgeParamList } from '../types'
+import { AntDesign } from '@expo/vector-icons'; 
 import { RouteProp } from '@react-navigation/native';
 import {SearchBar as SearchBarElement} from 'react-native-elements'
 import { SearchBar, Text, View, Image } from '../components/Themed';
@@ -30,6 +31,7 @@ interface State {
   fridgeItems: Array<any>
   unlisted_food_image: string
   visible: boolean
+  signifier: boolean
   quantity: string
   current_item_name: string
   current_item_food_id: string
@@ -69,6 +71,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       fridgeItems: [],
       unlisted_food_image: '',
       visible: false,
+      signifier: false,
       quantity: "1",
       current_item_name: "",
       current_item_food_id: "",
@@ -234,7 +237,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       current_item_name: "",
       current_item_food_id: "",
       visible: false,
-      add_to_existing: true,
+      add_to_existing: true
     });
   }
 
@@ -332,7 +335,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         add_to_existing: true,
       })
     }
-    
+
     // hit api to increment user's total items by 1
     const metric_data = await fetch(`https://homemadeapp.azurewebsites.net/homemade/metric_data/${this.state.user_id}`, {
       method: 'PATCH',
@@ -357,7 +360,11 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
         console.error(error);
         this.setState({ errorText: 'Could not load at this time. Please check you connection or try again later'})
       });
-    
+
+      await this.setState({ signifier: true})
+      setTimeout(() => this.setState({signifier: false}), 500)
+
+
       // set changes to AsyncStorage
       try {
         AsyncStorage.setItem('@fridge_data', JSON.stringify(this.state.fridgeItems))
@@ -486,6 +493,12 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
             <Dialog.Button disabled={this.state.updateLoading} label="Add" onPress={this.saveItem} />
           </Dialog.Container>
         </View>
+        <View>
+          <Dialog.Container visible={this.state.signifier} contentStyle={{opacity: 0.5}}>
+            <Dialog.Title>Fridge Item Added</Dialog.Title>
+            <AntDesign name="check" style={styling.signifierIcon}/>
+          </Dialog.Container>
+          </View>
       </View>
     );
   }

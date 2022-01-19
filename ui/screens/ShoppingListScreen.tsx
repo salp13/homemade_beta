@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, FlatList, ScrollView, TouchableWithoutFeedback, Vibration } from 'react-native';
+import { ActivityIndicator, Animated, Platform, FlatList, ScrollView, TouchableWithoutFeedback, Vibration } from 'react-native';
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
 import DraggableFlatList from 'react-native-draggable-flatlist'
 import { RouteProp } from '@react-navigation/native';
@@ -23,6 +23,7 @@ interface State {
   isLoading: boolean
   updateLoading: boolean
   errorText: string
+  bounceValue: Animated.Value
   token: string
   user_id: string
   trigger: boolean
@@ -76,6 +77,7 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
       isLoading: true,
       updateLoading: false,
       errorText: '',
+      bounceValue: new Animated.Value(0),
       token: '', 
       user_id: '', 
       trigger: false,
@@ -130,6 +132,17 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
         token: setToken,
         user_id: setUserID
       })
+    }
+
+    if (this.state.fridgeItems.length === 0) {
+      Animated.spring(
+        this.state.bounceValue, {
+          toValue: -7,
+          friction: 0,
+          tension: 20,
+          useNativeDriver: true
+        }
+      ).start();
     }
 
     await AsyncStorage.getItem('@food_groups')
@@ -734,7 +747,13 @@ export default class ShoppingListScreen extends React.Component<Props, State, Ar
                 </View>
                 <View style={styling.addButton}>
                   <TouchableWithoutFeedback disabled={this.state.updateLoading} onPress={() => this.props.navigation.navigate('AddShoppingListItemScreen', { orderNumber: this.state.shoppingListItems.length, trigger: this.state.trigger })}>
+                  {(this.state.shoppingListItems.length !== 0) ? (
                     <AntDesign name="plus" style={styling.iconSize} color="black"/>
+                  ) : (
+                    <Animated.View style={{transform: [ {translateY: this.state.bounceValue} ]}}>
+                      <AntDesign name="plus" style={[styling.largeIconSize]} color="#1ad59b"/>
+                    </Animated.View>
+                  )}
                   </TouchableWithoutFeedback>
                 </View>
               </View>

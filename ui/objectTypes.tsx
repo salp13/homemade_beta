@@ -43,6 +43,7 @@ export type shoppingListItemType = {
 export type recipeType = {
     recipe_id: string
     recipe_name: string
+    owner_username: string
     image: string
     diets: Array<{
       diet_id: number
