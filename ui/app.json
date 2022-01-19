@@ -26,11 +26,16 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Give homemade permission to save photos",
         "NSCameraUsageDescription": "Give homemade permission to access your camera",
-        "NSMicrophoneUsageDescription": "Give homemade permission to use your microphone"
+        "NSMicrophoneUsageDescription": "Give homemade permission to use your microphone",
+        "GADApplicationIdentifier": "ca-app-pub-7673983151241274~3636630167"
       }
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
-    }
+    },
+    "android": {
+      "package": "com.homemade.homemadeapp"
+    },
+    "entryPoint": "node_modules/expo/AppEntry.js"
   }
 }
