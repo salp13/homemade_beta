@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, StyleSheet, FlatList, Platform, TouchableWithoutFeedback, SectionList} from 'react-native';
+import { ActivityIndicator, StyleSheet, FlatList, Platform, RefreshControl, TouchableWithoutFeedback, SectionList} from 'react-native';
 import FilterModal from '../components/FilterModal'
 import { filterObjectType, recipeType } from '../objectTypes'
 import { MaterialIcons } from '@expo/vector-icons'; 
@@ -23,6 +23,7 @@ interface State {
   errorText: string
   token: string
   user_id: string
+  refreshing: boolean
   search: string
   recipes: Array<recipeType>
   dismissed: Set<string>
@@ -57,6 +58,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       errorText: '',
       token: '', 
       user_id: '', 
+      refreshing: false,
       search: '',
       recipes: [],
       dismissed: new Set(),
@@ -81,6 +83,7 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
     this.IsLoadingRender = this.IsLoadingRender.bind(this)
     this.RecipeRender = this.RecipeRender.bind(this)
     this.errorMessage = this.errorMessage.bind(this)
+    this.OnRefresh = this.OnRefresh.bind(this)
   }
 
   async componentDidMount() {
@@ -179,6 +182,11 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
       recipes: this.arrayholder,
       search: '',
     });
+  }
+
+  OnRefresh() {
+    this.setState({refreshing: true})
+    setTimeout(() => {this.setState({refreshing: false})}, 1000)
   }
 
   onPressFilter() {
@@ -389,6 +397,9 @@ export default class FridgeScreen extends React.Component<Props, State, Arrayhol
           numColumns={2}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={this.state.refreshing} onRefresh={this.OnRefresh} />
+          }
           ItemSeparatorComponent={() => (<View style={styling.userInfoBuffer}></View>)}
           data={this.state.recipes.filter((recipe) => {return !this.state.dismissed.has(recipe.recipe_id)})} 
           renderItem={({item}) => this.RecipeRender(item)}

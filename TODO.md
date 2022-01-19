@@ -6,10 +6,8 @@
     - one button on recipe to add all ingredients to shopping list
 * Small Functionality
     - createrecipescreen ingredient + direction input should be width of screen so you can onclick anywhere to type
-    - display recipe owner in recipe overview
     - unsaving recipe from individual recipe within profile screen should render update on goback to profile screen
     - render account name change on goback from account screen
-    - pull down hard to reload 
     - legality of icons
 
 

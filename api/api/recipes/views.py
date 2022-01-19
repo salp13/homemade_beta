@@ -15,7 +15,6 @@ import json
 
 
 @api_view(['get', 'post'])
-@permission_classes((AllowAny, ))
 def many_recipes(request, user_pk):
     if request.method == 'GET':
         if request.query_params:
