@@ -85,7 +85,12 @@ def many_recipes(request, user_pk):
             else: 
                 recipes = Recipe.objects.filter(Q(private=False) | Q(owner=user_pk))
             recipe_serializer = RecipeOverview_GETSerializer(recipes, many=True)
-            return Response(recipe_serializer.data, status=status.HTTP_201_CREATED)
+            recipes_data = recipe_serializer.data
+            for ele in recipes_data: 
+                user = User.objects.get(pk=ele['owner'])
+                user_serializer = Username_GetSerializer(user)
+                ele['owner_username'] = user_serializer.data['username']
+            return Response(recipes_data, status=status.HTTP_201_CREATED)
         else:
             recipe = request.data.dict()['recipe']
             recipe_json = json.loads(recipe)
