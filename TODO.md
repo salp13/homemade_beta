@@ -1,9 +1,9 @@
 ## TO BE READY FOR APP STORE 
 * Features
     - run ads
-    - infinite scroll for recipes -- account for higher load
     - one button to add all items in shopping list to fridge
     - one button on recipe to add all ingredients to shopping list
+    - infinite scroll for recipes -- account for higher load
 * Small Functionality
     - createrecipescreen ingredient + direction input should be width of screen so you can onclick anywhere to type
     - unsaving recipe from individual recipe within profile screen should render update on goback to profile screen
